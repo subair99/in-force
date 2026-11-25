@@ -180,6 +180,8 @@ def test_build_hash_ignores_line_endings(tmp_path):
     crlf = tmp_path / "crlf"
     shutil.copytree(RULES, lf)
     shutil.copytree(RULES, crlf)
+    for f in lf.glob("*.yaml"):  # the checkout may already be CRLF (Windows): build both forms explicitly
+        f.write_bytes(f.read_bytes().replace(b"\r\n", b"\n"))
     for f in crlf.glob("*.yaml"):
-        f.write_bytes(f.read_bytes().replace(b"\n", b"\r\n"))
+        f.write_bytes(f.read_bytes().replace(b"\r\n", b"\n").replace(b"\n", b"\r\n"))
     assert loader.build_hash(lf) == loader.build_hash(crlf)
