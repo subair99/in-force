@@ -21,7 +21,7 @@ make install        # Windows without make: python -m pip install -e ".[dev,embe
 make demo           # Windows without make: inforce load --allow-unverified; inforce demo --fast
 ```
 
-No API keys and no network beyond the package install. `make demo` runs the whole story on a temporary copy of a synthetic payroll repo and checks each step:
+If `python3 -m venv` fails on Debian/Ubuntu, install `python3-venv` (or use `uv venv --python 3.11 --seed .venv`). No API keys and no network beyond the package install. `make demo` runs the whole story on a temporary copy of a synthetic payroll repo and checks each step:
 
 ```
   PASS  law pack: 17 rules loaded
