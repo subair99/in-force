@@ -245,20 +245,21 @@ FIXTURE = [
     " (po:Provision {akn:'p/old', validTo: date('2026-01-01')}),"
     " (pn:Provision {akn:'p/new', validFrom: date('2026-01-01')}),"
     " (ps:Provision {akn:'p/saver', validFrom: date('2026-01-01')}),"
-    " (ro:Rule {id:'r/old', text:'old band'}), (rn:Rule {id:'r/new', text:'new band'}),"
+    " (ro:Rule {id:'r/old', key:'r/old', text:'old band'}), (rn:Rule {id:'r/new', text:'new band'}),"
     " (g:Grant {id:'g/1', title:'pioneer'}),"
     " (a:Artifact {id:'paye.py::BANDS'}), (t:Artifact {id:'tests/test_paye.py'}),"
     " (old)-[:CONTAINS]->(po), (nta)-[:CONTAINS]->(pn), (nta)-[:CONTAINS]->(ps),"
     " (nta)-[:REPEALS {on: date('2026-01-01')}]->(old),"
     " (po)-[:SETS]->(ro), (pn)-[:SETS]->(rn), (ro)-[:REPLACED_BY]->(rn),"
     " (g)-[:GRANTED_UNDER]->(po), (ps)-[:SAVES]->(g),"
-    " (a)-[:ENCODES]->(ro), (a)<-[:TESTED_BY]-(t)",
+    " (a)-[:ENCODES]->(ro), (a)-[:TESTED_BY]->(t),"
+    " (old)-[:FROM]->(:Source {url: 'u'})",
 ]
 
 QUERY_CASES = {
     "status_on": ({"akn": "p/old", "on": "2026-03-01"}, lambda r: r[0]["status"] == "REPEALED"),
-    "stale_artifacts": ({"on": "2026-03-01"},
-                        lambda r: r and r[0]["artifact"] == "paye.py::BANDS" and r[0]["replacement"] == ["new band"]),
+    "stale_artifacts": ({"stale": ["r/old"]}, lambda r: r and r[0]["artifact"] == "paye.py::BANDS"),
+    "ripple": ({"ids": ["paye.py::BANDS"]}, lambda r: r and r[0]["alsoCheck"] == ["tests/test_paye.py"]),
     "fallout": ({"repealed": "i/old", "on": "2026-03-01"}, lambda r: r and r[0]["verdict"] == "SAVED"),
     "keystones": ({}, lambda r: r and r[0]["weight"] >= 1),
 }

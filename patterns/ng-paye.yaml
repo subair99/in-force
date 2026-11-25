@@ -14,17 +14,27 @@ constants:
   - name_regex: 'CGT_RATE'
     value_equals: 0.10
     rule: ng.cgt.company.old
+  # 2026 rules, so fixed code links to the law it now follows
+  - name_regex: '^(PIT|PAYE)_BANDS?(_\d{4})?$'
+    value_contains: [800000, 0.0]
+    rule: ng.pit.band1.2026
+  - name_regex: '^(PIT|PAYE)_BANDS?(_\d{4})?$'
+    value_contains: [2200000, 0.15]
+    rule: ng.pit.band2.2026
+  - name_regex: '^RENT_RELIEF'
+    rule: ng.pit.rent_relief.2026
+  - name_regex: '^(CIT|COMPANY_TAX)_RATE$'
+    value_equals: 0.30
+    rule: ng.cgt.company.2026
 
-text:   # comments, markdown, html templates
-  - regex: '(?i)consolidated\s+relief\s+allowance|\bCRA\b'
-    rule: ng.pit.cra.old
-  - regex: '(?i)personal\s+income\s+tax\s+act|\bPITA\b'
-    cites_instrument: TODO/ng/act/pita
-  - regex: '(?i)capital\s+gains\s+tax\s+act|\bCGTA\b'
-    cites_instrument: TODO/ng/act/cgta
+# Documents, templates and answers are read with the same patterns as `inforce check`
+# (patterns/ng-citations.yaml), so a citation means the same thing everywhere.
 
+# Artifact kind by path; the first matching kind wins, in this order.
 file_globs:
+  test: ['tests/**/*.py', '**/test_*.py']
   code: ['**/*.py']
-  docs: ['**/*.md', '**/*.html', '**/*.txt']
-  tests: ['tests/**/*.py', '**/test_*.py']
-  ignore: ['.inforce/**', '.git/**', '**/__pycache__/**']
+  answer: ['answers/**/*.md']
+  template: ['**/*.html']
+  doc: ['**/*.md', '**/*.txt']
+  ignore: ['.inforce/**', '.git/**', '**/__pycache__/**', '.venv/**', 'README.md']

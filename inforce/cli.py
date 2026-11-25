@@ -166,6 +166,81 @@ def _print_check(result: dict, label: str) -> None:
 
 
 @app.command()
+def scan(
+    target: Path = typer.Argument(..., help="Repo or folder to scan."),
+    on: str = typer.Option(None, "--on", help=ON_HELP),
+    as_json: bool = typer.Option(False, "--json", help="Print the JSON envelope (for agents)."),
+    law_pack: Path = typer.Option(LAW_PACK, "--law", help=LAW_HELP),
+) -> None:
+    """Find code, tests and documents resting on repealed law. Writes <dir>/.inforce/project.rl. Exit 3 if stale."""
+    from .scan import scan as run_scan
+
+    on = _on(on)
+    if not target.is_dir():
+        err.print(f"[red]{target} is not a directory[/red]")
+        raise typer.Exit(1)
+    try:
+        result = run_scan(target, on, law_pack, log=_log)
+    except StoreLocked as exc:
+        raise _locked(exc) from None
+    if as_json:
+        print(json.dumps(result, indent=2, ensure_ascii=False, default=str))
+    else:
+        _print_scan(result, str(target))
+    if result["verdict"] == "STALE":
+        raise typer.Exit(EXIT_STALE)
+
+
+def _short(aid: str) -> str:
+    return aid.split("::")[-1] if "::" in aid else aid.rsplit("/", 1)[-1]
+
+
+def _chain_text(chain: list[dict]) -> str:
+    if not chain:
+        return ""
+    words = {"USED_BY": "used by", "TESTED_BY": "tested by"}
+    out = _short(chain[0]["source"])
+    for step in chain:
+        out += f" →{words.get(step['type'], step['type'])}→ {_short(step['target'])}"
+    return out
+
+
+def _print_scan(result: dict, label: str) -> None:
+    arts = result["artifacts"]
+    direct = [a for a in arts if a["status"] == "STALE" and not a["via"]]
+    inherited = [a for a in arts if a["status"] == "STALE" and a["via"]]
+    suspect = [a for a in arts if a["status"] == "SUSPECT"]
+    console.print(f"[bold]{label}[/bold] on {result['on']}: {_v(result['verdict'])}  "
+                  f"({len(direct)} rest on repealed law, {len(inherited)} use or test them, "
+                  f"{len(suspect)} suspect, {len(arts) - len(direct) - len(inherited) - len(suspect)} current)")
+    if direct:
+        t = Table(title="STALE: encodes or cites repealed law", title_justify="left")
+        for col in ("artifact", "line", "rests on", "ended", "now (successor)"):
+            t.add_column(col)
+        for a in direct:
+            for n, b in enumerate(sorted(a["because"], key=lambda b: (b["line"] or 0, b["target"]))):
+                t.add_row(a["id"] if n == 0 else "", str(b["line"] or ""), b["rule"] or b["target"],
+                          b["endedOn"] or "", b["successor"] or "")
+        console.print(t)
+    if inherited:
+        t = Table(title="ALSO CHECK: uses or tests the above", title_justify="left")
+        t.add_column("artifact")
+        t.add_column("why")
+        for a in inherited:
+            t.add_row(a["id"], _chain_text(a["chain"]) or ", ".join(a["via"]))
+        console.print(t)
+    if suspect:
+        console.print("[yellow]SUSPECT[/yellow] (rests on unverified or unrecognised law): "
+                      + ", ".join(a["id"] for a in suspect))
+    if any(a["status"] == "STALE" for a in arts):
+        console.print("[yellow]Rules shown are not yet verified against the Act's text.[/yellow]")
+    for w in result.get("warnings", []):
+        console.print(f"[yellow]warning[/yellow] {w}")
+    console.print(f"[dim]Project graph: {result['store']}[/dim]")
+    footer()
+
+
+@app.command()
 def fallout(
     instrument: str = typer.Argument(..., help="Repealed Act: akn or short name (e.g. IDITRA)."),
     on: str = typer.Option(None, "--on", help=ON_HELP),
