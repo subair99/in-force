@@ -48,14 +48,38 @@ def _where(a: dict[str, Any]) -> str:
 
 
 def _truth_rows(becauses: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    seen, rows = set(), []
-    for b in becauses:
+    """One row per old rule, except that old rules replaced together by one new scale share a row."""
+    seen, rows, by_scale = set(), [], {}
+    for b in sorted(becauses, key=lambda b: b.get("rule") or b["target"]):
         if b["target"] in seen:
             continue
         seen.add(b["target"])
-        rows.append({"was": b.get("rule") or b["target"], "ref": b["target"], "endedOn": b.get("endedOn"),
-                     "now": b.get("successor"), "nowRef": b.get("successorRef")})
+        was = b.get("rule") or b["target"]
+        if b.get("scale") and b.get("successorRef") in by_scale:
+            row = by_scale[b["successorRef"]]
+            row["was"] += f"; {was}"
+            row["refs"].append(b["target"])
+            continue
+        row = {"was": was, "ref": b["target"], "refs": [b["target"]], "endedOn": b.get("endedOn"),
+               "now": b.get("successor"), "nowRef": b.get("successorRef"),
+               "scale": b.get("scale"), "related": b.get("related", [])}
+        if b.get("scale"):
+            by_scale[b["successorRef"]] = row
+        rows.append(row)
     return rows
+
+
+def _merge_replace(becauses: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """old -> new lines; old rules replaced by the same thing (e.g. one new scale) share a line."""
+    out: dict[Any, dict[str, Any]] = {}
+    for b in sorted(becauses, key=lambda b: b.get("rule") or b["target"]):
+        key = b.get("successorRef") or ("none", b["target"])
+        if key in out:
+            out[key]["was"] += f"; {b.get('rule')}"
+            continue
+        out[key] = {"line": b.get("line"), "was": b.get("rule"), "now": b.get("successor"),
+                    "nowRef": b.get("successorRef"), "related": b.get("related", [])}
+    return list(out.values())
 
 
 def brief_file(path: Path, root: Path, on: str, law_pack: str | Path, log=None) -> dict[str, Any] | None:
@@ -88,12 +112,10 @@ def brief_file(path: Path, root: Path, on: str, law_pack: str | Path, log=None) 
     for u in upstream:  # fix the source first: this file is stale because of it
         a = arts[u]
         recheck.append({"where": _where(a), "artifact": u, "action": "fix first (this file depends on it)",
-                        "replace": [{"was": b.get("rule"), "now": b.get("successor"), "nowRef": b.get("successorRef")}
-                                    for b in a["because"]]})
+                        "replace": _merge_replace(a["because"])})
     for a in direct:
         recheck.append({"where": _where(a) if a.get("line") else a["path"], "artifact": a["id"], "action": "update",
-                        "replace": [{"line": b["line"], "was": b.get("rule"), "now": b.get("successor"),
-                                     "nowRef": b.get("successorRef")} for b in a["because"]]})
+                        "replace": _merge_replace(a["because"])})
     for a in inherited:
         recheck.append({"where": _where(a), "artifact": a["id"],
                         "action": "re-check after the fix (uses or tests it)"})
@@ -115,7 +137,8 @@ def brief_text(text: str, on: str, law_pack: str | Path, label: str = "text", lo
     r = check_text(text, on, law_pack, log=log)
     stale = [i for i in r["items"] if i["verdict"] == "REPEALED"]
     truth = [{"was": i["claim"], "ref": i["ref"], "endedOn": i["endedOn"], "now": i["successor"],
-              "nowRef": i["successorRef"]} for i in stale]
+              "nowRef": i["successorRef"], "scale": i.get("successorScale"), "related": i.get("related", [])}
+             for i in stale]
     truth += [{"was": None, "ref": i["ref"], "endedOn": None, "now": i["claim"], "nowRef": i["ref"],
                "status": i["verdict"]} for i in r["items"] if i["verdict"] in ("IN_FORCE", "SAVED")]
     return {

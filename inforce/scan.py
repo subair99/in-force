@@ -32,7 +32,8 @@ from .store import Store, open_store
 PAYE_PATTERNS = PATTERNS_DIR / "ng-paye.yaml"
 KIND_ORDER = ("test", "code", "answer", "template", "doc")
 FOLLOW_IN = {"CONTAINS", "SETS", "REPEALS", "SAVES"}   # law closure: who sets / contains / ends / saves it
-FOLLOW_OUT = {"REPLACED_BY", "FROM"}                   # law closure: what replaced it, where it came from
+FOLLOW_OUT = {"REPLACED_BY", "SUCCEEDED_BY", "RELATED", "FROM"}  # what replaced it / relates to it, sources
+FOLLOW_OUT_OF_SUCCESSOR = {"SETS"}  # a provision that replaced an old one as a whole: copy its rules (the new scale)
 
 
 @cache
@@ -215,13 +216,15 @@ def find(root: Path, cfg: dict[str, Any] | None = None) -> Findings:
 def law_closure(seeds: set[str], rels: list[dict[str, Any]]) -> set[str]:
     keep = set(seeds)
     frontier = list(seeds)
+    successors = {r["t"] for r in rels if r["type"] == "SUCCEEDED_BY"}
     while frontier:
         k = frontier.pop()
         for r in rels:
             nxt = None
             if r["t"] == k and r["type"] in FOLLOW_IN:
                 nxt = r["s"]
-            elif r["s"] == k and r["type"] in FOLLOW_OUT:
+            elif r["s"] == k and (r["type"] in FOLLOW_OUT
+                                  or (k in successors and r["type"] in FOLLOW_OUT_OF_SUCCESSOR)):
                 nxt = r["t"]
             if nxt and nxt not in keep:
                 keep.add(nxt)
@@ -251,19 +254,26 @@ def _resolve_claims(lp: Store, entries: list[dict[str, Any]], on: str) -> list[d
     return rows
 
 
-def _law_slice(lp: Store, seeds: set[str]) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
-    """The law nodes and relationships needed to decide the status of `seeds` (and their successors)."""
-    nodes = lp.run("law_export_nodes")
-    rels = lp.run("law_export_rels")
-    keep = law_closure(seeds, rels)
-    return [n for n in nodes if n["key"] in keep], [r for r in rels if r["s"] in keep and r["t"] in keep]
+def _law_export(lp: Store) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    return lp.run("law_export_nodes"), lp.run("law_export_rels")
 
 
-def _copy_law(ps: Store, node_rows: list[dict[str, Any]], rel_rows: list[dict[str, Any]]) -> None:
+def _copy_law(ps: Store, law: tuple[list[dict[str, Any]], list[dict[str, Any]]], seeds: set[str]) -> set[str]:
+    """Refresh the project graph's copy of the law: the closure of `seeds` plus every law node
+    already copied in (so earlier answers keep their law). Relationships between law copies are
+    rebuilt from the current pack. Returns the keys copied."""
+    nodes, rels = law
+    pack_keys = {n["key"] for n in nodes}
+    existing = {r["key"] for r in ps.run("law_copy_keys")} & pack_keys
+    keep = law_closure(seeds | existing, rels)
+    node_rows = [n for n in nodes if n["key"] in keep]
+    rel_rows = [r for r in rels if r["s"] in keep and r["t"] in keep]
+    ps.run("clear_law_rels")
     if node_rows:
         ps.run("copy_law_nodes", rows=node_rows)
     if rel_rows:
         ps.run("copy_law_rels", rows=rel_rows)
+    return keep
 
 
 def project_store_path(root: str | Path) -> Path:
@@ -281,9 +291,9 @@ def scan(root: str | Path, on: str, law_pack: str | Path, log=None) -> dict[str,
     # Resolve document claims against the law pack, and export the law slice we need.
     with open_store(law_pack, read_only=True, log=log) as lp:
         claim_rows = _resolve_claims(lp, f.claims, on)
-        seeds = {e["rule"] for e in f.encodes} | {r["target"] for r in claim_rows if r["target"]}
-        node_rows, rel_rows = _law_slice(lp, seeds)
-    known_rules = {n["key"] for n in node_rows if n["label"] == "Rule"}
+        law_rows = _law_export(lp)
+    seeds = {e["rule"] for e in f.encodes} | {r["target"] for r in claim_rows if r["target"]}
+    known_rules = {n["key"] for n in law_rows[0] if n["label"] == "Rule"}
     missing = sorted({e["rule"] for e in f.encodes} - known_rules)
 
     out = project_store_path(root)
@@ -292,7 +302,7 @@ def scan(root: str | Path, on: str, law_pack: str | Path, log=None) -> dict[str,
         ps.run_script("schema")
         with ps.transaction():
             ps.run("clear_scan")
-            _copy_law(ps, node_rows, rel_rows)
+            _copy_law(ps, law_rows, seeds)
             ps.run("write_artifacts", rows=list(f.artifacts.values()))
             if f.encodes:
                 ps.run("write_encodes", rows=[e for e in f.encodes if e["rule"] in known_rules])
@@ -320,7 +330,7 @@ def record_answer(root: str | Path, answer_id: str, text: str, on: str, law_pack
     entries = [{"artifact": aid, "claim": c} for c in extract(text)]
     with open_store(law_pack, read_only=True, log=log) as lp:
         claim_rows = _resolve_claims(lp, entries, on)
-        node_rows, rel_rows = _law_slice(lp, {r["target"] for r in claim_rows if r["target"]})
+        law_rows = _law_export(lp)
 
     out = project_store_path(root)
     out.parent.mkdir(parents=True, exist_ok=True)
@@ -328,7 +338,7 @@ def record_answer(root: str | Path, answer_id: str, text: str, on: str, law_pack
         ps.run_script("schema")
         with ps.transaction():
             ps.run("clear_artifact", id=aid)
-            _copy_law(ps, node_rows, rel_rows)
+            _copy_law(ps, law_rows, {r["target"] for r in claim_rows if r["target"]})
             ps.run("write_artifacts", rows=[{"id": aid, "path": None, "symbol": None, "kind": "answer",
                                              "line": None, "origin": "agent"}])
             if claim_rows:
@@ -347,10 +357,15 @@ def evaluate(store: Store, on: str) -> dict[str, Any]:
     for t in store.run("law_targets"):
         if t["label"] == "Rule":
             r = law.rule_status(store, t["key"], on)
-            succ = r["successors"][0] if r and r["successors"] else None
-            targets[t["key"]] = {"status": r["status"], "endedOn": r["endedOn"], "rule": r["text"],
-                                 "successor": succ["text"] if succ else None,
-                                 "successorRef": succ["id"] if succ else None, "path": r["path"]}
+            succ = r["successors"][0] if r["successors"] else None
+            scale = r.get("scale")
+            targets[t["key"]] = {
+                "status": r["status"], "endedOn": r["endedOn"], "rule": r["text"],
+                "successor": succ["text"] if succ else (law.scale_text(scale) if scale else None),
+                "successorRef": succ["id"] if succ else (scale["provision"] if scale else None),
+                "scale": scale["rules"] if scale and not succ else None,
+                "related": [{"id": x["id"], "text": x["text"]} for x in r.get("related", [])],
+                "path": r["path"]}
         elif t["label"] == "Instrument":
             i = law.instrument_status(store, t["key"], on)
             targets[t["key"]] = {"status": i["status"], "endedOn": i["endedOn"], "rule": i["title"],
@@ -384,6 +399,7 @@ def evaluate(store: Store, on: str) -> dict[str, Any]:
             t = targets.get(b["target"], {})
             a["because"].append({**b, "rule": t.get("rule"), "endedOn": _d(t.get("endedOn")),
                                  "successor": t.get("successor"), "successorRef": t.get("successorRef"),
+                                 "scale": t.get("scale"), "related": t.get("related", []),
                                  "path": t.get("path", [])})
         a["alsoCheck"] = sorted(ripple.get(aid, []))
 

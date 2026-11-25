@@ -94,7 +94,8 @@ def test_scan_demo_flags_expected_artifacts(repo, law_pack):
     assert {a for a, x in arts.items() if x["status"] == "STALE" and x["via"]} == INHERITED
     assert (repo / ".inforce" / "project.rl").is_file()
     bands = arts["payroll/paye.py::PIT_BANDS_2025"]
-    assert {b["successorRef"] for b in bands["because"]} == {"ng.pit.band1.2026", "ng.pit.band2.2026"}
+    assert {b["successorRef"] for b in bands["because"]} == {"akn/ng/act/2025/7/sec_58"}
+    assert all(len(b["scale"]) == 6 for b in bands["because"])
     assert "tests/test_paye.py" in arts["payroll/paye.py::CRA_RATE"]["alsoCheck"]
 
 
@@ -189,3 +190,27 @@ def test_scan_cli_exit_code(repo, law_pack):
 
 def test_module_exports():
     assert scan_mod.FOLLOW_IN and scan_mod.FOLLOW_OUT
+
+
+def test_rescan_drops_links_withdrawn_from_the_law_pack(repo, law_pack):
+    """Law copies are refreshed: a REPLACED_BY removed from the pack must not survive in project.rl."""
+    path, _ = law_pack
+    scan(repo, "2026-03-01", path)
+    store = repo / ".inforce" / "project.rl"
+    conn = relate.connect(database=str(store))  # simulate a link left behind by an older law pack
+    conn.execute("MATCH (a:Rule {id: 'ng.pit.cra.old'}), (b:Rule {id: 'ng.pit.rent_relief.2026'}) "
+                 "MERGE (a)-[:REPLACED_BY]->(b)")
+    conn.close()
+    arts = by_id(scan(repo, "2026-03-01", path))
+    [cra] = arts["payroll/paye.py::CRA_RATE"]["because"]
+    assert cra["successorRef"] is None
+    assert [x["id"] for x in cra["related"]] == ["ng.pit.rent_relief.2026"]
+
+
+def test_project_graph_holds_the_whole_new_scale(repo, law_pack):
+    path, _ = law_pack
+    scan(repo, "2026-03-01", path)
+    with open_store(repo / ".inforce" / "project.rl", read_only=True) as s:
+        ids = {r["id"] for r in s.execute("MATCH (p:Provision {akn: 'akn/ng/act/2025/7/sec_58'})-[:SETS]->(r:Rule) "
+                                          "RETURN r.id AS id LIMIT 20")}
+    assert {"ng.pit.band3.2026", "ng.pit.band4.2026", "ng.pit.band5.2026", "ng.pit.top.2026"} <= ids

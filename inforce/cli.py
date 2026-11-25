@@ -160,6 +160,8 @@ def _print_check(result: dict, label: str) -> None:
     for n, i in enumerate(items, 1):
         verdict = _v(i["verdict"]) + ("" if i["verified"] else " *")
         succ = i["successor"] or ""
+        if not succ and i["verdict"] == "REPEALED":
+            succ = "no replacement" + (f" (related: {i['related'][0]['text']})" if i.get("related") else "")
         if succ and i["successorStatus"] and i["successorStatus"] != "IN_FORCE":
             succ += f" ({i['successorStatus']})"
         table.add_row(str(n), str(i["line"]), i["claim"], verdict, i["endedOn"] or "", succ)
@@ -283,8 +285,19 @@ def _print_brief(b: dict) -> None:
         console.print("  No repealed law found." if b["verdict"] != "STALE" else "")
     for t in b["truth"]:
         if t.get("was"):
-            now = f"{t['now']} [dim]({t['nowRef']})[/dim]" if t["now"] else "[magenta]no successor recorded[/magenta]"
-            console.print(f"  - {t['was']}: [red]ended {t['endedOn']}[/red]. Now: {now}{star}")
+            if t.get("scale"):
+                where = t["now"].split(" (whole scale)")[0]
+                console.print(f"  - {t['was']}: [red]ended {t['endedOn']}[/red]. Replaced as a whole by "
+                              f"{where} [dim]({t['nowRef']})[/dim]:{star}")
+                for r in t["scale"]:
+                    console.print(f"      {r['text']} [dim]({r['id']})[/dim]")
+            elif t["now"]:
+                console.print(f"  - {t['was']}: [red]ended {t['endedOn']}[/red]. Now: {t['now']} "
+                              f"[dim]({t['nowRef']})[/dim]{star}")
+            else:
+                console.print(f"  - {t['was']}: [red]ended {t['endedOn']}[/red], with no replacement.{star}")
+            for x in t.get("related") or []:
+                console.print(f"      related, not a successor: {x['text']} [dim]({x['id']})[/dim]")
         else:
             console.print(f"  - {t['now']}: [green]{t.get('status', 'IN_FORCE')}[/green]{star}")
     console.print("\n[bold]WHY[/bold]")
@@ -307,7 +320,9 @@ def _print_brief(b: dict) -> None:
         console.print(f"  {n}. {r['where']}  {_short(r['artifact'])}: {r['action']}")
         for x in r.get("replace", []):
             if x.get("was"):
-                console.print(f"       {x['was']}  ->  {x['now'] or '(no successor recorded)'}")
+                console.print(f"       {x['was']}  ->  {x['now'] or 'ended with no replacement: remove it'}")
+                for rel in x.get("related") or []:
+                    console.print(f"         related, not a successor: {rel['text']} ({rel['id']})")
     if b["unverified"]:
         console.print("\n[yellow]* the law pack's rules are not yet verified against the Act's text.[/yellow]")
     footer()

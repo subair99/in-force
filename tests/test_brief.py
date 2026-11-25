@@ -14,7 +14,10 @@ def test_file_brief_direct(repo, law_pack):  # noqa: F811
     path, _ = law_pack
     b = brief(str(repo / "payroll" / "paye.py"), "2026-03-01", path, repo=repo)
     assert b["verdict"] == "STALE"
-    assert {t["nowRef"] for t in b["truth"]} == {"ng.pit.band1.2026", "ng.pit.band2.2026", "ng.pit.rent_relief.2026"}
+    rows = {t["nowRef"]: t for t in b["truth"]}
+    assert set(rows) == {"akn/ng/act/2025/7/sec_58", None}  # the new PIT scale; the CRA has no successor
+    assert sorted(rows["akn/ng/act/2025/7/sec_58"]["refs"]) == ["ng.pit.band1.old", "ng.pit.band2.old"]
+    assert [x["id"] for x in rows[None]["related"]] == ["ng.pit.rent_relief.2026"]
     assert [r["artifact"] for r in b["rests_on_it"]] == ["payroll/payslip.py::build_payslip", "tests/test_paye.py"]
     assert b["recheck"][0]["where"] == "payroll/paye.py:4"  # in line order
     assert b["recheck"][0]["action"] == "update"
@@ -33,7 +36,7 @@ def test_question_brief_uses_check(law_pack):
     path, _ = law_pack
     b = brief("Is the CRA still 20% under PITA?", "2026-03-01", path)
     assert b["verdict"] == "STALE" and b["repo"] is None
-    assert {t["nowRef"] for t in b["truth"]} == {"ng.pit.rent_relief.2026", "akn/ng/act/2025/7"}
+    assert {t["nowRef"] for t in b["truth"]} == {None, "akn/ng/act/2025/7"}  # CRA: no replacement; PITA: NTA
 
 
 def test_repo_root_found_from_inforce_dir(repo, law_pack):  # noqa: F811
