@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import datetime as dt
 import os
+import re
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -47,6 +48,23 @@ class LoadReport:
     stubs: list[str] = field(default_factory=list)
 
 
+class _Yaml12BoolLoader(yaml.SafeLoader):
+    """SafeLoader where only true/false are booleans.
+
+    PyYAML follows YAML 1.1, where `on`, `off`, `yes` and `no` are booleans. Our
+    repeals use the key `on:`, which would silently become `True` and lose
+    every repeal date.
+    """
+
+
+_Yaml12BoolLoader.yaml_implicit_resolvers = {
+    k: [(tag, rx) for tag, rx in v if tag != "tag:yaml.org,2002:bool"]
+    for k, v in yaml.SafeLoader.yaml_implicit_resolvers.items()
+}
+_Yaml12BoolLoader.add_implicit_resolver(
+    "tag:yaml.org,2002:bool", re.compile(r"^(?:true|True|TRUE|false|False|FALSE)$"), list("tTfF"))
+
+
 def read_yaml(rules_dir: Path) -> dict[str, list[dict[str, Any]]]:
     """Merge every *.yaml under rules_dir into one dict of lists."""
     merged: dict[str, list[dict[str, Any]]] = {}
@@ -54,7 +72,7 @@ def read_yaml(rules_dir: Path) -> dict[str, list[dict[str, Any]]]:
     if not files:
         raise FileNotFoundError(f"no *.yaml files in {rules_dir}")
     for f in files:
-        doc = yaml.safe_load(f.read_text(encoding="utf-8")) or {}
+        doc = yaml.load(f.read_text(encoding="utf-8"), Loader=_Yaml12BoolLoader) or {}
         for key, items in doc.items():
             merged.setdefault(key, []).extend(items or [])
     return merged
@@ -162,10 +180,7 @@ def build_rows(data: dict[str, list[dict[str, Any]]], report: LoadReport) -> dic
     for e in data.get("grants", []):
         where = f"grant {e['id']}"
         gu = e.get("grantedUnder")
-        if gu in inst_akns:
-            w.append(f"{where}: grantedUnder names a whole instrument ({gu}); "
-                     "SPEC links grants to a provision, so `fallout` will not see it yet")
-        elif gu not in prov_akns:
+        if gu not in inst_akns | prov_akns:  # a grant may rest on a whole Act or one provision
             stub_provision(gu, where)
         grants.append({"id": e["id"], "title": e.get("title"), "grantedUnder": gu, "verified": v(e)})
     grant_ids = {g["id"] for g in grants}

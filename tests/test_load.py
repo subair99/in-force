@@ -83,3 +83,14 @@ def test_status_on_loaded_pack(law_pack, akn, on, expected):
     path, _ = law_pack
     with open_store(path, read_only=True) as s:
         assert s.run("status_on", akn=akn, on=on)[0]["status"] == expected
+
+
+def test_on_key_is_not_a_yaml11_boolean(law_pack):
+    """`on:` must stay a key (PyYAML would read it as True and drop every repeal date)."""
+    path, _ = law_pack
+    data = loader.read_yaml(RULES)
+    assert all("on" in r for r in data["repeals"])
+    assert all(r["verified"] is False for r in data["rules"])  # true/false still booleans
+    with open_store(path, read_only=True) as s:
+        rows = s.execute("MATCH ()-[r:REPEALS]->() RETURN count(r) AS n, count(r.on) AS dated LIMIT 1")
+    assert rows[0]["n"] == rows[0]["dated"] > 0
