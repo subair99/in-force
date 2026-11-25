@@ -129,3 +129,13 @@ def _instrument_path(row: dict[str, Any]) -> list[str]:
     if row.get("repealedBy"):
         path.append(f"<-REPEALS {row['endedOn']}- Instrument {row.get('repealedByShort') or row['repealedBy']}")
     return path
+
+
+def keystones(store: Store, on: str | dt.date) -> list[dict[str, Any]]:
+    """Rules a project graph rests on most (direct + downstream artifacts), with each rule's status on `on`."""
+    rows = store.run("keystones")
+    for r in rows:
+        st = rule_status(store, r["rule"], on)
+        r["status"] = st["status"] if st else "UNKNOWN"
+        r["verified"] = bool(st and st["verified"])
+    return rows

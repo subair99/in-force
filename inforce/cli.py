@@ -385,6 +385,45 @@ def fallout(
     footer()
 
 
+@app.command()
+def keystones(
+    target: Path = typer.Argument(..., help="Repo with a project graph (.inforce/project.rl)."),
+    on: str = typer.Option(None, "--on", help=ON_HELP),
+    as_json: bool = typer.Option(False, "--json", help="Print JSON."),
+) -> None:
+    """Rules the repo rests on most: artifacts that encode or cite each one, plus what uses or tests those."""
+    from .scan import project_store_path
+
+    on = _on(on)
+    ps = project_store_path(target)
+    if not ps.exists():
+        err.print(f"[red]{ps} not found; run `inforce scan {target}` first[/red]")
+        raise typer.Exit(1)
+    try:
+        with open_store(ps, read_only=True, log=_log) as store:
+            rows = law.keystones(store, on)
+    except StoreLocked as exc:
+        raise _locked(exc) from None
+    if as_json:
+        print(json.dumps({"on": on, "items": rows, "disclaimer": DISCLAIMER}, indent=2, ensure_ascii=False, default=str))
+        return
+    _print_keystones(rows, str(target), on)
+
+
+def _print_keystones(rows: list[dict], label: str, on: str) -> None:
+    t = Table(title=f"Keystones: the rules {label} rests on most (on {on})", title_justify="left")
+    for col in ("#", "rule", "status", "direct", "downstream", "weight", "for example"):
+        t.add_column(col, justify="right" if col in ("#", "direct", "downstream", "weight") else "left")
+    for n, r in enumerate(rows, 1):
+        examples = ", ".join(_short(x) for x in r["directArtifacts"][:3])
+        t.add_row(str(n), f"{r['text']}\n[dim]{r['rule']}[/dim]", _v(r["status"]) + ("" if r["verified"] else " *"),
+                  str(r["direct"]), str(r["downstream"]), str(r["weight"]), examples)
+    console.print(t if rows else "No rules linked yet: run `inforce scan` first.")
+    console.print("[dim]direct = encodes or cites the rule; downstream = uses or tests those, up to 3 hops. "
+                  "* unverified[/dim]")
+    footer()
+
+
 whatif_app = typer.Typer(help="Hypothetical changes, measured then rolled back.", no_args_is_help=True)
 app.add_typer(whatif_app, name="whatif")
 
@@ -464,8 +503,11 @@ def demo(
 
     on = _on(on)
     results: list[tuple[str, bool, str]] = []
+    counter = [0]
 
-    def step(n: int, title: str, why: str) -> None:
+    def step(title: str, why: str) -> None:
+        counter[0] += 1
+        n = counter[0]
         if not fast and n > 1:
             console.input("\n[dim]Press Enter for the next step...[/dim]")
         console.rule(f"[bold]{n}. {title}[/bold]")
@@ -478,7 +520,7 @@ def demo(
 
     try:
         repo = d.copy_demo()
-        step(1, "The law pack", f"{law_pack}: Nigeria's tax reform as a graph in Relate (single-file store).")
+        step("The law pack", f"{law_pack}: Nigeria's tax reform as a graph in Relate (single-file store).")
         with open_store(law_pack, read_only=True, log=_log) as store:
             counts = {r["label"]: r["n"] for r in store.run("law_counts")}
         console.print(", ".join(f"{k} {v}" for k, v in counts.items()))
@@ -486,24 +528,31 @@ def demo(
         expect("law pack", counts.get("Rule", 0) > 0, f"{counts.get('Rule', 0)} rules loaded")
 
         answer = repo / "answers" / "stale_answer.md"
-        step(2, "An AI answer written in 2025", f"inforce check {answer.relative_to(repo.parent)}")
+        step("An AI answer written in 2025", f"inforce check {answer.relative_to(repo.parent)}")
         r = check_text(answer.read_text(encoding="utf-8"), on, law_pack, log=_log)
         _print_check(r, "answers/stale_answer.md")
         expect("stale answer", r["verdict"] == "STALE",
                f"verdict {r['verdict']}, {sum(i['verdict'] == 'REPEALED' for i in r['items'])} claims rest on repealed law")
 
-        step(3, "The codebase", "inforce scan: code constants, functions, tests, docs and templates, linked to the law.")
+        step("The codebase", "inforce scan: code constants, functions, tests, docs and templates, linked to the law.")
         rep = run_scan(repo, on, law_pack, log=_log)
         _print_scan(rep, "demo/naira-payroll (copy)")
         n_stale = sum(a["status"] == "STALE" for a in rep["artifacts"])
         expect("stale repo", n_stale > 0, f"{n_stale} STALE artifacts")
 
-        step(4, "Before editing paye.py", "inforce brief: what an agent sees before it touches the file.")
+        step("Which rules does it rest on most?", "inforce keystones: direct plus downstream artifacts per rule.")
+        with open_store(repo / ".inforce" / "project.rl", read_only=True, log=_log) as store:
+            ks = law.keystones(store, on)
+        _print_keystones(ks, "demo/naira-payroll (copy)", on)
+        expect("keystones", bool(ks) and ks[0]["status"] == "REPEALED",
+               f"top keystone: {ks[0]['rule']} ({ks[0]['weight']} artifacts)" if ks else "none")
+
+        step("Before editing paye.py", "inforce brief: what an agent sees before it touches the file.")
         b = run_brief(str(repo / "payroll" / "paye.py"), on, law_pack, repo=repo, log=_log)
         _print_brief(b)
         expect("brief", b["verdict"] == "STALE" and bool(b["recheck"]), f"{len(b['recheck'])} items to re-check")
 
-        step(5, "The agent's fix, replayed", f"Edits from the recorded Claude Code session ({d.AGENT_LOG.name}), "
+        step("The agent's fix, replayed", f"Edits from the recorded Claude Code session ({d.AGENT_LOG.name}), "
              "applied to the copy, then a rescan. No model is called.")
         rp = d.replay_agent_fix(repo)
         console.print(f"Replayed {rp.edits} edits to {len(rp.files)} files: {', '.join(rp.files)}")
@@ -514,13 +563,13 @@ def demo(
         n_after = sum(a["status"] == "STALE" for a in rep2["artifacts"])
         expect("fixed repo", n_after == 0 and not rp.skipped, f"{n_stale} STALE before, {n_after} after")
 
-        step(6, "The rewritten answer", "inforce check on the answer the agent rewrote.")
+        step("The rewritten answer", "inforce check on the answer the agent rewrote.")
         r2 = check_text(answer.read_text(encoding="utf-8"), on, law_pack, log=_log)
         _print_check(r2, "answers/stale_answer.md (rewritten)")
         expect("fixed answer", r2["verdict"] != "STALE", f"verdict {r2['verdict']}")
 
         from .whatif import whatif_repeal
-        step(7, "What if the new PAYE scale were repealed?",
+        step("What if the new PAYE scale were repealed?",
              "inforce whatif repeal akn/ng/act/2025/7/sec_58 --repo <fixed copy>: measured in a transaction, "
              "then rolled back.")
         w = whatif_repeal("akn/ng/act/2025/7/sec_58", on, law_pack, repo=repo)
@@ -529,7 +578,7 @@ def demo(
         expect("what-if (repo)", bool(newly) and w["law"]["unchanged"] and w["repo"]["unchanged"],
                f"{len(newly)} artifacts would turn STALE; both stores restored")
 
-        step(8, "What if the savings clause went?",
+        step("What if the savings clause went?",
              "inforce whatif repeal akn/ng/act/2025/7/sec_182_2: existing pioneer certificates rest on it.")
         w2 = whatif_repeal("akn/ng/act/2025/7/sec_182_2", on, law_pack)
         _print_whatif(w2)
