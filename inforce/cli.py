@@ -525,9 +525,36 @@ def verify(
     summary: bool = typer.Option(False, "--summary", help="Print only the one-line verification status."),
     update_docs: list[Path] = typer.Option(None, "--update-docs",
                                            help="Rewrite the verify-status block in these files (repeatable)."),
+    sheet: Path = typer.Option(None, "--sheet", help="Write the checkbox sheet (e.g. docs/VERIFY.md); keeps ticks."),
+    apply: Path = typer.Option(None, "--apply", help="Set verified: true for the rows ticked in this sheet."),
+    dry_run: bool = typer.Option(False, "--dry-run", help="With --apply: show the diff, change nothing."),
     rules: Path = typer.Option(RULES_DIR, help="Directory of rule YAML files."),
 ) -> None:
     """Every law entry with its source and verified flag: the checklist for checking against the Act's text."""
+    from . import verify_sheet as vs
+
+    if sheet:
+        n = vs.write_sheet(rules, sheet)
+        console.print(f"Wrote {sheet}: {n} rows, grouped by Act and section. Tick rows, then run "
+                      f"`inforce verify --apply {sheet}`.")
+        return
+    if apply:
+        try:
+            r = vs.apply_ticks(apply, rules, dry_run=dry_run)
+        except RuntimeError as exc:
+            err.print(f"[red]Not applied; the YAML is unchanged: {exc}[/red]")
+            raise typer.Exit(1) from None
+        if r.diff:
+            console.print(r.diff, markup=False, highlight=False)
+        console.print(f"{'Would set' if dry_run else 'Set'} verified: true on {len(r.applied)} entries"
+                      + (f"; {len(r.already)} ticked rows were already verified" if r.already else "")
+                      + ("." if not dry_run else " (dry run: nothing written)."))
+        for u in r.unknown:
+            console.print(f"[yellow]ticked row not found in the YAML (left alone): {u}[/yellow]")
+        if r.applied and not dry_run:
+            console.print("Next: `inforce load --allow-unverified --force`, `inforce export`, and "
+                          "`inforce verify --update-docs README.md --update-docs docs/DEVPOST.md`.")
+        return
     if summary or update_docs:
         line = loader.verify_summary(rules)
         for f in update_docs or []:
