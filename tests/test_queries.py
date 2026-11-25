@@ -26,7 +26,7 @@ def test_one_statement_and_bounded(name):
 
 
 READS = [n for n in FILES if n not in SCRIPTS and is_read((QUERY_DIR / n).read_text())]
-PARAMS = {"on": "2026-03-01", "value": 0.07, "rows": []}  # anything else gets a string
+PARAMS = {"on": "2026-03-01", "d": "2026-03-01", "value": 0.07, "rows": []}  # anything else gets a string
 
 
 @pytest.mark.skipif(RELATE is None, reason="relate CLI not installed")
