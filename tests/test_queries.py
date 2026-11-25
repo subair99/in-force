@@ -1,5 +1,6 @@
 """Every query file is one statement that Relate's own safe mode accepts."""
 import json
+import re
 import shutil
 import subprocess
 from importlib import resources
@@ -25,7 +26,7 @@ def test_one_statement_and_bounded(name):
 
 
 READS = [n for n in FILES if n not in SCRIPTS and is_read((QUERY_DIR / n).read_text())]
-PARAMS = {"on": "2026-03-01", "akn": "x", "repealed": "x"}
+PARAMS = {"on": "2026-03-01", "value": 0.07, "rows": []}  # anything else gets a string
 
 
 @pytest.mark.skipif(RELATE is None, reason="relate CLI not installed")
@@ -33,8 +34,7 @@ PARAMS = {"on": "2026-03-01", "akn": "x", "repealed": "x"}
 def test_cli_safe_mode_accepts_read_queries(name, law_pack):
     path, _ = law_pack
     args = [RELATE, "--database", str(path), "--read-only", "--safe", "--json"]
-    for k, v in PARAMS.items():
-        if f"${k}" in (QUERY_DIR / name).read_text():
-            args += ["--param", f"{k}={json.dumps(v)}"]
+    for k in sorted(set(re.findall(r"\$(\w+)", (QUERY_DIR / name).read_text()))):
+        args += ["--param", f"{k}={json.dumps(PARAMS.get(k, 'x'))}"]
     cp = subprocess.run(args + [(QUERY_DIR / name).read_text()], capture_output=True, text=True)
     assert cp.returncode == 0, cp.stdout[:400]

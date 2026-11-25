@@ -1,0 +1,46 @@
+# FICTIONAL law for the truth-rule tests. Not Nigerian law; ids use akn/test/.
+# Marked verified: true only so the loader runs without --allow-unverified.
+sources:
+  - {id: src, url: https://example.test/law, kind: act}
+
+instruments:
+  - {akn: akn/test/act/old, short: OLDA, title: Old Act, kind: act, verified: true}
+  - {akn: akn/test/act/new, short: NEWA, title: New Act, kind: act, commencesOn: 2026-01-01, verified: true}
+  - {akn: akn/test/act/inc, short: INCA, title: Incentives Act, kind: act, verified: true}
+
+repeals:
+  - {by: akn/test/act/new, target: akn/test/act/old, on: 2026-01-01, source: src, verified: true}
+  - {by: akn/test/act/new, target: akn/test/act/inc, on: 2026-01-01, source: src, verified: true}
+
+provisions:
+  # repealed only through its Act (no validTo of its own)
+  - {akn: akn/test/act/old/sec_1, instrument: akn/test/act/old, number: "1", summary: "Old band.", source: src, verified: true}
+  # repealed by its own validTo, earlier than the Act
+  - {akn: akn/test/act/old/sec_2, instrument: akn/test/act/old, number: "2", summary: "Old relief.", validTo: 2025-07-01, source: src, verified: true}
+  # saved until 2027-01-01 by new sec_9
+  - {akn: akn/test/act/old/sec_3, instrument: akn/test/act/old, number: "3", summary: "Old allowance.", source: src, verified: true}
+  # no validFrom: commencement comes from the Act
+  - {akn: akn/test/act/new/sec_1, instrument: akn/test/act/new, number: "1", summary: "New band.", source: src, verified: true}
+  - {akn: akn/test/act/new/sec_2, instrument: akn/test/act/new, number: "2", summary: "Newer band.", validFrom: 2026-07-01, source: src, verified: true}
+  - {akn: akn/test/act/new/sec_9, instrument: akn/test/act/new, number: "9", summary: "Savings.", source: src, verified: true}
+  - {akn: akn/test/act/inc/sec_5, instrument: akn/test/act/inc, number: "5", summary: "Grants.", source: src, verified: true}
+
+rules:
+  - {id: t.band.old, provision: akn/test/act/old/sec_1, text: "Band: 7%", topic: band, value: 0.07, unit: rate, source: src, verified: true}
+  - {id: t.band.mid, provision: akn/test/act/new/sec_1, text: "Band: 10%", topic: band, value: 0.10, unit: rate, source: src, verified: true}
+  - {id: t.band.new, provision: akn/test/act/new/sec_2, text: "Band: 12%", topic: band, value: 0.12, unit: rate, source: src, verified: true}
+  - {id: t.allow.old, provision: akn/test/act/old/sec_3, text: "Allowance: 5%", topic: allowance, value: 0.05, unit: rate, source: src, verified: true}
+  - {id: t.unver, provision: akn/test/act/new/sec_1, text: "Unchecked rule", topic: band, value: 0.5, unit: rate, source: src, verified: false}
+
+replacements:
+  - {old: t.band.old, new: t.band.mid, verified: true}
+  - {old: t.band.mid, new: t.band.new, verified: true}
+
+grants:
+  - {id: t.grant.saved, title: "Saved certificate", grantedUnder: akn/test/act/inc/sec_5, verified: true}
+  - {id: t.grant.fell, title: "Lapsed certificate", grantedUnder: akn/test/act/inc/sec_5, verified: true}
+  - {id: t.grant.act, title: "Act-level grant", grantedUnder: akn/test/act/inc, verified: true}
+
+savings:
+  - {saver: akn/test/act/new/sec_9, saves: akn/test/act/old/sec_3, until: 2027-01-01, source: src, verified: true}
+  - {saver: akn/test/act/new/sec_9, saves: t.grant.saved, until: null, source: src, verified: true}
