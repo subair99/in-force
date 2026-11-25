@@ -1,0 +1,110 @@
+# InForce law pack: Nigeria tax reform (seed)
+#
+# EVERY entry is verified: false. Values come from secondary commentary
+# (PwC, Chambers, KPMG, Mondaq, BusinessDay) and MUST be checked by a human
+# against the Act's text before verified is set to true.
+# Claude Code: do not edit values or flip `verified`. Add TODO comments instead.
+# Store summaries in our own words only. Never paste section text.
+
+sources:
+  - id: pwc-individual
+    url: https://taxsummaries.pwc.com/nigeria/individual
+    kind: commentary
+  - id: pwc-individual-dev
+    url: https://taxsummaries.pwc.com/nigeria/individual/significant-developments
+    kind: commentary
+  - id: chambers-cit-2026
+    url: https://chambers.com/practice-guides/guides/corporate-tax-2026/nigeria/trends-and-developments
+    kind: commentary
+  - id: kpmg-certified
+    url: https://kpmg.com/us/en/taxnewsflash/news/2026/01/tnf-nigeria-certified-versions-of-tax-reform-legislation-released-by-national-assembly.html
+    kind: commentary
+  - id: mondaq-nta-analysis
+    url: https://www.mondaq.com/nigeria/tax-authorities/1691528/beyond-the-news-a-deep-dive-into-the-nigeria-tax-laws-policy-analysis-of-the-2025-tax-reform-acts-part-1
+    kind: commentary
+  - id: businessday-pit
+    url: https://businessday.ng/?p=1096473
+    kind: commentary
+  - id: kpmg-pit
+    url: https://assets.kpmg.com/content/dam/kpmgsites/xx/pdf/2025/09/fa25-168.pdf.coredownload.inline.pdf
+    kind: commentary
+  - id: nta-text
+    url: TODO-official-gazette-or-certified-copy-url
+    kind: act
+
+instruments:
+  - akn: akn/ng/act/2025/7          # id format as used by judy.legal; confirm
+    short: NTA
+    title: Nigeria Tax Act, 2025
+    kind: act
+    assentedOn: 2025-06-26
+    commencesOn: 2026-01-01
+    versions:
+      - {version: gazetted, recordedAt: TODO, closedAt: 2026-01-06}   # TODO confirm gazette date
+      - {version: certified, recordedAt: 2026-01-06}                  # source: kpmg-certified
+  - akn: TODO/ng/act/pita
+    short: PITA
+    title: Personal Income Tax Act
+    kind: act
+  - akn: TODO/ng/act/cita
+    short: CITA
+    title: Companies Income Tax Act
+    kind: act
+  - akn: TODO/ng/act/cgta
+    short: CGTA
+    title: Capital Gains Tax Act
+    kind: act
+  - akn: TODO/ng/act/vata
+    short: VAT Act
+    title: Value Added Tax Act
+    kind: act
+  - akn: TODO/ng/act/iditra
+    short: IDITRA
+    title: Industrial Development (Income Tax Relief) Act
+    kind: act
+
+repeals:   # all repealed in full by the NTA from 1 Jan 2026 (source: chambers-cit-2026)
+  - {by: akn/ng/act/2025/7, target: TODO/ng/act/pita,   on: 2026-01-01, source: chambers-cit-2026, verified: false}
+  - {by: akn/ng/act/2025/7, target: TODO/ng/act/cita,   on: 2026-01-01, source: chambers-cit-2026, verified: false}
+  - {by: akn/ng/act/2025/7, target: TODO/ng/act/cgta,   on: 2026-01-01, source: chambers-cit-2026, verified: false}
+  - {by: akn/ng/act/2025/7, target: TODO/ng/act/vata,   on: 2026-01-01, source: chambers-cit-2026, verified: false}
+  - {by: akn/ng/act/2025/7, target: TODO/ng/act/iditra, on: 2026-01-01, source: chambers-cit-2026, verified: false}
+  # TODO: Petroleum Profits Tax Act, Stamp Duties Act, FIRS Establishment Act (by NRS Act), others listed in the NTA
+
+provisions:
+  - {akn: akn/ng/act/2025/7/sec_58, instrument: akn/ng/act/2025/7, number: "58 + Fourth Schedule", summary: "Sets personal income tax rates by income band.", validFrom: 2026-01-01, source: mondaq-nta-analysis, verified: false}
+  - {akn: akn/ng/act/2025/7/sec_182_2, instrument: akn/ng/act/2025/7, number: "182(2)", summary: "Lets companies keep IDITRA incentives for the unexpired period.", validFrom: 2026-01-01, source: chambers-cit-2026, verified: false}
+  - {akn: akn/ng/act/2025/7/sec_27_1, instrument: akn/ng/act/2025/7, number: "27(1)", summary: "Brings chargeable gains into total profits.", validFrom: 2026-01-01, source: chambers-cit-2026, verified: false}
+  - {akn: akn/ng/act/2025/7/sec_56, instrument: akn/ng/act/2025/7, number: "56", summary: "Company income tax rate.", validFrom: 2026-01-01, source: chambers-cit-2026, verified: false}
+  - {akn: akn/ng/act/2025/7/sec_155_4, instrument: akn/ng/act/2025/7, number: "155(4)", summary: "Time limit for claiming input VAT.", validFrom: 2026-01-01, source: chambers-cit-2026, verified: false}
+  # Old provisions: section numbers unknown until checked against the old Acts.
+  - {akn: TODO/ng/act/pita/sec_bands, instrument: TODO/ng/act/pita, number: TODO, summary: "Old personal income tax bands.", validTo: 2026-01-01, source: pwc-individual, verified: false}
+  - {akn: TODO/ng/act/pita/sec_cra, instrument: TODO/ng/act/pita, number: TODO, summary: "Old consolidated relief allowance.", validTo: 2026-01-01, source: businessday-pit, verified: false}
+  - {akn: TODO/ng/act/cgta/sec_rate, instrument: TODO/ng/act/cgta, number: TODO, summary: "Old capital gains tax rate.", validTo: 2026-01-01, source: chambers-cit-2026, verified: false}
+
+rules:
+  # ---- Personal income tax (PAYE) ----
+  - {id: ng.pit.band1.old, provision: TODO/ng/act/pita/sec_bands, text: "PIT: first NGN 300,000 at 7%", topic: pit_band, value: 0.07, unit: rate, source: pwc-individual, verified: false}
+  - {id: ng.pit.band2.old, provision: TODO/ng/act/pita/sec_bands, text: "PIT: next NGN 300,000 at 11%", topic: pit_band, value: 0.11, unit: rate, source: pwc-individual, verified: false}
+  - {id: ng.pit.band1.2026, provision: akn/ng/act/2025/7/sec_58, text: "PIT: first NGN 800,000 at 0%", topic: pit_band, value: 0.0, unit: rate, source: pwc-individual, verified: false}
+  - {id: ng.pit.band2.2026, provision: akn/ng/act/2025/7/sec_58, text: "PIT: next NGN 2,200,000 at 15%", topic: pit_band, value: 0.15, unit: rate, source: pwc-individual, verified: false}
+  - {id: ng.pit.top.2026, provision: akn/ng/act/2025/7/sec_58, text: "PIT: income over NGN 50,000,000 at 25%", topic: pit_band, value: 0.25, unit: rate, source: kpmg-pit, verified: false}
+  # TODO: remaining old and new bands, from the Acts directly
+  - {id: ng.pit.cra.old, provision: TODO/ng/act/pita/sec_cra, text: "CRA: 20% of gross income plus the higher of NGN 200,000 or 1% of gross", topic: relief, source: businessday-pit, verified: false}
+  - {id: ng.pit.rent_relief.2026, provision: TODO/ng/act/2025/7/sec_rent_relief, text: "Rent relief: 20% of annual rent, capped at NGN 500,000", topic: relief, value: 500000, unit: NGN_cap, source: pwc-individual-dev, verified: false}
+  # ---- Company / CGT / VAT ----
+  - {id: ng.cgt.company.old, provision: TODO/ng/act/cgta/sec_rate, text: "Company capital gains taxed at 10%", topic: cgt, value: 0.10, unit: rate, source: chambers-cit-2026, verified: false}
+  - {id: ng.cgt.company.2026, provision: akn/ng/act/2025/7/sec_27_1, text: "Company gains form part of total profits taxed at 30% (non-small companies)", topic: cgt, value: 0.30, unit: rate, source: chambers-cit-2026, verified: false}
+  - {id: ng.vat.input_services.2026, provision: akn/ng/act/2025/7/sec_155_4, text: "Input VAT on services and fixed assets recoverable; claim within 5 years", topic: vat, source: chambers-cit-2026, verified: false}
+
+replacements:   # Rule -> Rule
+  - {old: ng.pit.band1.old, new: ng.pit.band1.2026}
+  - {old: ng.pit.band2.old, new: ng.pit.band2.2026}
+  - {old: ng.pit.cra.old,   new: ng.pit.rent_relief.2026}
+  - {old: ng.cgt.company.old, new: ng.cgt.company.2026}
+
+grants:
+  - {id: ng.grant.pioneer.existing, title: "Existing pioneer status certificates", grantedUnder: TODO/ng/act/iditra}
+
+savings:
+  - {saver: akn/ng/act/2025/7/sec_182_2, saves: ng.grant.pioneer.existing, until: null, note: "for the unexpired period of each grant", source: chambers-cit-2026, verified: false}

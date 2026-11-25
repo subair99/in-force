@@ -1,0 +1,30 @@
+# scan patterns: code and document text -> Rule ids (deterministic, reviewable)
+# Each match creates (:Artifact)-[:ENCODES]->(:Rule). Keep patterns explicit;
+# false positives are worse than misses for a legal tool.
+
+constants:
+  - name_regex: '^CRA(_|$)'            # CRA_RATE, CRA_FLAT_MIN ...
+    rule: ng.pit.cra.old
+  - name_regex: '^(PIT|PAYE)_BANDS?(_\d{4})?$'
+    value_contains: [300000, 0.07]      # band tuple with the old first band
+    rule: ng.pit.band1.old
+  - name_regex: '^(PIT|PAYE)_BANDS?(_\d{4})?$'
+    value_contains: [300000, 0.11]
+    rule: ng.pit.band2.old
+  - name_regex: 'CGT_RATE'
+    value_equals: 0.10
+    rule: ng.cgt.company.old
+
+text:   # comments, markdown, html templates
+  - regex: '(?i)consolidated\s+relief\s+allowance|\bCRA\b'
+    rule: ng.pit.cra.old
+  - regex: '(?i)personal\s+income\s+tax\s+act|\bPITA\b'
+    cites_instrument: TODO/ng/act/pita
+  - regex: '(?i)capital\s+gains\s+tax\s+act|\bCGTA\b'
+    cites_instrument: TODO/ng/act/cgta
+
+file_globs:
+  code: ['**/*.py']
+  docs: ['**/*.md', '**/*.html', '**/*.txt']
+  tests: ['tests/**/*.py', '**/test_*.py']
+  ignore: ['.inforce/**', '.git/**', '**/__pycache__/**']

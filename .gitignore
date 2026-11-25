@@ -1,0 +1,20 @@
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+dist/
+build/
+.env
+
+# Private planning documents: stay on this machine, never committed.
+# Of the starter documents, only CLAUDE.md is tracked in git.
+docs/
+.mcp.json
+# Scratch stores only. The real stores are committed:
+#   data/ng-tax-2026.rl
+#   demo/naira-payroll/.inforce/project.rl
+.inforce/tmp/
+*.spike.rl
+*.building.rl
