@@ -518,6 +518,31 @@ def diff(
     footer()
 
 
+@app.command()
+def verify(
+    unverified_only: bool = typer.Option(False, "--unverified", help="Only list entries not yet verified."),
+    as_json: bool = typer.Option(False, "--json", help="Print JSON."),
+    rules: Path = typer.Option(RULES_DIR, help="Directory of rule YAML files."),
+) -> None:
+    """Every law entry with its source and verified flag: the checklist for checking against the Act's text."""
+    items = loader.verify_list(rules)
+    shown = [i for i in items if not (unverified_only and i["verified"])]
+    n_ok = sum(i["verified"] for i in items)
+    if as_json:
+        print(json.dumps({"verified": n_ok, "total": len(items), "items": shown}, indent=2, ensure_ascii=False))
+        return
+    t = Table(title=f"Law entries: {n_ok} of {len(items)} verified", title_justify="left", show_lines=False)
+    for col in ("kind", "entry", "says", "source", "verified", "where"):
+        t.add_column(col, overflow="fold")
+    for i in shown:
+        t.add_row(i["kind"], i["entry"], i["what"], i["source"] or "[red]no source[/red]",
+                  "[green]yes[/green]" if i["verified"] else "[yellow]no[/yellow]", i["where"])
+    console.print(t)
+    console.print("[dim]To verify an entry: check it against the Act's text, then set `verified: true` on it in "
+                  "the YAML yourself. InForce never sets it.[/dim]")
+    footer()
+
+
 whatif_app = typer.Typer(help="Hypothetical changes, measured then rolled back.", no_args_is_help=True)
 app.add_typer(whatif_app, name="whatif")
 

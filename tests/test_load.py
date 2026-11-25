@@ -150,3 +150,16 @@ def test_up_to_date_pack_is_kept_on_a_machine_without_the_model(law_pack, monkey
     again = loader.load(RULES, path, allow_unverified=True)
     assert again.skipped and again.embedded == first.embedded
     assert path.read_bytes() == before
+
+
+def test_verify_lists_every_law_entry_with_source_and_line():
+    items = loader.verify_list(RULES)
+    data = loader.read_yaml(RULES)
+    assert len(items) == sum(len(data.get(s, [])) for s in loader.LAW_SECTIONS)
+    assert all(i["where"].startswith("ng-tax-2026.yaml:") for i in items)
+    assert not any(i["verified"] for i in items)  # nothing verified yet, and InForce never sets it
+    band3 = next(i for i in items if i["entry"] == "ng.pit.band3.2026")
+    assert band3["source"] == "https://taxsummaries.pwc.com/nigeria/individual"
+    pita = next(i for i in items if i["kind"] == "repeal" and i["entry"].endswith("pita"))
+    assert "target: TODO/ng/act/pita" in (RULES / "ng-tax-2026.yaml").read_text().splitlines()[
+        int(pita["where"].split(":")[1]) - 1]

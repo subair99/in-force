@@ -332,3 +332,44 @@ def load(
         if tmp.exists():
             tmp.unlink()
     return report
+
+
+def verify_list(rules_dir: str | Path) -> list[dict[str, Any]]:
+    """Every law entry, for the human check against the Act: what it says, its source and verified flag.
+    Read from the YAML (the file the human edits), with the file and line of each entry."""
+    data = read_yaml(Path(rules_dir))
+    urls = {s["id"]: s["url"] for s in data.get("sources", [])}
+    lines: dict[str, list[str]] = {f.name: f.read_text(encoding="utf-8").splitlines()
+                                   for f in sorted(Path(rules_dir).glob("*.yaml"))}
+
+    def where(needles: list[str]) -> str:
+        """file:line of the first non-comment line containing every needle."""
+        for name, ls in lines.items():
+            for n, line in enumerate(ls, 1):
+                if not line.lstrip().startswith("#") and all(x in line for x in needles):
+                    return f"{name}:{n}"
+        return ""
+
+    pairs = {"repeals": ("by", "target"), "replacements": ("old", "new"), "successions": ("old", "new"),
+             "related": ("rule", "related"), "savings": ("saver", "saves")}
+
+    out = []
+    for sec in LAW_SECTIONS:
+        for e in data.get(sec, []):
+            label = _label(sec, e)
+            if sec in pairs:
+                a, b = pairs[sec]
+                needles = [f"{a}: {e[a]}", f"{b}: {e[b]}"]
+            elif e.get("akn"):
+                needles = [f"akn: {e['akn']}"]
+            else:
+                needles = [f"id: {e['id']}"]
+            what = e.get("text") or e.get("summary") or e.get("title") or e.get("note") or ""
+            if sec == "repeals":
+                what = f"repealed on {e.get('on')}"
+            if e.get("value") is not None:
+                what += f" (value {e['value']} {e.get('unit') or ''})".rstrip()
+            out.append({"kind": sec[:-1] if sec != "related" else "related", "entry": label.split(" ", 1)[1],
+                        "what": what, "source": urls.get(e.get("source"), e.get("source")),
+                        "verified": e.get("verified") is True, "where": where(needles)})
+    return out
