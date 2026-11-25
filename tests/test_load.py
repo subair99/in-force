@@ -137,3 +137,16 @@ def test_load_rebuilds_when_yaml_changes(tmp_path):
     loader.load(rules, out, allow_unverified=True)
     (rules / "extra.yaml").write_text("sources:\n  - {id: x, url: https://example.test/x}\n")
     assert not loader.load(rules, out, allow_unverified=True).skipped
+
+
+def test_up_to_date_pack_is_kept_on_a_machine_without_the_model(law_pack, monkeypatch):
+    """A fresh clone offline must not rebuild (and strip embeddings from) the committed pack."""
+    from inforce import embed
+    path, first = law_pack
+    if not first.embedded:
+        pytest.skip("embedding model not available here")
+    before = path.read_bytes()
+    monkeypatch.setattr(embed, "embed", lambda texts: None)
+    again = loader.load(RULES, path, allow_unverified=True)
+    assert again.skipped and again.embedded == first.embedded
+    assert path.read_bytes() == before

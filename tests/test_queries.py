@@ -34,7 +34,8 @@ PARAMS = {"on": "2026-03-01", "value": 0.07, "rows": []}  # anything else gets a
 def test_cli_safe_mode_accepts_read_queries(name, law_pack):
     path, _ = law_pack
     args = [RELATE, "--database", str(path), "--read-only", "--safe", "--json"]
+    special = {"ask_vector.cypher": {"q": [0.01] * 256}}  # a 256-dimension vector, not a string
     for k in sorted(set(re.findall(r"\$(\w+)", (QUERY_DIR / name).read_text()))):
-        args += ["--param", f"{k}={json.dumps(PARAMS.get(k, 'x'))}"]
+        args += ["--param", f"{k}={json.dumps(special.get(name, {}).get(k, PARAMS.get(k, 'x')))}"]
     cp = subprocess.run(args + [(QUERY_DIR / name).read_text()], capture_output=True, text=True)
     assert cp.returncode == 0, cp.stdout[:400]

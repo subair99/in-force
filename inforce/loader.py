@@ -50,6 +50,7 @@ class LoadReport:
     warnings: list[str] = field(default_factory=list)
     stubs: list[str] = field(default_factory=list)
     skipped: bool = False
+    embedded: str | None = None
 
 
 class _Yaml12BoolLoader(yaml.SafeLoader):
@@ -231,7 +232,9 @@ LOAD_ORDER = ("source", "instrument", "provision", "rule", "repeal", "replacemen
 
 
 def build_hash(rules_dir: str | Path) -> str:
-    """sha256 of everything that decides the pack's content: the rule YAML, this loader and its queries."""
+    """sha256 of everything that decides the pack's law content: the rule YAML, this loader and its queries.
+    (Which embedding model was used is stored separately, so a machine without the model can still
+    recognise an up-to-date pack and leave it alone.)"""
     h = hashlib.sha256()
     queries = resources.files("inforce") / "queries"
     parts = sorted(Path(rules_dir).glob("*.yaml")) + [Path(__file__)]
@@ -242,8 +245,8 @@ def build_hash(rules_dir: str | Path) -> str:
     return h.hexdigest()
 
 
-def pack_hash(out_path: str | Path) -> str | None:
-    """The build hash stored in an existing pack, or None."""
+def pack_meta(out_path: str | Path) -> dict[str, Any] | None:
+    """{hash, embedModel} stored in an existing pack, or None."""
     if not Path(out_path).exists():
         return None
     try:
@@ -251,7 +254,7 @@ def pack_hash(out_path: str | Path) -> str | None:
             rows = s.run("pack_meta")
     except Exception:  # noqa: BLE001 - unreadable or old pack: rebuild it
         return None
-    return rows[0]["hash"] if rows else None
+    return rows[0] if rows else None
 
 
 def load(
@@ -260,6 +263,7 @@ def load(
     allow_unverified: bool = False,
     log: Callable[[str], None] | None = None,
     force: bool = False,
+    embed: bool = True,
 ) -> LoadReport:
     """Rebuild `out_path` from the YAML in `rules_dir`. Returns a LoadReport.
 
@@ -277,11 +281,28 @@ def load(
 
     rows = build_rows(data, report)
     digest = build_hash(rules_dir)
-    if not force and pack_hash(out_path) == digest:
+    meta = pack_meta(out_path)
+    if not force and meta and meta["hash"] == digest and (meta["embedModel"] or not embed):
         with open_store(out_path, read_only=True, log=log) as store:
             report.counts = {r["label"]: r["n"] for r in store.run("law_counts")}
         report.skipped = True
+        report.embedded = meta["embedModel"]
         return report
+
+    embed_model = None
+    if embed and rows["rule"]:
+        from . import embed as emb
+        vectors = emb.embed([emb.rule_text(r) for r in rows["rule"]])
+        if vectors is None:
+            report.warnings.append(f"embedding model {emb.MODEL} not available (offline or not cached): "
+                                   "rules loaded without embeddings; `ask` will use full-text only")
+        else:
+            embed_model = emb.MODEL
+            for r, v in zip(rows["rule"], vectors, strict=True):
+                r["embedding"] = v
+    for r in rows["rule"]:
+        r.setdefault("embedding", None)
+    report.embedded = embed_model
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
     tmp = out_path.with_name(out_path.stem + ".building.rl")
@@ -294,7 +315,7 @@ def load(
                 for kind in LOAD_ORDER:
                     if rows[kind]:
                         store.run(f"load_{kind}", rows=rows[kind])
-                store.run("load_meta", hash=digest)
+                store.run("load_meta", hash=digest, model=embed_model)
             report.counts = {r["label"]: r["n"] for r in store.run("law_counts")}
         os.replace(tmp, out_path)
     finally:

@@ -73,10 +73,11 @@ def load(
     rules: Path = typer.Option(RULES_DIR, help="Directory of rule YAML files."),
     out: Path = typer.Option(LAW_PACK, help="Law pack .rl file to (re)build."),
     force: bool = typer.Option(False, "--force", help="Rebuild even if the pack is up to date."),
+    embed: bool = typer.Option(True, "--embed/--no-embed", help="Store rule embeddings for `ask` (model2vec)."),
 ) -> None:
     """Build the law pack .rl from the rule YAML files (skipped when already up to date)."""
     try:
-        report = loader.load(rules, out, allow_unverified=allow_unverified, log=_log, force=force)
+        report = loader.load(rules, out, allow_unverified=allow_unverified, log=_log, force=force, embed=embed)
     except loader.UnverifiedLaw as exc:
         err.print(f"[red]Refusing to load: {exc}[/red]")
         for e in exc.entries[:15]:
@@ -424,6 +425,57 @@ def _print_keystones(rows: list[dict], label: str, on: str) -> None:
     footer()
 
 
+@app.command()
+def ask(
+    question: str = typer.Argument(..., help="A question about Nigerian tax rules."),
+    on: str = typer.Option(None, "--on", help=ON_HELP),
+    top: int = typer.Option(5, "--top", help="How many rules to show."),
+    as_json: bool = typer.Option(False, "--json", help="Print JSON."),
+    law_pack: Path = typer.Option(LAW_PACK, "--law", help=LAW_HELP),
+) -> None:
+    """Which rules answer QUESTION, and are they in force on the date? (Retrieval only: no generated answer.)"""
+    from .ask import ask as run_ask
+
+    on = _on(on)
+    try:
+        r = run_ask(question, on, law_pack, top=top, log=_log)
+    except StoreLocked as exc:
+        raise _locked(exc) from None
+    if as_json:
+        print(json.dumps(r, indent=2, ensure_ascii=False, default=str))
+        return
+    _print_ask(r)
+
+
+def _print_ask(r: dict) -> None:
+    mode = "vector + full-text" if r["mode"] == "hybrid" else "full-text only (embedding model not available)"
+    console.print(f"[bold]{r['question']}[/bold]  on {r['on']}  [dim]({mode})[/dim]")
+    a = r["answer"]
+    if a is None:
+        console.print("No matching rule in the law pack. InForce cannot answer this; say so rather than guess.")
+        footer()
+        return
+    if a["ref"] and a["how"] == "in force":
+        console.print(f"\n[bold]Rule on {r['on']}:[/bold] {a['text']} [dim]({a['ref']}, in force)[/dim]")
+    elif a["ref"]:
+        console.print(f"\n[bold]Rule on {r['on']}:[/bold] {a['how'].replace('; replaced by', '')}. "
+                      f"Replaced by: {a['text']} [dim]({a['ref']})[/dim]")
+    else:
+        console.print(f"\n[bold]Rule on {r['on']}:[/bold] [red]{a['how']}[/red]")
+    t = Table(title="Matching rules", title_justify="left")
+    for col in ("#", "rule", "status", "now (successor)", "found by"):
+        t.add_column(col)
+    for n, i in enumerate(r["items"], 1):
+        succ = i["successor"] or ("no replacement" if i["status"] == "REPEALED" else "")
+        for x in i["related"]:
+            succ += f"\n[dim]related, not a successor: {x['text']}[/dim]"
+        t.add_row(str(n), f"{i['text']}\n[dim]{i['rule']}[/dim]", _v(i["status"]) + ("" if i["verified"] else " *"),
+                  succ, ", ".join(i["via"]))
+    console.print(t)
+    console.print("[dim]* unverified. InForce retrieves rules and their status; it does not write answers.[/dim]")
+    footer()
+
+
 whatif_app = typer.Typer(help="Hypothetical changes, measured then rolled back.", no_args_is_help=True)
 app.add_typer(whatif_app, name="whatif")
 
@@ -567,6 +619,14 @@ def demo(
         r2 = check_text(answer.read_text(encoding="utf-8"), on, law_pack, log=_log)
         _print_check(r2, "answers/stale_answer.md (rewritten)")
         expect("fixed answer", r2["verdict"] != "STALE", f"verdict {r2['verdict']}")
+
+        step("Ask the law pack", 'inforce ask "Can I still claim the consolidated relief allowance?"')
+        from .ask import ask as run_ask
+        qa = run_ask("Can I still claim the consolidated relief allowance?", on, law_pack, log=_log)
+        _print_ask(qa)
+        expect("ask", bool(qa["items"]) and qa["items"][0]["rule"] == "ng.pit.cra.old"
+               and qa["items"][0]["status"] == "REPEALED",
+               f"top rule {qa['items'][0]['rule'] if qa['items'] else '-'} ({qa['mode']})")
 
         from .whatif import whatif_repeal
         step("What if the new PAYE scale were repealed?",

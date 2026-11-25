@@ -6,7 +6,9 @@ CREATE CONSTRAINT rule_id IF NOT EXISTS FOR (r:Rule) REQUIRE r.id IS UNIQUE;
 CREATE CONSTRAINT artifact_id IF NOT EXISTS FOR (a:Artifact) REQUIRE a.id IS UNIQUE;
 CREATE CONSTRAINT source_url IF NOT EXISTS FOR (s:Source) REQUIRE s.url IS UNIQUE;
 CREATE FULLTEXT INDEX provision_text IF NOT EXISTS FOR (p:Provision) ON EACH [p.summary];
-// Vector index: dimensions must match the embedding model (model2vec default: check in spike).
-CREATE VECTOR INDEX provision_summary IF NOT EXISTS
-  FOR (p:Provision) ON (p.embedding) WITH [p.inForceNow]
+CREATE FULLTEXT INDEX rule_text IF NOT EXISTS FOR (r:Rule) ON EACH [r.text, r.topic];
+// Rule embeddings for `ask` (model2vec potion-base-8M: 256 dimensions, checked 2026-11-25).
+// No WITH-filter: status depends on the date asked about, so `ask` over-fetches and filters by date after.
+CREATE VECTOR INDEX rule_embedding IF NOT EXISTS
+  FOR (r:Rule) ON (r.embedding)
   OPTIONS {indexConfig: {`vector.dimensions`: 256, `vector.similarity_function`: 'cosine'}};
