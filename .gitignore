@@ -20,3 +20,12 @@ docs/
 .inforce/tmp/
 *.spike.rl
 *.building.rl
+
+# Local caches that tools could drop into the repo; they belong under ~/.cache
+.cache/
+.hf_cache/
+*.safetensors
+.playwright/
+playwright-report/
+test-results/
+web/*.png

@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install the Relate CLI (v1.3.0, signature and checksum verified)
+        shell: bash
+        run: |
+          set -euo pipefail
+          base=https://github.com/relatedb/relate/releases/download/v1.3.0
+          cd "$RUNNER_TEMP"
+          curl -sSfL -o SHA256SUMS "$base/SHA256SUMS"
+          curl -sSfL -o SHA256SUMS.sig "$base/SHA256SUMS.sig"
+          curl -sSfL -o relate-linux-amd64 "$base/relate-linux-amd64"
+          # Same pinned key and checks as relatedb.ai/install.sh
+          echo 'relate-release ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHgv/GHY5mtv/HopH/J/T7KrTT7eOVFEG2ueT4iRKwbK relate-release' > allowed_signers
+          ssh-keygen -Y verify -f allowed_signers -I relate-release -n relate-release -s SHA256SUMS.sig < SHA256SUMS
+          test "$(head -n1 SHA256SUMS)" = "# relate-release-version: v1.3.0"
+          grep -E ' relate-linux-amd64$' SHA256SUMS | sha256sum -c -
+          install -m 755 relate-linux-amd64 /usr/local/bin/relate
+          relate --version
+
+      - name: Install InForce
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev,embed]"
+
+      - name: Tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pytest -q
+
+      - name: Read-only check of the stale demo answer (must report STALE, exit 3)
+        shell: bash
+        run: |
+          set -euo pipefail
+          rc=0
+          inforce check demo/naira-payroll/answers/stale_answer.md --on 2026-11-25 || rc=$?
+          test "$rc" -eq 3
+          git diff --exit-code   # read-only: nothing tracked changed

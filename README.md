@@ -1,5 +1,7 @@
 # InForce
 
+[![CI](https://github.com/subair99/in-force/actions/workflows/ci.yml/badge.svg)](https://github.com/subair99/in-force/actions/workflows/ci.yml)
+
 **Find every AI answer, line of code and document that still runs on repealed law, and see what replaced it.** Built with Relate.
 
 > On 1 January 2026 Nigeria's new Tax Act came into force and repealed the country's main tax laws. Payroll code, HR policies and AI assistants written before then still use the old rules. InForce finds them.
