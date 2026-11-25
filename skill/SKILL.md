@@ -31,7 +31,7 @@ All return JSON. A verdict of `STALE` means something rests on repealed law. Eac
 
 ## Rules
 - Treat `SAVED` as still applicable, for the period stated.
-- Every rule in the current law pack is marked unverified (not yet checked against the Act's text by a human). Say so when you rely on one.
+- Rules not yet checked against the Act's text by a human are returned with `verified: false`. Say so when you rely on one.
 - Never state a tax figure that InForce did not return.
 - End with: "This is not legal or tax advice."
 

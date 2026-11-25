@@ -77,6 +77,8 @@ provisions:
   - {akn: akn/ng/act/2025/7/sec_27_1, instrument: akn/ng/act/2025/7, number: "27(1)", summary: "Brings chargeable gains into total profits.", validFrom: 2026-01-01, source: chambers-cit-2026, verified: false}
   - {akn: akn/ng/act/2025/7/sec_56, instrument: akn/ng/act/2025/7, number: "56", summary: "Company income tax rate.", validFrom: 2026-01-01, source: chambers-cit-2026, verified: false}
   - {akn: akn/ng/act/2025/7/sec_155_4, instrument: akn/ng/act/2025/7, number: "155(4)", summary: "Time limit for claiming input VAT.", validFrom: 2026-01-01, source: chambers-cit-2026, verified: false}
+  # Rent relief: an NTA provision; section number still to find in the Act. validFrom = NTA commencement.
+  - {akn: TODO/ng/act/2025/7/sec_rent_relief, instrument: akn/ng/act/2025/7, number: TODO, summary: "Relief for rent paid by individuals.", validFrom: 2026-01-01, source: pwc-individual-dev, verified: false}
   # Old provisions: section numbers unknown until checked against the old Acts.
   - {akn: TODO/ng/act/pita/sec_bands, instrument: TODO/ng/act/pita, number: TODO, summary: "Old personal income tax bands.", validTo: 2026-01-01, source: pwc-individual, verified: false}
   - {akn: TODO/ng/act/pita/sec_cra, instrument: TODO/ng/act/pita, number: TODO, summary: "Old consolidated relief allowance.", validTo: 2026-01-01, source: businessday-pit, verified: false}

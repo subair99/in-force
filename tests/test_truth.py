@@ -145,3 +145,26 @@ def test_known_on_versions(tmp_path):
     with open_store(out, read_only=True) as s:
         same = law.diff_known_on(s, "2026-02-01", "2026-03-01")
     assert not same["acts"][0]["changed"] and same["provisions"] == []
+
+
+@pytest.mark.parametrize("on,expected", [("2025-12-31", "NOT_YET"), ("2026-01-02", "IN_FORCE")])
+def test_rent_relief_starts_with_the_nta(law_pack, on, expected):
+    """Rent relief is an NTA rule: not in force before 1 Jan 2026 (it used to read IN_FORCE in 2025)."""
+    path, _ = law_pack
+    with open_store(path, read_only=True) as s:
+        assert law.rule_status(s, "ng.pit.rent_relief.2026", on)["status"] == expected
+
+
+def test_loader_warns_on_new_act_provision_without_valid_from(tmp_path):
+    import datetime as dt
+
+    import yaml
+    (tmp_path / "rules").mkdir()
+    (tmp_path / "rules" / "x.yaml").write_text(yaml.safe_dump({
+        "instruments": [{"akn": "i/new", "commencesOn": dt.date(2026, 1, 1), "verified": True}],
+        "provisions": [{"akn": "i/new/s1", "instrument": "i/new", "verified": True},
+                       {"akn": "i/new/s2", "instrument": "i/new", "validFrom": dt.date(2026, 1, 1), "verified": True}],
+    }))
+    report = loader.load(tmp_path / "rules", tmp_path / "x.rl", embed=False)
+    warned = [w for w in report.warnings if "no validFrom" in w]
+    assert len(warned) == 1 and "i/new/s1" in warned[0]

@@ -83,7 +83,7 @@ relate --database demo/naira-payroll/.inforce/project.rl --read-only --mode enve
 
 ## Data and accuracy
 
-Hand-built from the official Acts: identifiers, dates, relationships, rule values and short summaries in our own words, each linked to its source. `make verify` lists every rule and whether it has been checked against the Act's text. [TODO: state how many rules are verified at submission.] The demo payroll repo is synthetic.
+Identifiers, dates, relationships, rule values and short summaries in our own words, built from published commentary on the Nigeria Tax Act 2025 (sources in `data/rules/*.yaml`). <!-- inforce:verify-status -->Each rule links to its source; verification against the Act's text is in progress (0 of 42 law entries verified).<!-- /inforce:verify-status --> `make verify` lists every entry with its source and verified flag, and `inforce verify --summary` regenerates the status above. Until an entry is verified, every verdict that rests on it is marked unverified. The demo payroll repo is synthetic.
 
 ## Built with
 

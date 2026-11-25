@@ -163,3 +163,11 @@ def test_verify_lists_every_law_entry_with_source_and_line():
     pita = next(i for i in items if i["kind"] == "repeal" and i["entry"].endswith("pita"))
     assert "target: TODO/ng/act/pita" in (RULES / "ng-tax-2026.yaml").read_text().splitlines()[
         int(pita["where"].split(":")[1]) - 1]
+
+
+def test_readme_verification_status_is_generated_from_the_data():
+    """The README must state the true verification count (regenerate with `inforce verify --update-docs README.md`)."""
+    from inforce.paths import ROOT
+    readme = (ROOT / "README.md").read_text()
+    assert loader.update_status_block(readme, loader.verify_summary(RULES)) == readme
+    assert "checked by hand" not in readme.lower() and "hand-built from the official" not in readme.lower()

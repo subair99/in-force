@@ -154,6 +154,11 @@ def build_rows(data: dict[str, list[dict[str, Any]]], report: LoadReport) -> dic
             "verified": v(e), "stub": False, "source": src(e, where),
         })
     prov_akns = {p["akn"] for p in provisions}
+    commencing = {i["akn"] for i in instruments if i["commencesOn"]}
+    for p in provisions:
+        if p["instrument"] in commencing and not p["validFrom"]:
+            w.append(f"provision {p['akn']}: no validFrom; its start falls back to {p['instrument']}'s "
+                     "commencement date. Set validFrom explicitly")
 
     def stub_provision(akn: str, why: str) -> None:
         # Referenced but not defined: create an empty, unverified placeholder.
@@ -373,3 +378,22 @@ def verify_list(rules_dir: str | Path) -> list[dict[str, Any]]:
                         "what": what, "source": urls.get(e.get("source"), e.get("source")),
                         "verified": e.get("verified") is True, "where": where(needles)})
     return out
+
+
+STATUS_START, STATUS_END = "<!-- inforce:verify-status -->", "<!-- /inforce:verify-status -->"
+
+
+def verify_summary(rules_dir: str | Path) -> str:
+    """The one-line verification status, generated from the YAML (never written by hand)."""
+    items = verify_list(rules_dir)
+    n = sum(i["verified"] for i in items)
+    return (f"Each rule links to its source; verification against the Act's text is in progress "
+            f"({n} of {len(items)} law entries verified).")
+
+
+def update_status_block(text: str, summary: str) -> str:
+    """Replace the content between the verify-status markers with `summary`."""
+    a, b = text.find(STATUS_START), text.find(STATUS_END)
+    if a == -1 or b == -1 or b < a:
+        raise ValueError(f"missing {STATUS_START} ... {STATUS_END} markers")
+    return text[:a + len(STATUS_START)] + summary + text[b:]

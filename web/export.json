@@ -4,7 +4,7 @@
  "builtWith": "Built with Relate",
  "lawPack": {
   "file": "data/ng-tax-2026.rl",
-  "buildHash": "62e1905d5b18606c32831ab39f56371e372ef6cffe11d016b5869a811a0f8f7e"
+  "buildHash": "a377c0dd31db7ecdcdee624e0d7a3883fdc3ff8370959283261f226c0e1570fc"
  },
  "dates": [
   "0001-01-01",
@@ -375,7 +375,7 @@
    "source": "https://taxsummaries.pwc.com/nigeria/individual/significant-developments",
    "at": [
     {
-     "status": "IN_FORCE",
+     "status": "NOT_YET",
      "endedOn": null,
      "successor": null,
      "successorRef": null,

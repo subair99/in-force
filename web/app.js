@@ -56,25 +56,32 @@ function render(result) {
   }
 }
 
+// Today in the visitor's own time zone (toISOString() is UTC: in Lagos just after midnight it is yesterday).
+function today() {
+  const t = new Date();
+  return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, "0")}-${String(t.getDate()).padStart(2, "0")}`;
+}
+
+const longDate = (iso) => new Date(`${iso}T12:00:00`).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+
 function run() {
   if (!DATA) return;
-  render(check($("text").value, DATA, $("on").value || new Date().toISOString().slice(0, 10)));
+  render(check($("text").value, DATA, $("on").value || today()));
 }
 
 async function init() {
-  $("on").value = new Date().toISOString().slice(0, 10);
+  $("on").value = today();
   $("sample").addEventListener("click", () => { $("text").value = SAMPLE; run(); });
   $("go").addEventListener("click", run);
   $("on").addEventListener("change", run);
   try {
     const res = await fetch("export.json", { cache: "no-store" });
     DATA = await res.json();
-    $("meta").textContent = `Law pack exported ${DATA.generated} from ${DATA.lawPack.file} ` +
-      `(${Object.keys(DATA.rules).length} rules, ${DATA.unverified} unverified). Status changes on: ` +
-      DATA.dates.slice(1).join(", ") + ".";
+    const n = Object.keys(DATA.rules).length;
+    $("meta").textContent = `Law data exported ${longDate(DATA.generated)}: ${n} rules, ` +
+      `${DATA.unverified} not yet verified; statuses change on ${DATA.dates.slice(1).map(longDate).join(", ")}.`;
   } catch (e) {
-    $("meta").textContent = "Could not load export.json. Run `inforce export`, then serve this folder " +
-      "(e.g. python -m http.server -d web).";
+    $("meta").textContent = "The law data could not be loaded, so nothing can be checked right now.";
   }
 }
 init();

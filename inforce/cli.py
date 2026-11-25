@@ -522,9 +522,19 @@ def diff(
 def verify(
     unverified_only: bool = typer.Option(False, "--unverified", help="Only list entries not yet verified."),
     as_json: bool = typer.Option(False, "--json", help="Print JSON."),
+    summary: bool = typer.Option(False, "--summary", help="Print only the one-line verification status."),
+    update_docs: list[Path] = typer.Option(None, "--update-docs",
+                                           help="Rewrite the verify-status block in these files (repeatable)."),
     rules: Path = typer.Option(RULES_DIR, help="Directory of rule YAML files."),
 ) -> None:
     """Every law entry with its source and verified flag: the checklist for checking against the Act's text."""
+    if summary or update_docs:
+        line = loader.verify_summary(rules)
+        for f in update_docs or []:
+            f.write_text(loader.update_status_block(f.read_text(encoding="utf-8"), line), encoding="utf-8")
+            console.print(f"[dim]updated {f}[/dim]")
+        print(line)
+        return
     items = loader.verify_list(rules)
     shown = [i for i in items if not (unverified_only and i["verified"])]
     n_ok = sum(i["verified"] for i in items)
