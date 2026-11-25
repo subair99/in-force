@@ -73,7 +73,30 @@ def rule_status(store: Store, rule_id: str, on: str | dt.date) -> dict[str, Any]
         rule["successors"] = [chain[0]]
     else:
         rule["successors"] = []
+
+    # The provision that set this rule was replaced as a whole (SUCCEEDED_BY): the new scale.
+    scale_rows = store.run("rule_scale", id=rule_id)
+    rule["scale"] = None
+    if scale_rows:
+        head = scale_rows[0]
+        st_new = provision_status(store, head["provision"], on)
+        rule["scale"] = {
+            "provision": head["provision"], "short": head["short"], "number": head["number"],
+            "note": head["note"], "verified": head["verified"] is True,
+            "status": st_new["status"] if st_new else "UNKNOWN",
+            "rules": [{"id": r["id"], "text": r["text"], "value": r["value"], "verified": r["ruleVerified"] is True}
+                      for r in scale_rows],
+        }
+        rule["path"].append(f"-SUCCEEDED_BY-> Provision {head['provision']}")
+    # Related rules: read together, never a successor.
+    rule["related"] = store.run("rule_related", id=rule_id)
     return rule
+
+
+def scale_text(scale: dict[str, Any]) -> str:
+    """'NTA s. 58 (whole scale): PIT: first ... · PIT: next ...'"""
+    where = f"{scale['short'] or ''} s. {scale['number']}".strip() if scale.get("number") else scale["provision"]
+    return f"{where} (whole scale): " + " · ".join(r["text"] for r in scale["rules"])
 
 
 def fallout(store: Store, instrument: str, on: str | dt.date) -> list[dict[str, Any]]:

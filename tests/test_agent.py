@@ -63,4 +63,4 @@ def test_mcp_stdio_round_trip(law_pack):
     names, env = asyncio.run(_mcp_round_trip(path))
     assert names == ["inforce_brief", "inforce_check", "inforce_scan"]
     assert env["verdict"] == "STALE"
-    assert env["items"][0]["successorRef"] == "ng.pit.band1.2026"
+    assert env["items"][0]["successorRef"] == "akn/ng/act/2025/7/sec_58"  # the whole new scale

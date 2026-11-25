@@ -24,7 +24,8 @@ def test_check_json_envelope(law_pack):
     assert res.exit_code == 3
     env = json.loads(res.stdout)
     assert set(env) >= {"verdict", "items", "path", "on", "disclaimer"}
-    assert env["items"][0]["successorRef"] == "ng.pit.band1.2026"
+    assert env["items"][0]["successorRef"] == "akn/ng/act/2025/7/sec_58"
+    assert len(env["items"][0]["successorScale"]) == 6
 
 
 def test_check_exit_0_when_not_stale(law_pack):

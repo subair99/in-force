@@ -9,25 +9,43 @@ def by_ref(result):
 
 
 def test_stale_answer_flags_paye_cra_and_cgt_with_successors(law_pack):
-    """M1 done-when: old PAYE bands, CRA and company CGT flagged, each with its successor."""
+    """M1 done-when: old PAYE bands, CRA and company CGT flagged, each with what (if anything) replaced it."""
     path, _ = law_pack
     r = check_text(STALE.read_text(), "2026-03-01", path)
     assert r["verdict"] == "STALE"
     items = by_ref(r)
-    expect = {
-        "ng.pit.band1.old": "ng.pit.band1.2026",
-        "ng.pit.band2.old": "ng.pit.band2.2026",
-        "ng.pit.cra.old": "ng.pit.rent_relief.2026",
-        "ng.cgt.company.old": "ng.cgt.company.2026",
-    }
-    for old, new in expect.items():
+    for old in ("ng.pit.band1.old", "ng.pit.band2.old", "ng.pit.cra.old", "ng.cgt.company.old"):
         assert items[old]["verdict"] == "REPEALED", old
-        assert items[old]["successorRef"] == new, old
         assert items[old]["endedOn"] == "2026-01-01"
         assert items[old]["path"][0] == f"Rule {old}"
-    assert r["path"]  # proof for every stale item
-    assert r["unverified"] is True
+    # PIT bands: replaced as a whole by the new scale (no band-to-band link)
+    for old in ("ng.pit.band1.old", "ng.pit.band2.old"):
+        assert items[old]["successorRef"] == "akn/ng/act/2025/7/sec_58"
+        assert [x["id"] for x in items[old]["successorScale"]] == [
+            "ng.pit.band1.2026", "ng.pit.band2.2026", "ng.pit.band3.2026", "ng.pit.band4.2026",
+            "ng.pit.band5.2026", "ng.pit.top.2026"]
+    # CRA: dropped, no successor; rent relief only related
+    assert items["ng.pit.cra.old"]["successorRef"] is None
+    assert "ended with no replacement" in items["ng.pit.cra.old"]["note"]
+    assert [x["id"] for x in items["ng.pit.cra.old"]["related"]] == ["ng.pit.rent_relief.2026"]
+    # company CGT: a true one-to-one successor
+    assert items["ng.cgt.company.old"]["successorRef"] == "ng.cgt.company.2026"
+    assert r["path"] and r["unverified"] is True
     assert "not legal or tax advice" in r["disclaimer"]
+
+
+def test_new_middle_band_is_recognised(law_pack):
+    path, _ = law_pack
+    [i] = check_text("the next ₦9,000,000 at 18%", "2026-03-01", path)["items"]
+    assert (i["ref"], i["verdict"]) == ("ng.pit.band3.2026", "IN_FORCE")
+
+
+def test_same_rate_different_band_told_apart_by_amount(law_pack):
+    path, _ = law_pack
+    [new] = check_text("next ₦13,000,000 at 21%", "2026-03-01", path)["items"]
+    [old] = check_text("next ₦1,600,000 at 21%", "2026-03-01", path)["items"]
+    assert (new["ref"], new["verdict"]) == ("ng.pit.band4.2026", "IN_FORCE")
+    assert (old["ref"], old["verdict"]) == ("ng.pit.band5.old", "REPEALED")
 
 
 def test_same_answer_before_reform_is_not_stale(law_pack):
@@ -48,7 +66,7 @@ def test_new_law_answer_is_not_stale(law_pack):
 
 def test_unknown_figure_is_not_recognised(law_pack):
     path, _ = law_pack
-    r = check_text("the next ₦500,000 at 19%", "2026-03-01", path)
+    r = check_text("the next ₦500,000 at 17%", "2026-03-01", path)
     [item] = r["items"]
     assert item["verdict"] == "NOT_RECOGNISED"
     assert r["verdict"] == "SUSPECT"

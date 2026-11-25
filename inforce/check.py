@@ -36,6 +36,8 @@ class Item:
     path: list[str] = field(default_factory=list)
     note: str | None = None
     mentions: int = 1
+    successorScale: list[dict[str, Any]] | None = None   # the whole new scale, when replaced as a whole
+    related: list[dict[str, Any]] = field(default_factory=list)  # read together; not successors
 
 
 def _d(v: Any) -> str | None:
@@ -44,13 +46,24 @@ def _d(v: Any) -> str | None:
 
 def _rule_item(c: Claim, r: dict[str, Any]) -> Item:
     succ = r["successors"][0] if r["successors"] else None
+    scale = r.get("scale")
+    if succ:
+        successor, ref, status = succ["text"], succ["id"], succ["status"]
+    elif scale:  # replaced as a whole: the successor is the new scale, not one band
+        successor, ref, status = law.scale_text(scale), scale["provision"], scale["status"]
+    else:
+        successor = ref = status = None
+    notes = [] if r["verified"] else ["rule not yet verified against the Act's text"]
+    if r["status"] == "REPEALED" and not successor:
+        notes.append("ended with no replacement")
+    notes += [f"related (not a successor): {x['text']} ({x['id']})" for x in r.get("related", [])]
     return Item(
         line=c.line, claim=c.text, kind=c.kind, ref=r["id"], verdict=r["status"], verified=r["verified"],
         endedOn=_d(r["endedOn"]), repealedBy=r["repealedBy"],
-        successor=succ["text"] if succ else None, successorRef=succ["id"] if succ else None,
-        successorStatus=succ["status"] if succ else None,
-        source=r["source"], path=r["path"], mentions=c.mentions,
-        note=None if r["verified"] else "rule not yet verified against the Act's text",
+        successor=successor, successorRef=ref, successorStatus=status,
+        successorScale=scale["rules"] if scale else None,
+        related=[{"id": x["id"], "text": x["text"]} for x in r.get("related", [])],
+        source=r["source"], path=r["path"], mentions=c.mentions, note="; ".join(notes) or None,
     )
 
 

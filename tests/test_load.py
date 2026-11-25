@@ -94,3 +94,26 @@ def test_on_key_is_not_a_yaml11_boolean(law_pack):
     with open_store(path, read_only=True) as s:
         rows = s.execute("MATCH ()-[r:REPEALS]->() RETURN count(r) AS n, count(r.on) AS dated LIMIT 1")
     assert rows[0]["n"] == rows[0]["dated"] > 0
+
+
+def test_successions_and_related_loaded(law_pack):
+    path, _ = law_pack
+    with open_store(path, read_only=True) as s:
+        succ = s.execute("MATCH (o:Provision)-[x:SUCCEEDED_BY]->(n:Provision) "
+                         "RETURN o.akn AS o, n.akn AS n, x.verified AS v LIMIT 10")
+        rel = s.execute("MATCH (a:Rule)-[:RELATED]->(b:Rule) RETURN a.id AS a, b.id AS b LIMIT 10")
+        repl = s.execute("MATCH (a:Rule)-[:REPLACED_BY]->(b:Rule) RETURN a.id AS a, b.id AS b LIMIT 10")
+    assert succ == [{"o": "TODO/ng/act/pita/sec_bands", "n": "akn/ng/act/2025/7/sec_58", "v": False}]
+    assert rel == [{"a": "ng.pit.cra.old", "b": "ng.pit.rent_relief.2026"}]
+    assert repl == [{"a": "ng.cgt.company.old", "b": "ng.cgt.company.2026"}]  # no band-to-band, no CRA link
+
+
+def test_dangling_succession_is_an_error(tmp_path):
+    (tmp_path / "rules").mkdir()
+    (tmp_path / "rules" / "x.yaml").write_text(yaml.safe_dump({
+        "instruments": [{"akn": "i/1", "verified": True}],
+        "provisions": [{"akn": "p/1", "instrument": "i/1", "verified": True}],
+        "successions": [{"old": "p/1", "new": "p/missing", "verified": True}],
+    }))
+    with pytest.raises(loader.BadReference):
+        loader.load(tmp_path / "rules", tmp_path / "x.rl")

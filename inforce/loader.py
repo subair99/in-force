@@ -24,7 +24,8 @@ import yaml
 
 from .store import open_store
 
-LAW_SECTIONS = ("instruments", "provisions", "rules", "repeals", "replacements", "grants", "savings")
+LAW_SECTIONS = ("instruments", "provisions", "rules", "repeals", "replacements", "successions", "related",
+                "grants", "savings")
 
 
 class UnverifiedLaw(RuntimeError):
@@ -80,7 +81,8 @@ def read_yaml(rules_dir: Path) -> dict[str, list[dict[str, Any]]]:
 
 def _label(section: str, e: dict[str, Any]) -> str:
     key = e.get("akn") or e.get("id") or (
-        f"{e.get('by') or e.get('old') or e.get('saver')} -> {e.get('target') or e.get('new') or e.get('saves')}")
+        f"{e.get('by') or e.get('old') or e.get('saver') or e.get('rule')} -> "
+        f"{e.get('target') or e.get('new') or e.get('saves') or e.get('related')}")
     return f"{section[:-1]} {key}"
 
 
@@ -176,6 +178,22 @@ def build_rows(data: dict[str, list[dict[str, Any]]], report: LoadReport) -> dic
                 raise BadReference(f"replacement {e['old']} -> {e['new']}: rule {e[k]!r} is not defined")
         replacements.append({"old": e["old"], "new": e["new"], "verified": v(e)})
 
+    successions = []
+    for e in data.get("successions", []):
+        where = f"succession {e['old']} -> {e['new']}"
+        for k in ("old", "new"):
+            if e[k] not in prov_akns:
+                raise BadReference(f"{where}: provision {e[k]!r} is not defined")
+        successions.append({"old": e["old"], "new": e["new"], "note": e.get("note"), "verified": v(e),
+                            "source": src(e, where)})
+
+    related = []
+    for e in data.get("related", []):
+        for k in ("rule", "related"):
+            if e[k] not in rule_ids:
+                raise BadReference(f"related {e['rule']} -> {e['related']}: rule {e[k]!r} is not defined")
+        related.append({"rule": e["rule"], "related": e["related"], "note": e.get("note"), "verified": v(e)})
+
     grants = []
     for e in data.get("grants", []):
         where = f"grant {e['id']}"
@@ -200,11 +218,13 @@ def build_rows(data: dict[str, list[dict[str, Any]]], report: LoadReport) -> dic
                for s in data.get("sources", [])]
 
     return {"source": sources, "instrument": instruments, "provision": provisions, "rule": rules,
-            "repeal": repeals, "replacement": replacements, "grant": grants, "saving": savings}
+            "repeal": repeals, "replacement": replacements, "succession": successions, "related": related,
+            "grant": grants, "saving": savings}
 
 
 # Order matters: nodes before the relationships that MATCH them.
-LOAD_ORDER = ("source", "instrument", "provision", "rule", "repeal", "replacement", "grant", "saving")
+LOAD_ORDER = ("source", "instrument", "provision", "rule", "repeal", "replacement", "succession", "related",
+              "grant", "saving")
 
 
 def load(

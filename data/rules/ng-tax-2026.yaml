@@ -96,12 +96,27 @@ rules:
   - {id: ng.cgt.company.old, provision: TODO/ng/act/cgta/sec_rate, text: "Company capital gains taxed at 10%", topic: cgt, value: 0.10, unit: rate, source: chambers-cit-2026, verified: false}
   - {id: ng.cgt.company.2026, provision: akn/ng/act/2025/7/sec_27_1, text: "Company gains form part of total profits taxed at 30% (non-small companies)", topic: cgt, value: 0.30, unit: rate, source: chambers-cit-2026, verified: false}
   - {id: ng.vat.input_services.2026, provision: akn/ng/act/2025/7/sec_155_4, text: "Input VAT on services and fixed assets recoverable; claim within 5 years", topic: vat, source: chambers-cit-2026, verified: false}
+  # ---- PIT bands 3-5 (NTA s.58 + Fourth Schedule) ----
+  - {id: ng.pit.band3.2026, provision: akn/ng/act/2025/7/sec_58, text: "PIT: next NGN 9,000,000 at 18%", topic: pit_band, value: 0.18, unit: rate, source: pwc-individual, verified: false}
+  - {id: ng.pit.band4.2026, provision: akn/ng/act/2025/7/sec_58, text: "PIT: next NGN 13,000,000 at 21%", topic: pit_band, value: 0.21, unit: rate, source: pwc-individual, verified: false}
+  - {id: ng.pit.band5.2026, provision: akn/ng/act/2025/7/sec_58, text: "PIT: next NGN 25,000,000 at 23%", topic: pit_band, value: 0.23, unit: rate, source: pwc-individual, verified: false}
+  # ---- Old PITA bands 3-6, for the crosswalk ----
+  - {id: ng.pit.band3.old, provision: TODO/ng/act/pita/sec_bands, text: "PIT: next NGN 500,000 at 15%", topic: pit_band, value: 0.15, unit: rate, source: pwc-individual, verified: false}
+  - {id: ng.pit.band4.old, provision: TODO/ng/act/pita/sec_bands, text: "PIT: next NGN 500,000 at 19%", topic: pit_band, value: 0.19, unit: rate, source: pwc-individual, verified: false}
+  - {id: ng.pit.band5.old, provision: TODO/ng/act/pita/sec_bands, text: "PIT: next NGN 1,600,000 at 21%", topic: pit_band, value: 0.21, unit: rate, source: pwc-individual, verified: false}
+  - {id: ng.pit.band6.old, provision: TODO/ng/act/pita/sec_bands, text: "PIT: above NGN 3,200,000 at 24%", topic: pit_band, value: 0.24, unit: rate, source: pwc-individual, verified: false}
 
-replacements:   # Rule -> Rule
-  - {old: ng.pit.band1.old, new: ng.pit.band1.2026}
-  - {old: ng.pit.band2.old, new: ng.pit.band2.2026}
-  - {old: ng.pit.cra.old,   new: ng.pit.rent_relief.2026}
+replacements:   # Rule -> Rule: a true one-to-one successor only
+  # No band-to-band links: the old and new PIT scales cover different income ranges
+  # (see successions: the scale is replaced as a whole).
+  # No CRA link: the CRA was dropped, not replaced (see related:).
   - {old: ng.cgt.company.old, new: ng.cgt.company.2026}
+
+successions:   # Provision -> Provision: an old section replaced as a whole by a new one
+  - {old: TODO/ng/act/pita/sec_bands, new: akn/ng/act/2025/7/sec_58, note: "whole PIT scale: the old 6-band scale replaced by the new scale", source: pwc-individual, verified: false}
+
+related:   # Rule -> Rule: worth reading together, NOT a successor (the old rule ended with no replacement)
+  - {rule: ng.pit.cra.old, related: ng.pit.rent_relief.2026, note: "CRA was dropped; rent relief is a separate new relief, not its replacement", verified: false}
 
 grants:
   - {id: ng.grant.pioneer.existing, title: "Existing pioneer status certificates", grantedUnder: TODO/ng/act/iditra}
