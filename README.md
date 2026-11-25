@@ -8,6 +8,8 @@
 
 *InForce checks whether a provision is in force. It is not legal or tax advice.*
 
+**Try it in your browser:** https://subair99.github.io/in-force/ (paste an answer or document; nothing leaves your browser).
+
 <!-- TODO: GIF of `inforce scan` turning the demo repo red, then green -->
 
 ## First result in 60 seconds
