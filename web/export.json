@@ -1,0 +1,770 @@
+{
+ "format": 1,
+ "generated": "2026-11-25",
+ "builtWith": "Built with Relate",
+ "lawPack": {
+  "file": "data/ng-tax-2026.rl",
+  "buildHash": "62e1905d5b18606c32831ab39f56371e372ef6cffe11d016b5869a811a0f8f7e"
+ },
+ "dates": [
+  "0001-01-01",
+  "2026-01-01"
+ ],
+ "rules": {
+  "ng.cgt.company.2026": {
+   "text": "Company gains form part of total profits taxed at 30% (non-small companies)",
+   "topic": "cgt",
+   "value": 0.3,
+   "unit": "rate",
+   "verified": false,
+   "provision": "akn/ng/act/2025/7/sec_27_1",
+   "source": "https://chambers.com/practice-guides/guides/corporate-tax-2026/nigeria/trends-and-developments",
+   "at": [
+    {
+     "status": "NOT_YET",
+     "endedOn": null,
+     "successor": null,
+     "successorRef": null,
+     "related": []
+    },
+    {
+     "status": "IN_FORCE",
+     "endedOn": null,
+     "successor": null,
+     "successorRef": null,
+     "related": []
+    }
+   ]
+  },
+  "ng.cgt.company.old": {
+   "text": "Company capital gains taxed at 10%",
+   "topic": "cgt",
+   "value": 0.1,
+   "unit": "rate",
+   "verified": false,
+   "provision": "TODO/ng/act/cgta/sec_rate",
+   "source": "https://chambers.com/practice-guides/guides/corporate-tax-2026/nigeria/trends-and-developments",
+   "at": [
+    {
+     "status": "IN_FORCE",
+     "endedOn": null,
+     "successor": "Company gains form part of total profits taxed at 30% (non-small companies)",
+     "successorRef": "ng.cgt.company.2026",
+     "related": []
+    },
+    {
+     "status": "REPEALED",
+     "endedOn": "2026-01-01",
+     "successor": "Company gains form part of total profits taxed at 30% (non-small companies)",
+     "successorRef": "ng.cgt.company.2026",
+     "related": []
+    }
+   ]
+  },
+  "ng.pit.band1.2026": {
+   "text": "PIT: first NGN 800,000 at 0%",
+   "topic": "pit_band",
+   "value": 0.0,
+   "unit": "rate",
+   "verified": false,
+   "provision": "akn/ng/act/2025/7/sec_58",
+   "source": "https://taxsummaries.pwc.com/nigeria/individual",
+   "at": [
+    {
+     "status": "NOT_YET",
+     "endedOn": null,
+     "successor": null,
+     "successorRef": null,
+     "related": []
+    },
+    {
+     "status": "IN_FORCE",
+     "endedOn": null,
+     "successor": null,
+     "successorRef": null,
+     "related": []
+    }
+   ]
+  },
+  "ng.pit.band1.old": {
+   "text": "PIT: first NGN 300,000 at 7%",
+   "topic": "pit_band",
+   "value": 0.07,
+   "unit": "rate",
+   "verified": false,
+   "provision": "TODO/ng/act/pita/sec_bands",
+   "source": "https://taxsummaries.pwc.com/nigeria/individual",
+   "at": [
+    {
+     "status": "IN_FORCE",
+     "endedOn": null,
+     "successor": "NTA s. 58 + Fourth Schedule (whole scale): PIT: first NGN 800,000 at 0% · PIT: next NGN 2,200,000 at 15% · PIT: next NGN 9,000,000 at 18% · PIT: next NGN 13,000,000 at 21% · PIT: next NGN 25,000,000 at 23% · PIT: income over NGN 50,000,000 at 25%",
+     "successorRef": "akn/ng/act/2025/7/sec_58",
+     "related": []
+    },
+    {
+     "status": "REPEALED",
+     "endedOn": "2026-01-01",
+     "successor": "NTA s. 58 + Fourth Schedule (whole scale): PIT: first NGN 800,000 at 0% · PIT: next NGN 2,200,000 at 15% · PIT: next NGN 9,000,000 at 18% · PIT: next NGN 13,000,000 at 21% · PIT: next NGN 25,000,000 at 23% · PIT: income over NGN 50,000,000 at 25%",
+     "successorRef": "akn/ng/act/2025/7/sec_58",
+     "related": []
+    }
+   ]
+  },
+  "ng.pit.band2.2026": {
+   "text": "PIT: next NGN 2,200,000 at 15%",
+   "topic": "pit_band",
+   "value": 0.15,
+   "unit": "rate",
+   "verified": false,
+   "provision": "akn/ng/act/2025/7/sec_58",
+   "source": "https://taxsummaries.pwc.com/nigeria/individual",
+   "at": [
+    {
+     "status": "NOT_YET",
+     "endedOn": null,
+     "successor": null,
+     "successorRef": null,
+     "related": []
+    },
+    {
+     "status": "IN_FORCE",
+     "endedOn": null,
+     "successor": null,
+     "successorRef": null,
+     "related": []
+    }
+   ]
+  },
+  "ng.pit.band2.old": {
+   "text": "PIT: next NGN 300,000 at 11%",
+   "topic": "pit_band",
+   "value": 0.11,
+   "unit": "rate",
+   "verified": false,
+   "provision": "TODO/ng/act/pita/sec_bands",
+   "source": "https://taxsummaries.pwc.com/nigeria/individual",
+   "at": [
+    {
+     "status": "IN_FORCE",
+     "endedOn": null,
+     "successor": "NTA s. 58 + Fourth Schedule (whole scale): PIT: first NGN 800,000 at 0% · PIT: next NGN 2,200,000 at 15% · PIT: next NGN 9,000,000 at 18% · PIT: next NGN 13,000,000 at 21% · PIT: next NGN 25,000,000 at 23% · PIT: income over NGN 50,000,000 at 25%",
+     "successorRef": "akn/ng/act/2025/7/sec_58",
+     "related": []
+    },
+    {
+     "status": "REPEALED",
+     "endedOn": "2026-01-01",
+     "successor": "NTA s. 58 + Fourth Schedule (whole scale): PIT: first NGN 800,000 at 0% · PIT: next NGN 2,200,000 at 15% · PIT: next NGN 9,000,000 at 18% · PIT: next NGN 13,000,000 at 21% · PIT: next NGN 25,000,000 at 23% · PIT: income over NGN 50,000,000 at 25%",
+     "successorRef": "akn/ng/act/2025/7/sec_58",
+     "related": []
+    }
+   ]
+  },
+  "ng.pit.band3.2026": {
+   "text": "PIT: next NGN 9,000,000 at 18%",
+   "topic": "pit_band",
+   "value": 0.18,
+   "unit": "rate",
+   "verified": false,
+   "provision": "akn/ng/act/2025/7/sec_58",
+   "source": "https://taxsummaries.pwc.com/nigeria/individual",
+   "at": [
+    {
+     "status": "NOT_YET",
+     "endedOn": null,
+     "successor": null,
+     "successorRef": null,
+     "related": []
+    },
+    {
+     "status": "IN_FORCE",
+     "endedOn": null,
+     "successor": null,
+     "successorRef": null,
+     "related": []
+    }
+   ]
+  },
+  "ng.pit.band3.old": {
+   "text": "PIT: next NGN 500,000 at 15%",
+   "topic": "pit_band",
+   "value": 0.15,
+   "unit": "rate",
+   "verified": false,
+   "provision": "TODO/ng/act/pita/sec_bands",
+   "source": "https://taxsummaries.pwc.com/nigeria/individual",
+   "at": [
+    {
+     "status": "IN_FORCE",
+     "endedOn": null,
+     "successor": "NTA s. 58 + Fourth Schedule (whole scale): PIT: first NGN 800,000 at 0% · PIT: next NGN 2,200,000 at 15% · PIT: next NGN 9,000,000 at 18% · PIT: next NGN 13,000,000 at 21% · PIT: next NGN 25,000,000 at 23% · PIT: income over NGN 50,000,000 at 25%",
+     "successorRef": "akn/ng/act/2025/7/sec_58",
+     "related": []
+    },
+    {
+     "status": "REPEALED",
+     "endedOn": "2026-01-01",
+     "successor": "NTA s. 58 + Fourth Schedule (whole scale): PIT: first NGN 800,000 at 0% · PIT: next NGN 2,200,000 at 15% · PIT: next NGN 9,000,000 at 18% · PIT: next NGN 13,000,000 at 21% · PIT: next NGN 25,000,000 at 23% · PIT: income over NGN 50,000,000 at 25%",
+     "successorRef": "akn/ng/act/2025/7/sec_58",
+     "related": []
+    }
+   ]
+  },
+  "ng.pit.band4.2026": {
+   "text": "PIT: next NGN 13,000,000 at 21%",
+   "topic": "pit_band",
+   "value": 0.21,
+   "unit": "rate",
+   "verified": false,
+   "provision": "akn/ng/act/2025/7/sec_58",
+   "source": "https://taxsummaries.pwc.com/nigeria/individual",
+   "at": [
+    {
+     "status": "NOT_YET",
+     "endedOn": null,
+     "successor": null,
+     "successorRef": null,
+     "related": []
+    },
+    {
+     "status": "IN_FORCE",
+     "endedOn": null,
+     "successor": null,
+     "successorRef": null,
+     "related": []
+    }
+   ]
+  },
+  "ng.pit.band4.old": {
+   "text": "PIT: next NGN 500,000 at 19%",
+   "topic": "pit_band",
+   "value": 0.19,
+   "unit": "rate",
+   "verified": false,
+   "provision": "TODO/ng/act/pita/sec_bands",
+   "source": "https://taxsummaries.pwc.com/nigeria/individual",
+   "at": [
+    {
+     "status": "IN_FORCE",
+     "endedOn": null,
+     "successor": "NTA s. 58 + Fourth Schedule (whole scale): PIT: first NGN 800,000 at 0% · PIT: next NGN 2,200,000 at 15% · PIT: next NGN 9,000,000 at 18% · PIT: next NGN 13,000,000 at 21% · PIT: next NGN 25,000,000 at 23% · PIT: income over NGN 50,000,000 at 25%",
+     "successorRef": "akn/ng/act/2025/7/sec_58",
+     "related": []
+    },
+    {
+     "status": "REPEALED",
+     "endedOn": "2026-01-01",
+     "successor": "NTA s. 58 + Fourth Schedule (whole scale): PIT: first NGN 800,000 at 0% · PIT: next NGN 2,200,000 at 15% · PIT: next NGN 9,000,000 at 18% · PIT: next NGN 13,000,000 at 21% · PIT: next NGN 25,000,000 at 23% · PIT: income over NGN 50,000,000 at 25%",
+     "successorRef": "akn/ng/act/2025/7/sec_58",
+     "related": []
+    }
+   ]
+  },
+  "ng.pit.band5.2026": {
+   "text": "PIT: next NGN 25,000,000 at 23%",
+   "topic": "pit_band",
+   "value": 0.23,
+   "unit": "rate",
+   "verified": false,
+   "provision": "akn/ng/act/2025/7/sec_58",
+   "source": "https://taxsummaries.pwc.com/nigeria/individual",
+   "at": [
+    {
+     "status": "NOT_YET",
+     "endedOn": null,
+     "successor": null,
+     "successorRef": null,
+     "related": []
+    },
+    {
+     "status": "IN_FORCE",
+     "endedOn": null,
+     "successor": null,
+     "successorRef": null,
+     "related": []
+    }
+   ]
+  },
+  "ng.pit.band5.old": {
+   "text": "PIT: next NGN 1,600,000 at 21%",
+   "topic": "pit_band",
+   "value": 0.21,
+   "unit": "rate",
+   "verified": false,
+   "provision": "TODO/ng/act/pita/sec_bands",
+   "source": "https://taxsummaries.pwc.com/nigeria/individual",
+   "at": [
+    {
+     "status": "IN_FORCE",
+     "endedOn": null,
+     "successor": "NTA s. 58 + Fourth Schedule (whole scale): PIT: first NGN 800,000 at 0% · PIT: next NGN 2,200,000 at 15% · PIT: next NGN 9,000,000 at 18% · PIT: next NGN 13,000,000 at 21% · PIT: next NGN 25,000,000 at 23% · PIT: income over NGN 50,000,000 at 25%",
+     "successorRef": "akn/ng/act/2025/7/sec_58",
+     "related": []
+    },
+    {
+     "status": "REPEALED",
+     "endedOn": "2026-01-01",
+     "successor": "NTA s. 58 + Fourth Schedule (whole scale): PIT: first NGN 800,000 at 0% · PIT: next NGN 2,200,000 at 15% · PIT: next NGN 9,000,000 at 18% · PIT: next NGN 13,000,000 at 21% · PIT: next NGN 25,000,000 at 23% · PIT: income over NGN 50,000,000 at 25%",
+     "successorRef": "akn/ng/act/2025/7/sec_58",
+     "related": []
+    }
+   ]
+  },
+  "ng.pit.band6.old": {
+   "text": "PIT: above NGN 3,200,000 at 24%",
+   "topic": "pit_band",
+   "value": 0.24,
+   "unit": "rate",
+   "verified": false,
+   "provision": "TODO/ng/act/pita/sec_bands",
+   "source": "https://taxsummaries.pwc.com/nigeria/individual",
+   "at": [
+    {
+     "status": "IN_FORCE",
+     "endedOn": null,
+     "successor": "NTA s. 58 + Fourth Schedule (whole scale): PIT: first NGN 800,000 at 0% · PIT: next NGN 2,200,000 at 15% · PIT: next NGN 9,000,000 at 18% · PIT: next NGN 13,000,000 at 21% · PIT: next NGN 25,000,000 at 23% · PIT: income over NGN 50,000,000 at 25%",
+     "successorRef": "akn/ng/act/2025/7/sec_58",
+     "related": []
+    },
+    {
+     "status": "REPEALED",
+     "endedOn": "2026-01-01",
+     "successor": "NTA s. 58 + Fourth Schedule (whole scale): PIT: first NGN 800,000 at 0% · PIT: next NGN 2,200,000 at 15% · PIT: next NGN 9,000,000 at 18% · PIT: next NGN 13,000,000 at 21% · PIT: next NGN 25,000,000 at 23% · PIT: income over NGN 50,000,000 at 25%",
+     "successorRef": "akn/ng/act/2025/7/sec_58",
+     "related": []
+    }
+   ]
+  },
+  "ng.pit.cra.old": {
+   "text": "CRA: 20% of gross income plus the higher of NGN 200,000 or 1% of gross",
+   "topic": "relief",
+   "value": null,
+   "unit": null,
+   "verified": false,
+   "provision": "TODO/ng/act/pita/sec_cra",
+   "source": "https://businessday.ng/?p=1096473",
+   "at": [
+    {
+     "status": "IN_FORCE",
+     "endedOn": null,
+     "successor": null,
+     "successorRef": null,
+     "related": [
+      "Rent relief: 20% of annual rent, capped at NGN 500,000"
+     ]
+    },
+    {
+     "status": "REPEALED",
+     "endedOn": "2026-01-01",
+     "successor": null,
+     "successorRef": null,
+     "related": [
+      "Rent relief: 20% of annual rent, capped at NGN 500,000"
+     ]
+    }
+   ]
+  },
+  "ng.pit.rent_relief.2026": {
+   "text": "Rent relief: 20% of annual rent, capped at NGN 500,000",
+   "topic": "relief",
+   "value": 500000,
+   "unit": "NGN_cap",
+   "verified": false,
+   "provision": "TODO/ng/act/2025/7/sec_rent_relief",
+   "source": "https://taxsummaries.pwc.com/nigeria/individual/significant-developments",
+   "at": [
+    {
+     "status": "IN_FORCE",
+     "endedOn": null,
+     "successor": null,
+     "successorRef": null,
+     "related": []
+    },
+    {
+     "status": "IN_FORCE",
+     "endedOn": null,
+     "successor": null,
+     "successorRef": null,
+     "related": []
+    }
+   ]
+  },
+  "ng.pit.top.2026": {
+   "text": "PIT: income over NGN 50,000,000 at 25%",
+   "topic": "pit_band",
+   "value": 0.25,
+   "unit": "rate",
+   "verified": false,
+   "provision": "akn/ng/act/2025/7/sec_58",
+   "source": "https://assets.kpmg.com/content/dam/kpmgsites/xx/pdf/2025/09/fa25-168.pdf.coredownload.inline.pdf",
+   "at": [
+    {
+     "status": "NOT_YET",
+     "endedOn": null,
+     "successor": null,
+     "successorRef": null,
+     "related": []
+    },
+    {
+     "status": "IN_FORCE",
+     "endedOn": null,
+     "successor": null,
+     "successorRef": null,
+     "related": []
+    }
+   ]
+  },
+  "ng.vat.input_services.2026": {
+   "text": "Input VAT on services and fixed assets recoverable; claim within 5 years",
+   "topic": "vat",
+   "value": null,
+   "unit": null,
+   "verified": false,
+   "provision": "akn/ng/act/2025/7/sec_155_4",
+   "source": "https://chambers.com/practice-guides/guides/corporate-tax-2026/nigeria/trends-and-developments",
+   "at": [
+    {
+     "status": "NOT_YET",
+     "endedOn": null,
+     "successor": null,
+     "successorRef": null,
+     "related": []
+    },
+    {
+     "status": "IN_FORCE",
+     "endedOn": null,
+     "successor": null,
+     "successorRef": null,
+     "related": []
+    }
+   ]
+  }
+ },
+ "acts": {
+  "CGTA": {
+   "akn": "TODO/ng/act/cgta",
+   "title": "Capital Gains Tax Act",
+   "source": "https://chambers.com/practice-guides/guides/corporate-tax-2026/nigeria/trends-and-developments",
+   "verified": false,
+   "at": [
+    {
+     "status": "IN_FORCE",
+     "endedOn": null,
+     "successor": null,
+     "successorRef": null
+    },
+    {
+     "status": "REPEALED",
+     "endedOn": "2026-01-01",
+     "successor": "Nigeria Tax Act, 2025",
+     "successorRef": "akn/ng/act/2025/7"
+    }
+   ]
+  },
+  "CITA": {
+   "akn": "TODO/ng/act/cita",
+   "title": "Companies Income Tax Act",
+   "source": "https://chambers.com/practice-guides/guides/corporate-tax-2026/nigeria/trends-and-developments",
+   "verified": false,
+   "at": [
+    {
+     "status": "IN_FORCE",
+     "endedOn": null,
+     "successor": null,
+     "successorRef": null
+    },
+    {
+     "status": "REPEALED",
+     "endedOn": "2026-01-01",
+     "successor": "Nigeria Tax Act, 2025",
+     "successorRef": "akn/ng/act/2025/7"
+    }
+   ]
+  },
+  "IDITRA": {
+   "akn": "TODO/ng/act/iditra",
+   "title": "Industrial Development (Income Tax Relief) Act",
+   "source": "https://chambers.com/practice-guides/guides/corporate-tax-2026/nigeria/trends-and-developments",
+   "verified": false,
+   "at": [
+    {
+     "status": "IN_FORCE",
+     "endedOn": null,
+     "successor": null,
+     "successorRef": null
+    },
+    {
+     "status": "REPEALED",
+     "endedOn": "2026-01-01",
+     "successor": "Nigeria Tax Act, 2025",
+     "successorRef": "akn/ng/act/2025/7"
+    }
+   ]
+  },
+  "PITA": {
+   "akn": "TODO/ng/act/pita",
+   "title": "Personal Income Tax Act",
+   "source": "https://chambers.com/practice-guides/guides/corporate-tax-2026/nigeria/trends-and-developments",
+   "verified": false,
+   "at": [
+    {
+     "status": "IN_FORCE",
+     "endedOn": null,
+     "successor": null,
+     "successorRef": null
+    },
+    {
+     "status": "REPEALED",
+     "endedOn": "2026-01-01",
+     "successor": "Nigeria Tax Act, 2025",
+     "successorRef": "akn/ng/act/2025/7"
+    }
+   ]
+  },
+  "VAT Act": {
+   "akn": "TODO/ng/act/vata",
+   "title": "Value Added Tax Act",
+   "source": "https://chambers.com/practice-guides/guides/corporate-tax-2026/nigeria/trends-and-developments",
+   "verified": false,
+   "at": [
+    {
+     "status": "IN_FORCE",
+     "endedOn": null,
+     "successor": null,
+     "successorRef": null
+    },
+    {
+     "status": "REPEALED",
+     "endedOn": "2026-01-01",
+     "successor": "Nigeria Tax Act, 2025",
+     "successorRef": "akn/ng/act/2025/7"
+    }
+   ]
+  },
+  "NTA": {
+   "akn": "akn/ng/act/2025/7",
+   "title": "Nigeria Tax Act, 2025",
+   "source": null,
+   "verified": false,
+   "at": [
+    {
+     "status": "NOT_YET",
+     "endedOn": null,
+     "successor": null,
+     "successorRef": null
+    },
+    {
+     "status": "IN_FORCE",
+     "endedOn": null,
+     "successor": null,
+     "successorRef": null
+    }
+   ]
+  }
+ },
+ "provisions": {
+  "NTA|155(4)": {
+   "akn": "akn/ng/act/2025/7/sec_155_4",
+   "verified": false,
+   "at": [
+    {
+     "status": "NOT_YET",
+     "endedOn": null,
+     "successor": null,
+     "successorRef": null
+    },
+    {
+     "status": "IN_FORCE",
+     "endedOn": null,
+     "successor": null,
+     "successorRef": null
+    }
+   ]
+  },
+  "NTA|182(2)": {
+   "akn": "akn/ng/act/2025/7/sec_182_2",
+   "verified": false,
+   "at": [
+    {
+     "status": "NOT_YET",
+     "endedOn": null,
+     "successor": null,
+     "successorRef": null
+    },
+    {
+     "status": "IN_FORCE",
+     "endedOn": null,
+     "successor": null,
+     "successorRef": null
+    }
+   ]
+  },
+  "NTA|27(1)": {
+   "akn": "akn/ng/act/2025/7/sec_27_1",
+   "verified": false,
+   "at": [
+    {
+     "status": "NOT_YET",
+     "endedOn": null,
+     "successor": null,
+     "successorRef": null
+    },
+    {
+     "status": "IN_FORCE",
+     "endedOn": null,
+     "successor": null,
+     "successorRef": null
+    }
+   ]
+  },
+  "NTA|56": {
+   "akn": "akn/ng/act/2025/7/sec_56",
+   "verified": false,
+   "at": [
+    {
+     "status": "NOT_YET",
+     "endedOn": null,
+     "successor": null,
+     "successorRef": null
+    },
+    {
+     "status": "IN_FORCE",
+     "endedOn": null,
+     "successor": null,
+     "successorRef": null
+    }
+   ]
+  },
+  "NTA|58 + Fourth Schedule": {
+   "akn": "akn/ng/act/2025/7/sec_58",
+   "verified": false,
+   "at": [
+    {
+     "status": "NOT_YET",
+     "endedOn": null,
+     "successor": null,
+     "successorRef": null
+    },
+    {
+     "status": "IN_FORCE",
+     "endedOn": null,
+     "successor": null,
+     "successorRef": null
+    }
+   ]
+  }
+ },
+ "patterns": {
+  "acts": [
+   {
+    "short": "PITA",
+    "aliases": [
+     {
+      "source": "\\b(?:Personal\\s+Income\\s+Tax\\s+Act)\\b",
+      "flags": "iu"
+     },
+     {
+      "source": "\\b(?:PITA)\\b",
+      "flags": "u"
+     }
+    ]
+   },
+   {
+    "short": "CITA",
+    "aliases": [
+     {
+      "source": "\\b(?:Companies\\s+Income\\s+Tax\\s+Act)\\b",
+      "flags": "iu"
+     },
+     {
+      "source": "\\b(?:CITA)\\b",
+      "flags": "u"
+     }
+    ]
+   },
+   {
+    "short": "CGTA",
+    "aliases": [
+     {
+      "source": "\\b(?:Capital\\s+Gains\\s+Tax\\s+Act)\\b",
+      "flags": "iu"
+     },
+     {
+      "source": "\\b(?:CGTA)\\b",
+      "flags": "u"
+     }
+    ]
+   },
+   {
+    "short": "VAT Act",
+    "aliases": [
+     {
+      "source": "\\b(?:Value\\s+Added\\s+Tax\\s+Act)\\b",
+      "flags": "iu"
+     },
+     {
+      "source": "\\b(?:VAT\\s+Act)\\b",
+      "flags": "iu"
+     }
+    ]
+   },
+   {
+    "short": "IDITRA",
+    "aliases": [
+     {
+      "source": "\\b(?:Industrial\\s+Development\\s+\\(Income\\s+Tax\\s+Relief\\)\\s+Act)\\b",
+      "flags": "iu"
+     },
+     {
+      "source": "\\b(?:IDITRA)\\b",
+      "flags": "u"
+     }
+    ]
+   },
+   {
+    "short": "NTA",
+    "aliases": [
+     {
+      "source": "\\b(?:Nigeria\\s+Tax\\s+Act)\\b",
+      "flags": "iu"
+     },
+     {
+      "source": "\\b(?:NTA)\\b",
+      "flags": "u"
+     }
+    ]
+   }
+  ],
+  "section": {
+   "source": "(?:section|sec\\.|s\\.)\\s*(?<num>\\d+[A-Za-z]?(?:\\(\\d+\\))*)",
+   "flags": "iu"
+  },
+  "concepts": [
+   {
+    "rule": "ng.pit.cra.old",
+    "source": "\\bconsolidated\\s+relief\\s+allowance\\b|\\bCRA\\b",
+    "flags": "iu"
+   },
+   {
+    "rule": "ng.pit.rent_relief.2026",
+    "source": "\\brent\\s+relief\\b",
+    "flags": "iu"
+   }
+  ],
+  "figures": [
+   {
+    "topic": "pit_band",
+    "source": "\\b(?:first|next|above|over|exceeding)\\s+(?:NGN|₦|N)\\s?(?<amount>\\d[\\d,]*)[^%\\n.;]{0,25}?(?<pct>\\d+(?:\\.\\d+)?)\\s?%",
+    "flags": "iu"
+   },
+   {
+    "topic": "cgt",
+    "source": "\\bcapital\\s+gains\\b[^%\\n.;]{0,60}?(?<pct>\\d+(?:\\.\\d+)?)\\s?%",
+    "flags": "iu"
+   }
+  ]
+ },
+ "unverified": 17,
+ "disclaimer": "InForce checks whether a provision is in force. It is not legal or tax advice."
+}

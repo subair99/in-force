@@ -543,6 +543,23 @@ def verify(
     footer()
 
 
+@app.command()
+def export(
+    out: Path = typer.Option(Path("web/export.json"), "--out", help="Where to write the JSON for the browser page."),
+    law_pack: Path = typer.Option(LAW_PACK, "--law", help=LAW_HELP),
+) -> None:
+    """Write web/export.json for the static browser checker (statuses computed by Cypher at each change date)."""
+    from .export import write_export
+
+    try:
+        data = write_export(law_pack, out)
+    except StoreLocked as exc:
+        raise _locked(exc) from None
+    console.print(f"Wrote {out}: {len(data['rules'])} rules, {len(data['acts'])} Acts, "
+                  f"{len(data['provisions'])} numbered provisions, change dates {', '.join(data['dates'][1:])}")
+    footer()
+
+
 whatif_app = typer.Typer(help="Hypothetical changes, measured then rolled back.", no_args_is_help=True)
 app.add_typer(whatif_app, name="whatif")
 
