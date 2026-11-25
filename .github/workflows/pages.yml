@@ -17,31 +17,45 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v7
       - uses: actions/configure-pages@v6
       - uses: actions/upload-pages-artifact@v5
         with:
           path: web
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    outputs:
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
       - id: deployment
         uses: actions/deploy-pages@v5
+
+  smoke-test:
+    needs: deploy
+    runs-on: ubuntu-latest
+    permissions: {}
+    steps:
       - name: Smoke-test the live site (only web/ is published)
         shell: bash
+        env:
+          URL: ${{ needs.deploy.outputs.url }}
         run: |
           set -euo pipefail
-          url="${{ steps.deployment.outputs.page_url }}"
-          for i in 1 2 3 4 5 6; do curl -sSf "$url" -o page.html && break; sleep 10; done
+          for i in 1 2 3 4 5 6; do curl -sSf "$URL" -o page.html && break; sleep 10; done
           grep -q "InForce checks whether a provision is in force. It is not legal or tax advice." page.html
           grep -q "published commentary" page.html
-          curl -sSf "${url}export.json" | python3 -c "import json, sys; d = json.load(sys.stdin); assert d['builtWith'] == 'Built with Relate' and len(d['rules']) > 0; print(len(d['rules']), 'rules,', d['unverified'], 'unverified')"
-          curl -sSf "${url}checker.js" | grep -q "export function check"
+          curl -sSf "${URL}export.json" | python3 -c "import json, sys; d = json.load(sys.stdin); assert d['builtWith'] == 'Built with Relate' and len(d['rules']) > 0; print(len(d['rules']), 'rules,', d['unverified'], 'unverified')"
+          curl -sSf "${URL}checker.js" | grep -q "export function check"
           for p in README.md CLAUDE.md data/ng-tax-2026.rl docs/PLAN.md; do
-            code=$(curl -s -o /dev/null -w '%{http_code}' "${url}${p}")
+            code=$(curl -s -o /dev/null -w '%{http_code}' "${URL}${p}")
             echo "${p}: ${code}"; test "$code" = 404
           done
-          echo "live: $url"
+          echo "live: $URL"
