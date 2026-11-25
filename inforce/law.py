@@ -139,3 +139,25 @@ def keystones(store: Store, on: str | dt.date) -> list[dict[str, Any]]:
         r["status"] = st["status"] if st else "UNKNOWN"
         r["verified"] = bool(st and st["verified"])
     return rows
+
+
+def diff_known_on(store: Store, d1: str | dt.date, d2: str | dt.date) -> dict[str, Any]:
+    """What was on record on d1 versus d2 (bitemporal): each Act's version, and provisions that carry
+    recordedAt/closedAt. Unknown recording dates are flagged, never assumed."""
+    d1, d2 = _iso(d1), _iso(d2)
+    v1 = store.run("known_versions", d=d1)
+    v2 = store.run("known_versions", d=d2)
+    acts: dict[str, dict[str, Any]] = {}
+    for tag, rows in (("d1", v1), ("d2", v2)):
+        for r in rows:
+            a = acts.setdefault(r["akn"], {"akn": r["akn"], "short": r["short"], "d1": [], "d2": []})
+            a[tag].append({"version": r["version"], "recordedAt": r["recordedAt"],
+                           "startUnknown": r["startUnknown"], "verified": r["verified"] is True})
+    for a in acts.values():
+        a["changed"] = sorted(x["version"] for x in a["d1"]) != sorted(x["version"] for x in a["d2"])
+    p1 = {r["akn"]: r for r in store.run("known_provisions", d=d1)}
+    p2 = {r["akn"]: r for r in store.run("known_provisions", d=d2)}
+    provisions = [{"akn": k, "summary": p1[k]["summary"], "d1": p1[k]["known"], "d2": p2[k]["known"]}
+                  for k in sorted(p1) if p1[k]["known"] != p2[k]["known"]]
+    return {"d1": d1, "d2": d2, "acts": sorted(acts.values(), key=lambda a: a["akn"]),
+            "provisions": provisions, "provisionsWithRecordDates": len(p1)}

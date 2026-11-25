@@ -117,11 +117,18 @@ def build_rows(data: dict[str, list[dict[str, Any]]], report: LoadReport) -> dic
             w.append(f"{where}: source {sid!r} is not in sources; no FROM link")
         return sid
 
-    instruments = []
+    instruments: list[dict[str, Any]] = []
+    versions: list[dict[str, Any]] = []   # bitemporal: which published version of an Act was on record when
     for e in data.get("instruments", []):
         where = f"instrument {e['akn']}"
-        if e.get("versions"):
-            w.append(f"{where}: versions (recordedAt/closedAt) not loaded yet; needed for `diff --known-on` (P1)")
+        for ver in e.get("versions") or []:
+            vwhere = f"{where} version {ver.get('version')}"
+            versions.append({"key": f"{e['akn']}#{ver.get('version')}", "instrument": e["akn"],
+                             "version": ver.get("version"),
+                             "recordedAt": _date(ver.get("recordedAt"), f"{vwhere}.recordedAt", w),
+                             "closedAt": _date(ver.get("closedAt"), f"{vwhere}.closedAt", w),
+                             "verified": v(e) and ver.get("verified", True) is True,
+                             "source": src(ver, vwhere)})
         instruments.append({
             "akn": e["akn"], "short": e.get("short"), "title": e.get("title"), "kind": e.get("kind"),
             "assentedOn": _date(e.get("assentedOn"), f"{where}.assentedOn", w),
@@ -142,6 +149,8 @@ def build_rows(data: dict[str, list[dict[str, Any]]], report: LoadReport) -> dic
             "summary": e.get("summary"),
             "validFrom": _date(e.get("validFrom"), f"{where}.validFrom", w),
             "validTo": _date(e.get("validTo"), f"{where}.validTo", w),
+            "recordedAt": _date(e.get("recordedAt"), f"{where}.recordedAt", w),
+            "closedAt": _date(e.get("closedAt"), f"{where}.closedAt", w),
             "verified": v(e), "stub": False, "source": src(e, where),
         })
     prov_akns = {p["akn"] for p in provisions}
@@ -150,7 +159,8 @@ def build_rows(data: dict[str, list[dict[str, Any]]], report: LoadReport) -> dic
         # Referenced but not defined: create an empty, unverified placeholder.
         # No dates, no instrument, no summary: nothing is invented.
         provisions.append({"akn": akn, "instrument": None, "number": None, "summary": None,
-                           "validFrom": None, "validTo": None, "verified": False, "stub": True, "source": None})
+                           "validFrom": None, "validTo": None, "recordedAt": None, "closedAt": None,
+                           "verified": False, "stub": True, "source": None})
         prov_akns.add(akn)
         report.stubs.append(f"provision {akn} (referenced by {why})")
 
@@ -221,13 +231,13 @@ def build_rows(data: dict[str, list[dict[str, Any]]], report: LoadReport) -> dic
     sources = [{"id": s["id"], "url": s["url"], "kind": s.get("kind"), "title": s.get("title")}
                for s in data.get("sources", [])]
 
-    return {"source": sources, "instrument": instruments, "provision": provisions, "rule": rules,
+    return {"source": sources, "instrument": instruments, "version": versions, "provision": provisions, "rule": rules,
             "repeal": repeals, "replacement": replacements, "succession": successions, "related": related,
             "grant": grants, "saving": savings}
 
 
 # Order matters: nodes before the relationships that MATCH them.
-LOAD_ORDER = ("source", "instrument", "provision", "rule", "repeal", "replacement", "succession", "related",
+LOAD_ORDER = ("source", "instrument", "version", "provision", "rule", "repeal", "replacement", "succession", "related",
               "grant", "saving")
 
 

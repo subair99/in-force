@@ -120,3 +120,28 @@ def test_fallout_before_repeal_stands(pack):
     with open_store(pack, read_only=True) as s:
         rows = law.fallout(s, "INCA", "2025-06-01")
     assert {r["verdict"] for r in rows} == {"STANDS"}
+
+
+def test_known_on_versions(tmp_path):
+    """Bitemporal: which version of an Act was on record on a date; unknown start dates are flagged."""
+    import yaml
+    (tmp_path / "rules").mkdir()
+    (tmp_path / "rules" / "x.yaml").write_text(yaml.safe_dump({
+        "instruments": [{"akn": "i/1", "short": "ACT", "verified": True, "versions": [
+            {"version": "gazetted", "recordedAt": "TODO", "closedAt": __import__("datetime").date(2026, 1, 6)},
+            {"version": "certified", "recordedAt": __import__("datetime").date(2026, 1, 6)}]}],
+        "provisions": [{"akn": "p/1", "instrument": "i/1", "verified": True,
+                        "recordedAt": __import__("datetime").date(2026, 1, 6)}],
+    }))
+    out = tmp_path / "x.rl"
+    report = loader.load(tmp_path / "rules", out, embed=False)
+    assert any("not a date" in w for w in report.warnings)
+    with open_store(out, read_only=True) as s:
+        d = law.diff_known_on(s, "2026-01-02", "2026-02-01")
+    [act] = d["acts"]
+    assert [v["version"] for v in act["d1"]] == ["gazetted"] and act["d1"][0]["startUnknown"]
+    assert [v["version"] for v in act["d2"]] == ["certified"] and act["changed"]
+    assert d["provisions"] == [{"akn": "p/1", "summary": None, "d1": False, "d2": True}]
+    with open_store(out, read_only=True) as s:
+        same = law.diff_known_on(s, "2026-02-01", "2026-03-01")
+    assert not same["acts"][0]["changed"] and same["provisions"] == []

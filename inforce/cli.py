@@ -476,6 +476,48 @@ def _print_ask(r: dict) -> None:
     footer()
 
 
+@app.command()
+def diff(
+    known_on: list[str] = typer.Option(..., "--known-on", help="Two dates (YYYY-MM-DD): --known-on D1 --known-on D2."),
+    as_json: bool = typer.Option(False, "--json", help="Print JSON."),
+    law_pack: Path = typer.Option(LAW_PACK, "--law", help=LAW_HELP),
+) -> None:
+    """What was on record on D1 versus D2: which published version of each Act (e.g. gazetted vs certified)."""
+    if len(known_on) != 2:
+        err.print("[red]Give exactly two dates: --known-on D1 --known-on D2[/red]")
+        raise typer.Exit(1)
+    d1, d2 = _on(known_on[0]), _on(known_on[1])
+    try:
+        with open_store(law_pack, read_only=True, log=_log) as store:
+            r = law.diff_known_on(store, d1, d2)
+    except StoreLocked as exc:
+        raise _locked(exc) from None
+    if as_json:
+        print(json.dumps({**r, "disclaimer": DISCLAIMER}, indent=2, ensure_ascii=False, default=str))
+        return
+    t = Table(title=f"Versions on record: {d1} vs {d2}", title_justify="left")
+    for col in ("Act", f"on {d1}", f"on {d2}", "changed"):
+        t.add_column(col)
+
+    def cell(vs: list[dict]) -> str:
+        if not vs:
+            return "[dim]none on record[/dim]"
+        return ", ".join(f"{x['version']} (recorded {x['recordedAt'] or '[yellow]date unknown[/yellow]'})"
+                         + ("" if x["verified"] else " *") for x in vs)
+    for a in r["acts"]:
+        t.add_row(a["short"] or a["akn"], cell(a["d1"]), cell(a["d2"]), "[bold]yes[/bold]" if a["changed"] else "no")
+    console.print(t if r["acts"] else "No Act versions are recorded in the law pack.")
+    if r["provisions"]:
+        for p in r["provisions"]:
+            console.print(f"  {p['akn']}: on record {d1}: {p['d1']}, {d2}: {p['d2']}  [dim]{p['summary'] or ''}[/dim]")
+    else:
+        console.print(f"[dim]Provision level: {r['provisionsWithRecordDates']} provisions carry record dates; "
+                      "none differs between these dates. Text-level differences between versions are not "
+                      "recorded in the law pack yet.[/dim]")
+    console.print("[dim]* unverified[/dim]")
+    footer()
+
+
 whatif_app = typer.Typer(help="Hypothetical changes, measured then rolled back.", no_args_is_help=True)
 app.add_typer(whatif_app, name="whatif")
 
