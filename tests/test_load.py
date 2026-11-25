@@ -171,3 +171,15 @@ def test_readme_verification_status_is_generated_from_the_data():
     readme = (ROOT / "README.md").read_text()
     assert loader.update_status_block(readme, loader.verify_summary(RULES)) == readme
     assert "checked by hand" not in readme.lower() and "hand-built from the official" not in readme.lower()
+
+
+def test_build_hash_ignores_line_endings(tmp_path):
+    """git on Windows checks out CRLF; the same YAML must give the same hash (no rebuild)."""
+    import shutil
+    lf = tmp_path / "lf"
+    crlf = tmp_path / "crlf"
+    shutil.copytree(RULES, lf)
+    shutil.copytree(RULES, crlf)
+    for f in crlf.glob("*.yaml"):
+        f.write_bytes(f.read_bytes().replace(b"\n", b"\r\n"))
+    assert loader.build_hash(lf) == loader.build_hash(crlf)

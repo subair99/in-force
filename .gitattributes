@@ -1,0 +1,6 @@
+# Stores and media are binary: never convert line endings.
+*.rl binary
+*.gif binary
+*.mp4 binary
+*.cast text eol=lf
+*.jsonl text eol=lf

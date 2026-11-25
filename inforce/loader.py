@@ -253,10 +253,14 @@ def build_hash(rules_dir: str | Path) -> str:
     h = hashlib.sha256()
     queries = resources.files("inforce") / "queries"
     parts = sorted(Path(rules_dir).glob("*.yaml")) + [Path(__file__)]
+    # Line endings are normalised: git on Windows checks text out with CRLF, and the same content
+    # must give the same hash there (otherwise `make demo` would rebuild the committed pack).
+    def norm(b: bytes) -> bytes:
+        return b.replace(b"\r\n", b"\n")
     for p in parts:
-        h.update(p.name.encode() + b"\0" + p.read_bytes())
+        h.update(p.name.encode() + b"\0" + norm(p.read_bytes()))
     for name in sorted(n.name for n in queries.iterdir() if n.name == "schema.cypher" or n.name.startswith("load_")):
-        h.update(name.encode() + b"\0" + (queries / name).read_bytes())
+        h.update(name.encode() + b"\0" + norm((queries / name).read_bytes()))
     return h.hexdigest()
 
 
