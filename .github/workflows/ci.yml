@@ -55,3 +55,33 @@ jobs:
           inforce check demo/naira-payroll/answers/stale_answer.md --on 2026-11-25 || rc=$?
           test "$rc" -eq 3
           git diff --exit-code   # read-only: nothing tracked changed
+
+      - name: Demo end to end (make demo; must leave the tree unchanged)
+        shell: bash
+        run: |
+          set -euo pipefail
+          make demo
+          git diff --exit-code
+
+  windows:
+    runs-on: windows-latest
+    env:
+      PYTHONIOENCODING: utf-8
+      PYTHONUTF8: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install InForce
+        run: python -m pip install -e ".[dev,embed]"
+      - name: Tests (Relate CLI not installed here; CLI-only tests are skipped)
+        run: python -m pytest -q
+      - name: Demo end to end
+        run: |
+          inforce load --allow-unverified
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          inforce demo --fast
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          git diff --exit-code
+
