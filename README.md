@@ -45,8 +45,25 @@ inforce whatif repeal [AKN]
 inforce keystones
 ```
 
-### Use it from your coding agent
-Copy `.mcp.json.example` to `.mcp.json` and install the skill in `skill/`. [TODO: exact steps for Claude Code]
+### Use it from your coding agent (Claude Code)
+
+From the repo root, with the virtualenv active so `inforce` is on your `PATH`:
+
+```bash
+cp .mcp.json.example .mcp.json                      # two MCP servers: inforce + Relate's own (read-only law pack)
+mkdir -p .claude/skills/inforce && cp skill/SKILL.md .claude/skills/inforce/
+claude                                              # approve the two project MCP servers when asked
+claude mcp list                                     # inforce and relate-law should show as connected
+```
+
+| MCP server | Tools | What it gives the agent |
+|---|---|---|
+| `inforce` (`inforce serve`) | `inforce_check`, `inforce_brief`, `inforce_scan` | verdicts, successor rules, proof paths and re-check lists (JSON) |
+| `relate-law` (`relate serve --mcp stdio --read-only --safe`) | `read_cypher`, `get_schema` | raw read-only Cypher on the law pack |
+
+The skill tells the agent to check a draft answer before sending it, to brief a tax file before editing it, and to rescan until nothing is STALE. Pass `record_in` to `inforce_check` (or `--record <repo>` on the CLI) and the answer is stored in that repo's project graph next to the code, so a later scan also flags AI answers that rest on repealed law.
+
+Two writers, one store: `python scripts/two_writers.py` holds the project graph open (a simulated long scan) while an agent records an answer. The agent's `store locked, retry n/3` lines show it waiting its turn, then both writes land.
 
 ## Where the data lives
 

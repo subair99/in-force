@@ -2,11 +2,11 @@
   "mcpServers": {
     "inforce": {
       "command": "inforce",
-      "args": ["serve", "--law", "data/ng-tax-2026.rl"]
+      "args": ["serve"]
     },
     "relate-law": {
       "command": "relate",
-      "args": ["serve", "--mcp", "stdio", "--database", "data/ng-tax-2026.rl", "--read-only"]
+      "args": ["serve", "--mcp", "stdio", "--database", "data/ng-tax-2026.rl", "--read-only", "--safe"]
     }
   }
 }
