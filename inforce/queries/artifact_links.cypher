@@ -3,7 +3,7 @@ MATCH (a:Artifact)
 OPTIONAL MATCH (a)-[l:ENCODES|HAS_CLAIM]->(x)
 OPTIONAL MATCH (x:Claim)-[:CITES]->(c)
 WITH a, x, CASE WHEN x:Claim THEN c ELSE x END AS t
-RETURN a.id AS artifact, a.kind AS kind, a.path AS path,
+RETURN a.id AS artifact, a.kind AS kind, a.path AS path, a.line AS line, a.origin AS origin,
        x IS NOT NULL AS linked, t.key AS target, t.verified AS verified
 ORDER BY artifact
 LIMIT 5000

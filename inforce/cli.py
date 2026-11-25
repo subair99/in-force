@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import datetime as dt
+import hashlib
 import json
 import sys
 from pathlib import Path
@@ -48,7 +49,7 @@ def _v(verdict: str) -> str:
 
 
 def _log(msg: str) -> None:
-    err.print(f"[yellow]{msg}[/yellow]")
+    err.print(f"[yellow]{msg}[/yellow]", soft_wrap=True)
 
 
 def _locked(exc: StoreLocked) -> typer.Exit:
@@ -110,6 +111,8 @@ def check(
     on: str = typer.Option(None, "--on", help=ON_HELP),
     as_json: bool = typer.Option(False, "--json", help="Print the JSON envelope (for agents)."),
     law_pack: Path = typer.Option(LAW_PACK, "--law", help=LAW_HELP),
+    record: Path = typer.Option(None, "--record", help="Also store this answer in REPO's project graph."),
+    answer_id: str = typer.Option(None, "--id", help="Id for the recorded answer (default: hash of the text)."),
 ) -> None:
     """Check every law citation and tax figure in a text. Exit 3 if any rests on repealed law."""
     on = _on(on)
@@ -121,6 +124,11 @@ def check(
         text, label = target, "text"
     try:
         result = check_text(text, on, law_pack, log=_log)
+        if record is not None:
+            from .scan import record_answer
+            aid = answer_id or hashlib.sha1(text.encode("utf-8")).hexdigest()[:12]
+            rec = record_answer(record, aid, text, on, law_pack, log=_log)
+            result["recorded"] = {"artifact": rec["artifact"]["id"], "status": rec["verdict"], "store": rec["store"]}
     except StoreLocked as exc:
         raise _locked(exc) from None
 
@@ -128,6 +136,9 @@ def check(
         print(json.dumps(result, indent=2, ensure_ascii=False))
     else:
         _print_check(result, label)
+        if "recorded" in result:
+            r = result["recorded"]
+            console.print(f"[dim]Recorded as {r['artifact']} ({r['status']}) in {r['store']}[/dim]")
     if result["verdict"] == "STALE":
         raise typer.Exit(EXIT_STALE)
 
@@ -238,6 +249,78 @@ def _print_scan(result: dict, label: str) -> None:
         console.print(f"[yellow]warning[/yellow] {w}")
     console.print(f"[dim]Project graph: {result['store']}[/dim]")
     footer()
+
+
+@app.command()
+def brief(
+    target: str = typer.Argument(..., help="A file (in a repo: rescans it first), or a question / draft answer."),
+    on: str = typer.Option(None, "--on", help=ON_HELP),
+    as_json: bool = typer.Option(False, "--json", help="Print JSON (for agents)."),
+    repo: Path = typer.Option(None, "--repo", help="Repo root (default: nearest folder with .inforce/ or .git/)."),
+    law_pack: Path = typer.Option(LAW_PACK, "--law", help=LAW_HELP),
+) -> None:
+    """One screen: VERDICT, TRUTH, WHY, WHAT RESTS ON IT, RE-CHECK LIST. Exit 3 if stale."""
+    from .brief import brief as run_brief
+
+    on = _on(on)
+    try:
+        b = run_brief(target, on, law_pack, repo=repo, log=_log)
+    except StoreLocked as exc:
+        raise _locked(exc) from None
+    if as_json:
+        print(json.dumps(b, indent=2, ensure_ascii=False, default=str))
+    else:
+        _print_brief(b)
+    if b["verdict"] == "STALE":
+        raise typer.Exit(EXIT_STALE)
+
+
+def _print_brief(b: dict) -> None:
+    star = " *" if b["unverified"] else ""
+    console.print(f"[bold]VERDICT[/bold]  {b['target']} on {b['on']}: {_v(b['verdict'])}")
+    console.print("\n[bold]TRUTH[/bold]  what the law says now")
+    if not b["truth"]:
+        console.print("  No repealed law found." if b["verdict"] != "STALE" else "")
+    for t in b["truth"]:
+        if t.get("was"):
+            now = f"{t['now']} [dim]({t['nowRef']})[/dim]" if t["now"] else "[magenta]no successor recorded[/magenta]"
+            console.print(f"  - {t['was']}: [red]ended {t['endedOn']}[/red]. Now: {now}{star}")
+        else:
+            console.print(f"  - {t['now']}: [green]{t.get('status', 'IN_FORCE')}[/green]{star}")
+    console.print("\n[bold]WHY[/bold]")
+    for w in b["why"]:
+        if w.get("chain"):
+            console.print(f"  - {_short(w['artifact'])}: {_chain_text(w['chain'])}")
+        elif w.get("path"):
+            head = _short(w["artifact"]) if w.get("artifact") else w.get("claim")
+            console.print(f"  - {head} (line {w.get('line')}): {' '.join(w['path'])}")
+    console.print("\n[bold]WHAT RESTS ON IT[/bold]")
+    if not b["rests_on_it"]:
+        console.print("  Nothing else in the project graph." if b["repo"] else
+                      "  Not in a scanned repo; run `inforce scan` to see what rests on it.")
+    for r in b["rests_on_it"]:
+        console.print(f"  - {r['where']}  {_short(r['artifact'])} ({r['kind']})")
+    console.print("\n[bold]RE-CHECK LIST[/bold]")
+    if not b["recheck"]:
+        console.print("  Nothing to re-check.")
+    for n, r in enumerate(b["recheck"], 1):
+        console.print(f"  {n}. {r['where']}  {_short(r['artifact'])}: {r['action']}")
+        for x in r.get("replace", []):
+            if x.get("was"):
+                console.print(f"       {x['was']}  ->  {x['now'] or '(no successor recorded)'}")
+    if b["unverified"]:
+        console.print("\n[yellow]* the law pack's rules are not yet verified against the Act's text.[/yellow]")
+    footer()
+
+
+@app.command()
+def serve(
+    law_pack: Path = typer.Option(LAW_PACK, "--law", help=LAW_HELP),
+) -> None:
+    """Run the MCP server on stdio (tools: inforce_check, inforce_scan, inforce_brief)."""
+    from .server import build_server
+
+    build_server(law_pack).run("stdio")
 
 
 @app.command()

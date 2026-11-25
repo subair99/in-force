@@ -237,42 +237,62 @@ def _d(v: Any) -> Any:
     return v.isoformat() if isinstance(v, (dt.date, dt.datetime)) else v
 
 
+def _resolve_claims(lp: Store, entries: list[dict[str, Any]], on: str) -> list[dict[str, Any]]:
+    """Claim rows for write_claims: each claim with the law node it cites (None if not recognised)."""
+    rows: list[dict[str, Any]] = []
+    for entry in entries:
+        c = entry["claim"]
+        for item in resolve(lp, c, on):
+            rows.append({
+                "id": f"{entry['artifact']}#L{c.line}:{c.kind}:{item.ref or c.text}",
+                "artifact": entry["artifact"], "text": item.claim, "kind": c.kind,
+                "line": c.line, "target": item.ref if item.verdict != "NOT_RECOGNISED" else None,
+            })
+    return rows
+
+
+def _law_slice(lp: Store, seeds: set[str]) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    """The law nodes and relationships needed to decide the status of `seeds` (and their successors)."""
+    nodes = lp.run("law_export_nodes")
+    rels = lp.run("law_export_rels")
+    keep = law_closure(seeds, rels)
+    return [n for n in nodes if n["key"] in keep], [r for r in rels if r["s"] in keep and r["t"] in keep]
+
+
+def _copy_law(ps: Store, node_rows: list[dict[str, Any]], rel_rows: list[dict[str, Any]]) -> None:
+    if node_rows:
+        ps.run("copy_law_nodes", rows=node_rows)
+    if rel_rows:
+        ps.run("copy_law_rels", rows=rel_rows)
+
+
+def project_store_path(root: str | Path) -> Path:
+    return Path(root).resolve() / ".inforce" / "project.rl"
+
+
+def _now() -> str:
+    return dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")
+
+
 def scan(root: str | Path, on: str, law_pack: str | Path, log=None) -> dict[str, Any]:
     root = Path(root).resolve()
     f = find(root)
 
     # Resolve document claims against the law pack, and export the law slice we need.
-    claim_rows: list[dict[str, Any]] = []
     with open_store(law_pack, read_only=True, log=log) as lp:
-        for entry in f.claims:
-            c = entry["claim"]
-            for item in resolve(lp, c, on):
-                target = item.ref if item.verdict != "NOT_RECOGNISED" else None
-                claim_rows.append({
-                    "id": f"{entry['artifact']}#L{c.line}:{c.kind}:{item.ref or c.text}",
-                    "artifact": entry["artifact"], "text": item.claim, "kind": c.kind,
-                    "line": c.line, "target": target,
-                })
-        nodes = lp.run("law_export_nodes")
-        rels = lp.run("law_export_rels")
-
-    seeds = {e["rule"] for e in f.encodes} | {r["target"] for r in claim_rows if r["target"]}
-    keep = law_closure(seeds, rels)
-    node_rows = [n for n in nodes if n["key"] in keep]
-    rel_rows = [r for r in rels if r["s"] in keep and r["t"] in keep]
+        claim_rows = _resolve_claims(lp, f.claims, on)
+        seeds = {e["rule"] for e in f.encodes} | {r["target"] for r in claim_rows if r["target"]}
+        node_rows, rel_rows = _law_slice(lp, seeds)
     known_rules = {n["key"] for n in node_rows if n["label"] == "Rule"}
     missing = sorted({e["rule"] for e in f.encodes} - known_rules)
 
-    out = root / ".inforce" / "project.rl"
+    out = project_store_path(root)
     out.parent.mkdir(parents=True, exist_ok=True)
     with open_store(out, log=log) as ps:
         ps.run_script("schema")
         with ps.transaction():
             ps.run("clear_scan")
-            if node_rows:
-                ps.run("copy_law_nodes", rows=node_rows)
-            if rel_rows:
-                ps.run("copy_law_rels", rows=rel_rows)
+            _copy_law(ps, node_rows, rel_rows)
             ps.run("write_artifacts", rows=list(f.artifacts.values()))
             if f.encodes:
                 ps.run("write_encodes", rows=[e for e in f.encodes if e["rule"] in known_rules])
@@ -282,10 +302,42 @@ def scan(root: str | Path, on: str, law_pack: str | Path, log=None) -> dict[str,
                 ps.run("write_ripple", rows=[{"source": s, "target": t, "type": ty} for s, t, ty in sorted(f.edges)])
         report = evaluate(ps, on)
         ps.run("set_artifact_status", rows=[{"id": a["id"], "status": a["status"]} for a in report["artifacts"]],
-               on=on, at=dt.datetime.now(dt.UTC).isoformat(timespec="seconds"))
+               on=on, at=_now())
     report["store"] = str(out)
     report["warnings"] = [f"constant pattern names rule {r!r}, which is not in the law pack" for r in missing]
     return report
+
+
+def record_answer(root: str | Path, answer_id: str, text: str, on: str, law_pack: str | Path,
+                  log=None) -> dict[str, Any]:
+    """Store an AI answer in a repo's project graph (artifact `agent/<answer_id>`, origin 'agent').
+
+    This is the second writer next to `scan`: an agent records the answers it gave, so the
+    project graph tracks which answers rest on repealed law, just like code. Re-recording the
+    same id replaces it. Scans keep agent artifacts.
+    """
+    aid = f"agent/{answer_id}"
+    entries = [{"artifact": aid, "claim": c} for c in extract(text)]
+    with open_store(law_pack, read_only=True, log=log) as lp:
+        claim_rows = _resolve_claims(lp, entries, on)
+        node_rows, rel_rows = _law_slice(lp, {r["target"] for r in claim_rows if r["target"]})
+
+    out = project_store_path(root)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    with open_store(out, log=log) as ps:
+        ps.run_script("schema")
+        with ps.transaction():
+            ps.run("clear_artifact", id=aid)
+            _copy_law(ps, node_rows, rel_rows)
+            ps.run("write_artifacts", rows=[{"id": aid, "path": None, "symbol": None, "kind": "answer",
+                                             "line": None, "origin": "agent"}])
+            if claim_rows:
+                ps.run("write_claims", rows=claim_rows)
+        report = evaluate(ps, on)
+        mine = next(a for a in report["artifacts"] if a["id"] == aid)
+        ps.run("set_artifact_status", rows=[{"id": aid, "status": mine["status"]}], on=on, at=_now())
+    return {"verdict": mine["status"], "on": on, "artifact": mine, "store": str(out),
+            "claims": len(claim_rows), "disclaimer": DISCLAIMER}
 
 
 def evaluate(store: Store, on: str) -> dict[str, Any]:
@@ -319,7 +371,8 @@ def evaluate(store: Store, on: str) -> dict[str, Any]:
     artifacts: dict[str, dict[str, Any]] = {}
     for row in links:
         a = artifacts.setdefault(row["artifact"], {
-            "id": row["artifact"], "kind": row["kind"], "path": row["path"], "status": "CURRENT",
+            "id": row["artifact"], "kind": row["kind"], "path": row["path"], "line": row["line"],
+            "origin": row["origin"], "status": "CURRENT",
             "because": [], "via": [], "alsoCheck": [], "_suspect": False})
         if row["linked"] and (row["target"] is None or row["verified"] is not True):
             a["_suspect"] = True
