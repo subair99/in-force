@@ -29,3 +29,6 @@ include = ["inforce*"]
 
 [tool.setuptools.package-data]
 inforce = ["queries/*.cypher"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]   # demo/naira-payroll has its own (deliberately out-of-date) tests

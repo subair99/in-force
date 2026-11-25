@@ -11,6 +11,8 @@ build/
 # Private planning documents: stay on this machine, never committed.
 # Of the starter documents, only CLAUDE.md is tracked in git.
 docs/
+# ...but the synthetic demo repo's own docs folder is product data, not planning notes.
+!demo/naira-payroll/docs/
 .mcp.json
 # Scratch stores only. The real stores are committed:
 #   data/ng-tax-2026.rl
