@@ -385,6 +385,68 @@ def fallout(
     footer()
 
 
+whatif_app = typer.Typer(help="Hypothetical changes, measured then rolled back.", no_args_is_help=True)
+app.add_typer(whatif_app, name="whatif")
+
+
+@whatif_app.command("repeal")
+def whatif_repeal_cmd(
+    target: str = typer.Argument(..., help="Provision akn, Act akn or Act short name (e.g. IDITRA)."),
+    on: str = typer.Option(None, "--on", help="Date of the hypothetical repeal (and of the check). Default: today."),
+    repo: Path = typer.Option(None, "--repo", help="Also show which artifacts in REPO would turn STALE."),
+    in_place: bool = typer.Option(False, "--in-place",
+                                  help="Run on the stores themselves, not temp copies (content is restored by "
+                                       "rollback, but the .rl files are rewritten)."),
+    as_json: bool = typer.Option(False, "--json", help="Print JSON."),
+    law_pack: Path = typer.Option(LAW_PACK, "--law", help=LAW_HELP),
+) -> None:
+    """What would fall if TARGET were repealed? Measured inside a transaction, then rolled back."""
+    from .whatif import whatif_repeal
+
+    on = _on(on)
+    try:
+        r = whatif_repeal(target, on, law_pack, repo=repo, in_place=in_place)
+    except StoreLocked as exc:
+        raise _locked(exc) from None
+    except FileNotFoundError as exc:
+        err.print(f"[red]{exc}[/red]")
+        raise typer.Exit(1) from None
+    if not r["law"]["found"]:
+        err.print(f"[red]{target!r} is not a provision or Act in the law pack.[/red]")
+        raise typer.Exit(1)
+    if as_json:
+        print(json.dumps(r, indent=2, ensure_ascii=False, default=str))
+        return
+    _print_whatif(r)
+
+
+def _print_whatif(r: dict) -> None:
+    console.print(f"[bold]What if {r['target']} were repealed on {r['on']}?[/bold]  "
+                  f"({'in place' if r['inPlace'] else 'on temporary copies'}; rolled back afterwards)")
+    sections = [("Law", r["law"])] + ([("Repo " + r["repo"]["path"], r["repo"])] if r["repo"] else [])
+    for title, sec in sections:
+        if not sec["changes"]:
+            console.print(f"\n{title}: no status changes"
+                          + ("" if sec["found"] else " (it does not rest on this provision or Act)"))
+            continue
+        t = Table(title=f"{title}: what changes", title_justify="left")
+        for col in ("kind", "id", "", "before", "after"):
+            t.add_column(col)
+        for c in sec["changes"]:
+            t.add_row(c["kind"], c["id"], c["label"], _v(c["before"]), _v(c["after"]))
+        console.print(t)
+    t = Table(title="Rollback check", title_justify="left")
+    for col in ("store", "before", "during", "after", "restored"):
+        t.add_column(col)
+    for title, sec in sections:
+        c = sec["counts"]
+        cell = lambda x: f"{x['nodes']} nodes, {x['rels']} rels, {x['sha256']}"  # noqa: E731
+        t.add_row(title, cell(c["before"]), cell(c["during"]), cell(c["after"]),
+                  "[green]yes[/green]" if sec["unchanged"] else "[red]NO[/red]")
+    console.print(t)
+    footer()
+
+
 @app.command()
 def demo(
     fast: bool = typer.Option(False, "--fast", help="No pauses between steps (CI)."),
@@ -456,6 +518,23 @@ def demo(
         r2 = check_text(answer.read_text(encoding="utf-8"), on, law_pack, log=_log)
         _print_check(r2, "answers/stale_answer.md (rewritten)")
         expect("fixed answer", r2["verdict"] != "STALE", f"verdict {r2['verdict']}")
+
+        from .whatif import whatif_repeal
+        step(7, "What if the new PAYE scale were repealed?",
+             "inforce whatif repeal akn/ng/act/2025/7/sec_58 --repo <fixed copy>: measured in a transaction, "
+             "then rolled back.")
+        w = whatif_repeal("akn/ng/act/2025/7/sec_58", on, law_pack, repo=repo)
+        _print_whatif(w)
+        newly = [c for c in w["repo"]["changes"] if c["after"] == "STALE"]
+        expect("what-if (repo)", bool(newly) and w["law"]["unchanged"] and w["repo"]["unchanged"],
+               f"{len(newly)} artifacts would turn STALE; both stores restored")
+
+        step(8, "What if the savings clause went?",
+             "inforce whatif repeal akn/ng/act/2025/7/sec_182_2: existing pioneer certificates rest on it.")
+        w2 = whatif_repeal("akn/ng/act/2025/7/sec_182_2", on, law_pack)
+        _print_whatif(w2)
+        fell = [c for c in w2["law"]["changes"] if c["after"] == "FELL"]
+        expect("what-if (law)", bool(fell) and w2["law"]["unchanged"], f"{len(fell)} grant(s) would fall")
     except StoreLocked as exc:
         raise _locked(exc) from None
 

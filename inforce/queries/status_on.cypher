@@ -1,7 +1,7 @@
 // Status of one provision on a date. Params: $akn, $on (ISO date).
 // Ends at the earliest of: its own validTo, a repeal of the provision, a repeal of its Act.
 // Starts at its own validFrom, else its Act's commencesOn.
-// A saving provision that is itself in force on $on keeps an ended provision SAVED.
+// A saving provision that is itself in force on $on (commenced, not ended or repealed) keeps an ended provision SAVED.
 MATCH (p:Provision {akn: $akn})
 OPTIONAL MATCH (i:Instrument)-[:CONTAINS]->(p)
 OPTIONAL MATCH (rp:Instrument)-[rx:REPEALS]->(p)
@@ -20,6 +20,9 @@ OPTIONAL MATCH (s:Provision)-[sv:SAVES]->(p)
   WHERE coalesce(s.validFrom, date('0001-01-01')) <= date($on)
     AND (sv.until IS NULL OR sv.until > date($on))
     AND EXISTS { MATCH (si:Instrument)-[:CONTAINS]->(s) WHERE coalesce(si.commencesOn, date('0001-01-01')) <= date($on) }
+    AND (s.validTo IS NULL OR s.validTo > date($on))
+    AND NOT EXISTS { MATCH (:Instrument)-[rs:REPEALS]->(s) WHERE rs.on <= date($on) }
+    AND NOT EXISTS { MATCH (:Instrument)-[ri:REPEALS]->(:Instrument)-[:CONTAINS]->(s) WHERE ri.on <= date($on) }
 WITH p, i, ended, startsOn, collect(s.akn) AS savers
 RETURN p.akn AS akn,
   CASE

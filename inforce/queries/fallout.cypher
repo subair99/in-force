@@ -11,6 +11,9 @@ OPTIONAL MATCH (saver:Provision)-[s:SAVES]->(dep)
   WHERE coalesce(saver.validFrom, date('0001-01-01')) <= date($on)
     AND (s.until IS NULL OR s.until > date($on))
     AND EXISTS { MATCH (si:Instrument)-[:CONTAINS]->(saver) WHERE coalesce(si.commencesOn, date('0001-01-01')) <= date($on) }
+    AND (saver.validTo IS NULL OR saver.validTo > date($on))
+    AND NOT EXISTS { MATCH (:Instrument)-[rs:REPEALS]->(saver) WHERE rs.on <= date($on) }
+    AND NOT EXISTS { MATCH (:Instrument)-[ri:REPEALS]->(:Instrument)-[:CONTAINS]->(saver) WHERE ri.on <= date($on) }
 WITH law, repealedOn, dep, base, collect(saver.akn)[0] AS savedBy, collect(s.until)[0] AS savedUntil
 RETURN coalesce(dep.title, dep.akn, dep.id) AS dependent, dep.id AS id,
        base.akn AS restsOn, repealedOn,
