@@ -1,0 +1,40 @@
+# check patterns: answer/document text -> claims (deterministic, reviewable).
+# False positives are worse than misses for a legal tool: keep patterns narrow.
+# A claim that matches a pattern but no rule in the law pack is reported as
+# NOT_RECOGNISED, never guessed.
+
+# Act names -> Instrument.short in the law pack.
+acts:
+  - short: PITA
+    names: ['Personal\s+Income\s+Tax\s+Act', 'PITA']
+  - short: CITA
+    names: ['Companies\s+Income\s+Tax\s+Act', 'CITA']
+  - short: CGTA
+    names: ['Capital\s+Gains\s+Tax\s+Act', 'CGTA']
+  - short: VAT Act
+    names: ['Value\s+Added\s+Tax\s+Act', 'VAT\s+Act']
+  - short: IDITRA
+    names: ['Industrial\s+Development\s+\(Income\s+Tax\s+Relief\)\s+Act', 'IDITRA']
+  - short: NTA
+    names: ['Nigeria\s+Tax\s+Act', 'NTA']
+
+# A section number written next to an Act name, either side:
+#   "section 33 of the Personal Income Tax Act", "PITA s. 33", "Nigeria Tax Act, section 58"
+section: '(?:section|sec\.|s\.)\s*(?P<num>\d+[A-Za-z]?(?:\(\d+\))*)'
+
+# Named rules -> rule id.
+concepts:
+  - regex: '(?i)\bconsolidated\s+relief\s+allowance\b|\bCRA\b'
+    rule: ng.pit.cra.old
+  - regex: '(?i)\brent\s+relief\b'
+    rule: ng.pit.rent_relief.2026
+
+# Figures: a percentage in a fixed phrase shape -> rules with this topic and value.
+# Named groups: pct (required), amount (optional; must then appear in the rule text).
+figures:
+  - topic: pit_band
+    # "first NGN 300,000 at 7%", "next ₦300,000 @ 11%", "over N50,000,000 ... 25%"
+    regex: '(?i)\b(?:first|next|above|over|exceeding)\s+(?:NGN|₦|N)\s?(?P<amount>\d[\d,]*)[^%\n.;]{0,25}?(?P<pct>\d+(?:\.\d+)?)\s?%'
+  - topic: cgt
+    # "capital gains ... taxed at 10%"; company context is required by the rule text, not the pattern
+    regex: '(?i)\bcapital\s+gains\b[^%\n.;]{0,60}?(?P<pct>\d+(?:\.\d+)?)\s?%'
