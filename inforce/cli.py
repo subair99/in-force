@@ -72,10 +72,11 @@ def load(
                                           help="Load law entries a human has not yet verified."),
     rules: Path = typer.Option(RULES_DIR, help="Directory of rule YAML files."),
     out: Path = typer.Option(LAW_PACK, help="Law pack .rl file to (re)build."),
+    force: bool = typer.Option(False, "--force", help="Rebuild even if the pack is up to date."),
 ) -> None:
-    """Build the law pack .rl from the rule YAML files."""
+    """Build the law pack .rl from the rule YAML files (skipped when already up to date)."""
     try:
-        report = loader.load(rules, out, allow_unverified=allow_unverified, log=_log)
+        report = loader.load(rules, out, allow_unverified=allow_unverified, log=_log, force=force)
     except loader.UnverifiedLaw as exc:
         err.print(f"[red]Refusing to load: {exc}[/red]")
         for e in exc.entries[:15]:
@@ -89,6 +90,9 @@ def load(
     except StoreLocked as exc:
         raise _locked(exc) from None
 
+    if report.skipped:
+        console.print(f"[dim]Law pack {report.path} is up to date with the rule YAML; not rebuilt "
+                      "(use --force to rebuild).[/dim]")
     table = Table(title=f"Law pack: {report.path}")
     table.add_column("label")
     table.add_column("nodes", justify="right")
@@ -379,6 +383,89 @@ def fallout(
                           r["savedUntil"] or ("" if not r["savedBy"] else "no end date"))
         console.print(table)
     footer()
+
+
+@app.command()
+def demo(
+    fast: bool = typer.Option(False, "--fast", help="No pauses between steps (CI)."),
+    on: str = typer.Option("2026-11-25", "--on", help="Date the demo checks against (fixed, so output is stable)."),
+    law_pack: Path = typer.Option(LAW_PACK, "--law", help=LAW_HELP),
+) -> None:
+    """Run the whole story offline: stale answer, stale repo, brief, the recorded agent fix, zero STALE.
+
+    Works on a temporary copy of demo/naira-payroll, so the committed demo stays as it is.
+    Exits 1 if any step does not show what it should.
+    """
+    from . import demo as d
+    from .brief import brief as run_brief
+    from .scan import scan as run_scan
+
+    on = _on(on)
+    results: list[tuple[str, bool, str]] = []
+
+    def step(n: int, title: str, why: str) -> None:
+        if not fast and n > 1:
+            console.input("\n[dim]Press Enter for the next step...[/dim]")
+        console.rule(f"[bold]{n}. {title}[/bold]")
+        console.print(f"[dim]{why}[/dim]\n")
+
+    def expect(name: str, ok: bool, detail: str) -> None:
+        results.append((name, ok, detail))
+        mark = "[green]as expected[/green]" if ok else "[bold red]NOT as expected[/bold red]"
+        console.print(f"\n{mark}: {detail}")
+
+    try:
+        repo = d.copy_demo()
+        step(1, "The law pack", f"{law_pack}: Nigeria's tax reform as a graph in Relate (single-file store).")
+        with open_store(law_pack, read_only=True, log=_log) as store:
+            counts = {r["label"]: r["n"] for r in store.run("law_counts")}
+        console.print(", ".join(f"{k} {v}" for k, v in counts.items()))
+        console.print("[yellow]All rules are unverified until checked against the Act's text by a human.[/yellow]")
+        expect("law pack", counts.get("Rule", 0) > 0, f"{counts.get('Rule', 0)} rules loaded")
+
+        answer = repo / "answers" / "stale_answer.md"
+        step(2, "An AI answer written in 2025", f"inforce check {answer.relative_to(repo.parent)}")
+        r = check_text(answer.read_text(encoding="utf-8"), on, law_pack, log=_log)
+        _print_check(r, "answers/stale_answer.md")
+        expect("stale answer", r["verdict"] == "STALE",
+               f"verdict {r['verdict']}, {sum(i['verdict'] == 'REPEALED' for i in r['items'])} claims rest on repealed law")
+
+        step(3, "The codebase", "inforce scan: code constants, functions, tests, docs and templates, linked to the law.")
+        rep = run_scan(repo, on, law_pack, log=_log)
+        _print_scan(rep, "demo/naira-payroll (copy)")
+        n_stale = sum(a["status"] == "STALE" for a in rep["artifacts"])
+        expect("stale repo", n_stale > 0, f"{n_stale} STALE artifacts")
+
+        step(4, "Before editing paye.py", "inforce brief: what an agent sees before it touches the file.")
+        b = run_brief(str(repo / "payroll" / "paye.py"), on, law_pack, repo=repo, log=_log)
+        _print_brief(b)
+        expect("brief", b["verdict"] == "STALE" and bool(b["recheck"]), f"{len(b['recheck'])} items to re-check")
+
+        step(5, "The agent's fix, replayed", f"Edits from the recorded Claude Code session ({d.AGENT_LOG.name}), "
+             "applied to the copy, then a rescan. No model is called.")
+        rp = d.replay_agent_fix(repo)
+        console.print(f"Replayed {rp.edits} edits to {len(rp.files)} files: {', '.join(rp.files)}")
+        if rp.skipped:
+            console.print(f"[yellow]Edits that no longer apply: {', '.join(rp.skipped)}[/yellow]")
+        rep2 = run_scan(repo, on, law_pack, log=_log)
+        _print_scan(rep2, "demo/naira-payroll (copy, after the fix)")
+        n_after = sum(a["status"] == "STALE" for a in rep2["artifacts"])
+        expect("fixed repo", n_after == 0 and not rp.skipped, f"{n_stale} STALE before, {n_after} after")
+
+        step(6, "The rewritten answer", "inforce check on the answer the agent rewrote.")
+        r2 = check_text(answer.read_text(encoding="utf-8"), on, law_pack, log=_log)
+        _print_check(r2, "answers/stale_answer.md (rewritten)")
+        expect("fixed answer", r2["verdict"] != "STALE", f"verdict {r2['verdict']}")
+    except StoreLocked as exc:
+        raise _locked(exc) from None
+
+    console.rule("[bold]Summary[/bold]")
+    for name, ok, detail in results:
+        console.print(f"  {'[green]PASS[/green]' if ok else '[red]FAIL[/red]'}  {name}: {detail}")
+    console.print(f"[dim]Demo copy: {repo}[/dim]")
+    footer()
+    if not all(ok for _, ok, _ in results):
+        raise typer.Exit(1)
 
 
 if __name__ == "__main__":

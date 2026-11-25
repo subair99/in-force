@@ -117,3 +117,23 @@ def test_dangling_succession_is_an_error(tmp_path):
     }))
     with pytest.raises(loader.BadReference):
         loader.load(tmp_path / "rules", tmp_path / "x.rl")
+
+
+def test_load_skips_up_to_date_pack(law_pack):
+    path, _ = law_pack
+    before = path.read_bytes()
+    again = loader.load(RULES, path, allow_unverified=True)
+    assert again.skipped and again.counts["Rule"] > 0
+    assert path.read_bytes() == before  # untouched, so a fresh clone stays clean after `make demo`
+    forced = loader.load(RULES, path, allow_unverified=True, force=True)
+    assert not forced.skipped
+
+
+def test_load_rebuilds_when_yaml_changes(tmp_path):
+    import shutil
+    rules = tmp_path / "rules"
+    shutil.copytree(RULES, rules)
+    out = tmp_path / "law.rl"
+    loader.load(rules, out, allow_unverified=True)
+    (rules / "extra.yaml").write_text("sources:\n  - {id: x, url: https://example.test/x}\n")
+    assert not loader.load(rules, out, allow_unverified=True).skipped

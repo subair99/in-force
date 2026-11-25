@@ -13,10 +13,12 @@ Rules of the loader:
 from __future__ import annotations
 
 import datetime as dt
+import hashlib
 import os
 import re
 from collections.abc import Callable
 from dataclasses import dataclass, field
+from importlib import resources
 from pathlib import Path
 from typing import Any
 
@@ -47,6 +49,7 @@ class LoadReport:
     unverified: list[str] = field(default_factory=list)
     warnings: list[str] = field(default_factory=list)
     stubs: list[str] = field(default_factory=list)
+    skipped: bool = False
 
 
 class _Yaml12BoolLoader(yaml.SafeLoader):
@@ -227,13 +230,43 @@ LOAD_ORDER = ("source", "instrument", "provision", "rule", "repeal", "replacemen
               "grant", "saving")
 
 
+def build_hash(rules_dir: str | Path) -> str:
+    """sha256 of everything that decides the pack's content: the rule YAML, this loader and its queries."""
+    h = hashlib.sha256()
+    queries = resources.files("inforce") / "queries"
+    parts = sorted(Path(rules_dir).glob("*.yaml")) + [Path(__file__)]
+    for p in parts:
+        h.update(p.name.encode() + b"\0" + p.read_bytes())
+    for name in sorted(n.name for n in queries.iterdir() if n.name == "schema.cypher" or n.name.startswith("load_")):
+        h.update(name.encode() + b"\0" + (queries / name).read_bytes())
+    return h.hexdigest()
+
+
+def pack_hash(out_path: str | Path) -> str | None:
+    """The build hash stored in an existing pack, or None."""
+    if not Path(out_path).exists():
+        return None
+    try:
+        with open_store(out_path, read_only=True) as s:
+            rows = s.run("pack_meta")
+    except Exception:  # noqa: BLE001 - unreadable or old pack: rebuild it
+        return None
+    return rows[0]["hash"] if rows else None
+
+
 def load(
     rules_dir: str | Path,
     out_path: str | Path,
     allow_unverified: bool = False,
     log: Callable[[str], None] | None = None,
+    force: bool = False,
 ) -> LoadReport:
-    """Rebuild `out_path` from the YAML in `rules_dir`. Returns a LoadReport."""
+    """Rebuild `out_path` from the YAML in `rules_dir`. Returns a LoadReport.
+
+    Skips the rebuild (report.skipped = True) when the pack was built from the same YAML,
+    loader and queries, unless `force`. A rebuilt .rl differs in bytes even with the same
+    content, so skipping keeps a fresh clone's committed pack untouched by `make demo`.
+    """
     out_path = Path(out_path)
     report = LoadReport(path=out_path)
     data = read_yaml(Path(rules_dir))
@@ -243,6 +276,12 @@ def load(
         raise UnverifiedLaw(report.unverified)
 
     rows = build_rows(data, report)
+    digest = build_hash(rules_dir)
+    if not force and pack_hash(out_path) == digest:
+        with open_store(out_path, read_only=True, log=log) as store:
+            report.counts = {r["label"]: r["n"] for r in store.run("law_counts")}
+        report.skipped = True
+        return report
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
     tmp = out_path.with_name(out_path.stem + ".building.rl")
@@ -255,6 +294,7 @@ def load(
                 for kind in LOAD_ORDER:
                     if rows[kind]:
                         store.run(f"load_{kind}", rows=rows[kind])
+                store.run("load_meta", hash=digest)
             report.counts = {r["label"]: r["n"] for r in store.run("law_counts")}
         os.replace(tmp, out_path)
     finally:
