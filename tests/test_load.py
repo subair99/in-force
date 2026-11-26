@@ -258,3 +258,12 @@ def test_every_nta_provision_cites_the_gazetted_copy():
     src = {x["id"]: x for x in data["sources"]}["nta-text"]
     assert src["url"] == NTA_PDF and "Government Notice No. 26" in src["title"]
     assert not any(p.get("verified") for p in nta)
+
+
+def test_committed_law_pack_is_up_to_date():
+    """The committed pack must match the YAML, loader and queries, or `make demo` rebuilds it and dirties
+    the tree (fix: `inforce load --allow-unverified --force`, then `inforce export`)."""
+    from inforce.paths import LAW_PACK
+    meta = loader.pack_meta(LAW_PACK)
+    assert meta is not None and meta["hash"] == loader.build_hash(RULES)
+    assert meta["embedModel"]  # committed with embeddings, so an offline clone never rebuilds it
