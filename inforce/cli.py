@@ -495,6 +495,16 @@ def diff(
     if as_json:
         print(json.dumps({**r, "disclaimer": DISCLAIMER}, indent=2, ensure_ascii=False, default=str))
         return
+    _print_diff(r)
+
+
+def _sec(n: str) -> str:
+    """'s.182(2)' for a section number, the text itself for e.g. 'long title (Commencement)'."""
+    return f"s.{n}" if n[:1].isdigit() else n
+
+
+def _print_diff(r: dict) -> None:
+    d1, d2 = r["d1"], r["d2"]
     t = Table(title=f"Versions on record: {d1} vs {d2}", title_justify="left")
     for col in ("Act", f"on {d1}", f"on {d2}", "changed"):
         t.add_column(col)
@@ -514,6 +524,19 @@ def diff(
         console.print(f"[dim]Provision level: {r['provisionsWithRecordDates']} provisions carry record dates; "
                       "none differs between these dates. Text-level differences between versions are not "
                       "recorded in the law pack yet.[/dim]")
+    if r.get("numbering"):
+        t = Table(title="Section numbers that differ between the editions", title_justify="left")
+        for col in ("provision", f"on {d1}", f"on {d2}"):
+            t.add_column(col)
+
+        def num(x: dict) -> str:
+            return f"{_sec(x['number'])} ({x['version']}" + (f", p. {x['page']}" if x.get("page") else "") + ")"
+        for n in r["numbering"]:
+            t.add_row(f"{n['act']} {n['summary'] or n['akn']}\n[dim]{n['akn']}[/dim]", num(n["d1"]), num(n["d2"]))
+        console.print(t)
+    if r.get("numberingUnchecked"):
+        console.print(f"[dim]{len(r['numberingUnchecked'])} provision(s) are numbered in only one of these editions "
+                      "(not yet checked in the other): " + ", ".join(r["numberingUnchecked"]) + "[/dim]")
     console.print("[dim]* unverified[/dim]")
     footer()
 
@@ -761,11 +784,21 @@ def demo(
                f"{len(newly)} artifacts would turn STALE; both stores restored")
 
         step("What if the savings clause went?",
-             "inforce whatif repeal akn/ng/act/2025/7/sec_183_2: existing pioneer certificates rest on it.")
-        w2 = whatif_repeal("akn/ng/act/2025/7/sec_183_2", on, law_pack)
+             "inforce whatif repeal akn/ng/act/2025/7/sec_182_2: existing pioneer certificates rest on it.")
+        w2 = whatif_repeal("akn/ng/act/2025/7/sec_182_2", on, law_pack)
         _print_whatif(w2)
         fell = [c for c in w2["law"]["changes"] if c["after"] == "FELL"]
         expect("what-if (law)", bool(fell) and w2["law"]["unchanged"], f"{len(fell)} grant(s) would fall")
+
+        step("Two official editions, two numberings",
+             "inforce diff --known-on 2025-12-31 --known-on 2026-01-07: the gazetted text (26 Jun 2025) and the "
+             "certified copy (Jan 2026) number some sections differently.")
+        with open_store(law_pack, read_only=True, log=_log) as store:
+            dd = law.diff_known_on(store, "2025-12-31", "2026-01-07")
+        _print_diff(dd)
+        moves = {(n["d1"]["number"], n["d2"]["number"]) for n in dd["numbering"]}
+        expect("diff", {("183(2)", "182(2)"), ("196", "195")} <= moves,
+               ", ".join(f"{_sec(a)} -> {_sec(b)}" for a, b in sorted(moves)))
     except StoreLocked as exc:
         raise _locked(exc) from None
 

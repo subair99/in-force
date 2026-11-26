@@ -47,4 +47,4 @@ def test_fallout_iditra(law_pack):
     env = json.loads(res.stdout)
     assert env["status"] == "REPEALED"
     [row] = env["items"]
-    assert row["verdict"] == "SAVED" and row["savedBy"] == "akn/ng/act/2025/7/sec_183_2"
+    assert row["verdict"] == "SAVED" and row["savedBy"] == "akn/ng/act/2025/7/sec_182_2"

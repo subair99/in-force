@@ -14,7 +14,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-from .loader import LAW_SECTIONS, read_yaml, verify_list, verify_summary
+from .loader import LAW_SECTIONS, provision_numbering, read_yaml, verify_list, verify_summary
 
 ROW = re.compile(r"^- \[(?P<tick>[ xX])\] \*\*(?P<kind>[\w]+)\*\* `(?P<entry>[^`]+)`")
 ACT_FIRST = "akn/ng/act/2025/7"  # the NTA: the Act being checked
@@ -39,7 +39,8 @@ def _homes(data: dict[str, list[dict[str, Any]]]) -> dict[tuple[str, str], tuple
         p = prov.get(akn)
         if not p:
             return ("(unknown Act)", "section not recorded")
-        return (p["instrument"], f"section {p.get('number')}")
+        number, _, note = provision_numbering(p)
+        return (p["instrument"], f"section {number}" + (f" ({note})" if note else ""))
 
     def of_rule(rid: str) -> tuple[str, str]:
         r = rule.get(rid)
@@ -72,19 +73,34 @@ def _what(kind: str, e: dict[str, Any], data: dict[str, Any]) -> str:
     titles = {i["akn"]: i.get("title") or i["akn"] for i in data.get("instruments", [])}
     texts = {r["id"]: r.get("text") for r in data.get("rules", [])}
     if kind == "instrument":
-        note = f"; note: {e['note']}" if e.get("note") else ""
+        note = (f"; commencement in: {e['commencementSection']}" if e.get("commencementSection") else "") + \
+               (f"; note: {e['note']}" if e.get("note") else "")
         return (f"title \"{e.get('title')}\"; assented {e.get('assentedOn', '-')}; "
                 f"commences {e.get('commencesOn', '-')}{note}")
     if kind == "provision":
         dates = ", ".join(x for x in (f"in force from {e['validFrom']}" if e.get("validFrom") else "",
                                       f"until {e['validTo']}" if e.get("validTo") else "") if x)
-        return f"section number \"{e.get('number')}\"; {dates or 'no dates'}; summary \"{e.get('summary')}\""
+        nums = e.get("numbers") or {}
+        if nums:
+            where = "; ".join(
+                f"{ed} text: \"{d['number']}\"" + (f" (p. {d['page']})" if d.get("page") else "")
+                + (f" says \"{d['text']}\"" if d.get("text") else "") for ed, d in nums.items())
+            if "certified" not in nums:
+                where += "; certified numbering not yet checked"
+        else:
+            where = f"section number \"{e.get('number')}\""
+        return f"{where}; {dates or 'no dates'}; summary \"{e.get('summary')}\""
     if kind == "rule":
         val = f"value {e['value']} {e.get('unit') or ''}".strip() if e.get("value") is not None else "no value"
         also = f"; also set by {', '.join(e['alsoProvisions'])}" if e.get("alsoProvisions") else ""
         return f"{val}; says \"{e.get('text')}\"{also}"
     if kind == "repeal":
-        sec = f" under section {e['section']}" if e.get("section") else ""
+        bp = next((p for p in data.get("provisions", []) if p["akn"] == e.get("byProvision")), None)
+        if bp:
+            number, _, note = provision_numbering(bp)
+            sec = f" under section {number}" + (f" ({note})" if note else "")
+        else:
+            sec = f" under section {e['section']}" if e.get("section") else ""
         return f"repeals {titles.get(e['target'], e['target'])} on {e.get('on')}{sec}"
     if kind == "replacement":
         return f"\"{texts.get(e['old'])}\" is replaced one-to-one by \"{texts.get(e['new'])}\""

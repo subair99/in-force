@@ -34,8 +34,14 @@ def instrument_status(store: Store, ref: str, on: str | dt.date) -> dict[str, An
 
 
 def provision_by_number(store: Store, ref: str, number: str) -> str | None:
+    row = provision_lookup(store, ref, number)
+    return row["akn"] if row else None
+
+
+def provision_lookup(store: Store, ref: str, number: str) -> dict[str, Any] | None:
+    """A provision by its section number in any edition: {akn, current, note}."""
     rows = store.run("provision_by_number", ref=ref, number=str(number))
-    return rows[0]["akn"] if rows else None
+    return rows[0] if rows else None
 
 
 def rules_by_value(store: Store, topic: str, value: float) -> list[str]:
@@ -155,9 +161,18 @@ def diff_known_on(store: Store, d1: str | dt.date, d2: str | dt.date) -> dict[st
                            "startUnknown": r["startUnknown"], "verified": r["verified"] is True})
     for a in acts.values():
         a["changed"] = sorted(x["version"] for x in a["d1"]) != sorted(x["version"] for x in a["d2"])
+    # Section numbers that differ between the editions on record on d1 and d2 (e.g. gazetted -> certified).
+    n1 = {(r["akn"]): r for r in store.run("known_numbers", d=d1)}
+    n2 = {(r["akn"]): r for r in store.run("known_numbers", d=d2)}
+    numbering = [{"akn": k, "summary": n1[k]["summary"], "act": n1[k]["short"],
+                  "d1": {"version": n1[k]["version"], "number": n1[k]["number"], "page": n1[k]["page"]},
+                  "d2": {"version": n2[k]["version"], "number": n2[k]["number"], "page": n2[k]["page"]}}
+                 for k in sorted(set(n1) & set(n2)) if n1[k]["number"] != n2[k]["number"]]
+    unchecked = sorted(k for k in set(n1) ^ set(n2))  # numbered in only one of the two editions
     p1 = {r["akn"]: r for r in store.run("known_provisions", d=d1)}
     p2 = {r["akn"]: r for r in store.run("known_provisions", d=d2)}
     provisions = [{"akn": k, "summary": p1[k]["summary"], "d1": p1[k]["known"], "d2": p2[k]["known"]}
                   for k in sorted(p1) if p1[k]["known"] != p2[k]["known"]]
     return {"d1": d1, "d2": d2, "acts": sorted(acts.values(), key=lambda a: a["akn"]),
+            "numbering": numbering, "numberingUnchecked": unchecked,
             "provisions": provisions, "provisionsWithRecordDates": len(p1)}

@@ -4,7 +4,7 @@
 
 **InForce finds every AI answer, line of code and document that still runs on repealed law, and shows what replaced it.** Built with Relate.
 
-On 26 June 2025, Nigeria enacted four tax reform laws: the Nigeria Tax Act, the Nigeria Tax Administration Act, the Nigeria Revenue Service (Establishment) Act and the Joint Revenue Board of Nigeria (Establishment) Act. The two establishment Acts commenced on signing, to set up the institutions; the Nigeria Tax Act and the Nigeria Tax Administration Act took effect on **1 January 2026**. Under section 196 of the Nigeria Tax Act, the Personal Income Tax Act, the Companies Income Tax Act, the Capital Gains Tax Act, the VAT Act, the Industrial Development (Income Tax Relief) Act and other tax laws were repealed from that date.
+On 26 June 2025, Nigeria enacted four tax reform laws: the Nigeria Tax Act, the Nigeria Tax Administration Act, the Nigeria Revenue Service (Establishment) Act and the Joint Revenue Board of Nigeria (Establishment) Act. The two establishment Acts commenced on signing, to set up the institutions; the Nigeria Tax Act and the Nigeria Tax Administration Act took effect on **1 January 2026**. Under section 195 of the Nigeria Tax Act (s.196 in the gazetted text), the Personal Income Tax Act, the Companies Income Tax Act, the Capital Gains Tax Act, the VAT Act, the Industrial Development (Income Tax Relief) Act and other tax laws were repealed from that date.
 
 Payroll code, HR policies and AI assistants written before 2026 still use the old rules. InForce finds where.
 
@@ -180,7 +180,7 @@ relate --database demo/naira-payroll/.inforce/project.rl --read-only --mode tabl
 ## Data and accuracy
 
 - **What is stored:** identifiers, dates, relationships, rule values and short summaries in our own words, built from published commentary on the Nigeria Tax Act 2025 (sources in `data/rules/*.yaml`). No Act text is copied.
-- **Status:** <!-- inforce:verify-status -->Each rule links to its source; verification against the Act's text is in progress (0 of 45 law entries verified).<!-- /inforce:verify-status -->
+- **Status:** <!-- inforce:verify-status -->Each rule links to its source; verification against the Act's text is in progress (0 of 47 law entries verified).<!-- /inforce:verify-status -->
 - **Checking entries:** `make verify` lists every entry with its source and verified flag. `inforce verify --sheet` makes a checklist grouped by section of the Act, and `inforce verify --apply` records the ticks. The loader refuses unverified entries unless `--allow-unverified` is given; the demo uses that flag. Until an entry is verified, every verdict that rests on it is marked unverified.
 - **Synthetic demo:** the demo payroll repo is synthetic, with no real people, salaries or employers.
 

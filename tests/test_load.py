@@ -188,19 +188,6 @@ def test_build_hash_ignores_line_endings(tmp_path):
     assert loader.build_hash(lf) == loader.build_hash(crlf)
 
 
-def test_nta_repeals_cite_section_196_in_the_gazette(law_pack):
-    """Every NTA repeal records s.196 and the gazetted Act (p. A502), with Chambers kept as secondary."""
-    path, _ = law_pack
-    with open_store(path, read_only=True) as s:
-        rows = s.execute("MATCH (:Instrument {short: 'NTA'})-[r:REPEALS]->(t) "
-                         "RETURN t.short AS t, r.section AS sec, r.page AS page, r.source AS src, "
-                         "r.secondarySource AS src2 LIMIT 20")
-        cite = s.execute("MATCH (s:Source {id: 'nta-text'}) RETURN s.citation AS c LIMIT 1")[0]["c"]
-    assert len(rows) == 5
-    assert all((r["sec"], r["page"], r["src"], r["src2"]) == ("196", "A502", "nta-text", ["chambers-cit-2026"])
-               for r in rows)
-    assert "Gazette No. 117" in cite and "Act No. 7" in cite
-
 
 @pytest.mark.parametrize("short,commences", [("NTA", "2026-01-01"), ("NTAA", "2026-01-01"),
                                              ("NRS Act", "2025-06-26"), ("JRB Act", "2025-06-26")])
@@ -212,25 +199,6 @@ def test_reform_acts_commencement_recorded_unverified(law_pack, short, commences
     assert (r["c"].isoformat(), r["v"]) == (commences, False)
 
 
-def test_iditra_savings_clause_is_section_183_2(law_pack):
-    """The gazetted NTA numbers the IDITRA savings clause s.183(2) (p. A492); 182(2) was wrong."""
-    path, _ = law_pack
-    with open_store(path, read_only=True) as s:
-        saver = s.execute("MATCH (p:Provision)-[x:SAVES]->(:Grant) RETURN p.akn AS akn, p.number AS n, "
-                          "p.page AS page, x.page AS xpage LIMIT 1")[0]
-        old = s.execute("MATCH (p:Provision) WHERE p.number = '182(2)' OR p.akn ENDS WITH 'sec_182_2' "
-                        "RETURN count(p) AS c LIMIT 1")[0]["c"]
-    assert saver == {"akn": "akn/ng/act/2025/7/sec_183_2", "n": "183(2)", "page": "A492", "xpage": "A492"}
-    assert old == 0
-
-
-def test_verify_sheet_shows_repeal_section_and_gazette_citation(tmp_path):
-    from inforce.verify_sheet import build_sheet
-    text = build_sheet(RULES)
-    rows = [ln for ln in text.splitlines() if ln.startswith("- [") and "**repeal**" in ln]
-    assert len(rows) == 5
-    assert all("under section 196" in r and "Gazette No. 117" in r and "p. A502" in r and "secondary" in r
-               for r in rows)
 
 
 NTA_PDF = "https://www.nrs.gov.ng/uploads/NIGERIA_TAX_ACT_2025_ef6bb812a5.pdf"
@@ -253,14 +221,6 @@ def test_reform_act_sources(law_pack, short, primary, secondary):
                       "RETURN src.url AS url, i.secondarySource AS sec, i.verified AS v LIMIT 1", {"s": short})[0]
     assert (r["url"], r["sec"], r["v"]) == (primary, secondary, False)
 
-
-def test_every_nta_provision_cites_the_gazetted_copy():
-    data = loader.read_yaml(RULES)
-    nta = [p for p in data["provisions"] if p["instrument"] == "akn/ng/act/2025/7"]
-    assert len(nta) == 6 and all(p["source"] == "nta-text" and p.get("secondarySource") for p in nta)
-    src = {x["id"]: x for x in data["sources"]}["nta-text"]
-    assert src["url"] == NTA_PDF and "Government Notice No. 26" in src["title"]
-    assert not any(p.get("verified") for p in nta)
 
 
 def test_committed_law_pack_is_up_to_date():
@@ -317,8 +277,106 @@ def test_jrb_primary_source_and_ntaa_commencement_page(law_pack):
     ntaa = _one(path, "MATCH (i:Instrument {short: 'NTAA'}) RETURN i.page AS page, i.note AS note, i.verified AS v LIMIT 1")
     assert jrb["url"].endswith("Approved-Copy-to-Print-Joint-Revenue-Board-of-Nigeria-Establishment-Act-2025-B.pdf")
     assert "Government Notice No. 25, Act No. 6" in jrb["t"]
-    assert ntaa == {"page": "A265", "note": "check gazetted text vs official 1 Jan 2026 commencement", "v": False}
+    assert ntaa == {"page": "A265", "v": False,
+                    "note": "gazetted bracket reportedly reads 26 Jun 2025 (text extraction, not yet visually confirmed)"}
 
 
 def test_nothing_is_verified_yet():
     assert not [i for i in loader.verify_list(RULES) if i["verified"]]
+
+
+# --- Two official editions of the NTA number some sections differently -------------------------
+
+def _numbers(path, akn):
+    with open_store(path, read_only=True) as s:
+        return {r["v"]: (r["n"], r["page"]) for r in s.execute(
+            "MATCH (p:Provision {akn: $a})-[n:NUMBERED_AS]->(v:Version) RETURN v.version AS v, n.number AS n, "
+            "n.page AS page LIMIT 5", {"a": akn})}
+
+
+@pytest.mark.parametrize("akn,gazetted,certified", [
+    ("akn/ng/act/2025/7/sec_182_2", ("183(2)", "A492"), ("182(2)", None)),       # IDITRA saving
+    ("akn/ng/act/2025/7/sec_195", ("196", "A502"), ("195", None)),               # the repeals
+    ("akn/ng/act/2025/7/commencement", ("203", "A515"), ("long title (Commencement)", None)),
+    ("akn/ng/act/2025/7/sec_56", ("56", "A428"), ("56", None)),                  # same in both
+    ("akn/ng/act/2025/7/sec_58", ("58 + Fourth Schedule", "A542"), ("58 + Fourth Schedule", None)),
+])
+def test_each_edition_returns_its_own_number(law_pack, akn, gazetted, certified):
+    path, _ = law_pack
+    assert _numbers(path, akn) == {"gazetted": gazetted, "certified": certified}
+
+
+def test_default_display_is_certified_with_gazetted_note(law_pack):
+    path, _ = law_pack
+    with open_store(path, read_only=True) as s:
+        p = s.execute("MATCH (p:Provision {akn: 'akn/ng/act/2025/7/sec_182_2'}) "
+                      "RETURN p.number AS n, p.numberNote AS note LIMIT 1")[0]
+        reps = s.execute("MATCH (:Instrument {short: 'NTA'})-[r:REPEALS]->() RETURN r.section AS sec, "
+                         "r.byProvision AS bp, r.source AS src, r.secondarySource AS src2 LIMIT 10")
+        unchecked = s.execute("MATCH (p:Provision {akn: 'akn/ng/act/2025/7/sec_155_4'}) "
+                              "RETURN p.number AS n, p.numberNote AS note LIMIT 1")[0]
+    assert p == {"n": "182(2)", "note": "s.183(2) in the gazetted text"}
+    assert len(reps) == 5 and all((r["sec"], r["bp"], r["src"], r["src2"]) ==
+                                  ("195", "akn/ng/act/2025/7/sec_195", "nta-certified", ["nta-text", "chambers-cit-2026"])
+                                  for r in reps)
+    assert unchecked == {"n": "155(4)", "note": "gazetted text; certified numbering not yet checked"}
+
+
+def test_diff_shows_both_renumberings(law_pack):
+    from typer.testing import CliRunner
+
+    from inforce import law
+    from inforce.cli import app
+    path, _ = law_pack
+    with open_store(path, read_only=True) as s:
+        d = law.diff_known_on(s, "2025-12-31", "2026-01-07")
+    moves = {(n["d1"]["number"], n["d2"]["number"]) for n in d["numbering"]}
+    assert {("183(2)", "182(2)"), ("196", "195"), ("203", "long title (Commencement)")} == moves
+    assert all(n["d1"]["version"] == "gazetted" and n["d2"]["version"] == "certified" for n in d["numbering"])
+    import json
+    res = CliRunner().invoke(app, ["diff", "--known-on", "2025-12-31", "--known-on", "2026-01-07", "--json",
+                                   "--law", str(path)])
+    cli = {(n["d1"]["number"], n["d1"]["page"], n["d2"]["number"]) for n in json.loads(res.stdout)["numbering"]}
+    assert {("183(2)", "A492", "182(2)"), ("196", "A502", "195")} <= cli
+
+
+@pytest.mark.parametrize("cited,note", [("182(2)", None), ("183(2)", "s.183(2) is s.182(2) in the certified")])
+def test_citation_by_either_editions_number_finds_the_saving(law_pack, cited, note):
+    from inforce.check import check_text
+    path, _ = law_pack
+    [item] = check_text(f"Under section {cited} of the Nigeria Tax Act, pioneer certificates continue.",
+                        "2026-03-01", path)["items"]
+    assert item["ref"] == "akn/ng/act/2025/7/sec_182_2" and item["verdict"] == "IN_FORCE"
+    assert (note is None and "certified (current)" not in (item["note"] or "")) or note in item["note"]
+
+
+def test_nta_sources_per_edition():
+    data = loader.read_yaml(RULES)
+    srcs = {x["id"]: x for x in data["sources"]}
+    assert srcs["nta-text"]["url"] == NTA_PDF
+    assert srcs["nta-certified"]["url"] == "https://tat.gov.ng/NIGERIA-TAX-ADMINISTRATION-ACT-2025.pdf"
+    assert "pp. A387–A596" in srcs["nta-certified"]["title"] and "Tax Appeal Tribunal" in srcs["nta-certified"]["title"]
+    assert "content is the Nigeria Tax Act" in srcs["nta-certified"]["note"]
+    versions = {v["version"]: v for v in next(i for i in data["instruments"] if i.get("short") == "NTA")["versions"]}
+    assert versions["gazetted"]["source"] == "nta-text" and versions["certified"]["source"] == "nta-certified"
+    nta = [p for p in data["provisions"] if p["instrument"] == "akn/ng/act/2025/7"]
+    assert len(nta) == 8 and all(p["source"] in ("nta-text", "nta-certified") for p in nta)
+    assert not any(p.get("verified") for p in nta)
+
+
+def test_ntaa_commencement_in_long_title(law_pack):
+    path, _ = law_pack
+    r = _one(path, "MATCH (i:Instrument {short: 'NTAA'}) RETURN i.commencementSection AS sec, i.commencesOn AS c, "
+                   "i.note AS note, i.page AS page LIMIT 1")
+    assert (r["sec"], r["c"].isoformat(), r["page"]) == ("long title (Commencement)", "2026-01-01", "A265")
+    assert r["note"] == "gazetted bracket reportedly reads 26 Jun 2025 (text extraction, not yet visually confirmed)"
+
+
+def test_verify_sheet_shows_both_numberings(tmp_path):
+    from inforce.verify_sheet import build_sheet
+    text = build_sheet(RULES)
+    repeal_rows = [ln for ln in text.splitlines() if ln.startswith("- [") and "**repeal**" in ln]
+    assert len(repeal_rows) == 5 and all("under section 195 (s.196 in the gazetted text)" in r for r in repeal_rows)
+    assert "### Section 182(2) (s.183(2) in the gazetted text)" in text
+    assert 'gazetted text: "203" (p. A515) says "first day of January, 2026"' in text
+

@@ -33,6 +33,11 @@ sources:
     kind: act
     title: "Nigeria Tax Act, 2025 — gazetted copy (Official Gazette No. 117, 26 June 2025, Government Notice No. 26, Act No. 7), published by the Nigeria Revenue Service"
     citation: "Nigeria Tax Act, 2025 — gazetted copy (Official Gazette No. 117, 26 June 2025, Government Notice No. 26, Act No. 7), published by the Nigeria Revenue Service"
+  - id: nta-certified       # certified edition: section numbers s.182(2), s.195, s.202 and the long-title bracket
+    url: https://tat.gov.ng/NIGERIA-TAX-ADMINISTRATION-ACT-2025.pdf
+    kind: act
+    title: "Nigeria Tax Act, 2025 — approved copy for print (Act No. 7, pp. A387–A596), hosted by the Tax Appeal Tribunal"
+    note: "the file name says Tax Administration Act, but the content is the Nigeria Tax Act; checked 26 Nov 2026"
   - id: ntaa-text
     url: https://gazettengr.com/wp-content/uploads/NIGERIA-TAX-ADMINISTRATION-ACT-2025.pdf
     kind: act
@@ -63,7 +68,7 @@ instruments:
     secondarySource: thecable-gazettes
     versions:
       - {version: gazetted, recordedAt: 2025-06-26, closedAt: 2026-01-06, source: nta-text, note: "Official Gazette No. 117 dated 26 Jun 2025; publication announced by the Presidency on 6 Sep 2025 (Bloomberg Tax)"}
-      - {version: certified, recordedAt: 2026-01-06, source: kpmg-certified, note: "6 Jan 2026 is the date KPMG published the news; KPMG does not state the National Assembly's release day (certified versions released 'as of January 1, 2026')"}
+      - {version: certified, recordedAt: 2026-01-06, source: nta-certified, note: "approved copy for print (pp. A387–A596), released Jan 2026; 6 Jan 2026 is the date KPMG reported the release (kpmg-certified), which gives no release day"}
   - akn: TODO/ng/act/pita
     short: PITA
     title: Personal Income Tax Act
@@ -90,10 +95,11 @@ instruments:
     title: Nigeria Tax Administration Act
     kind: act
     assentedOn: 2025-06-26
-    commencesOn: 2026-01-01           # TODO: commencement section number (the human will confirm)
-    source: ntaa-text
+    commencesOn: 2026-01-01           # per the official announcement
+    commencementSection: "long title (Commencement)"
+    source: ntaa-text                 # do not use the uploaded "FINAL COPY": it is the pre-assent bill
     page: A265
-    note: "check gazetted text vs official 1 Jan 2026 commencement"
+    note: "gazetted bracket reportedly reads 26 Jun 2025 (text extraction, not yet visually confirmed)"
     secondarySource: thecable-gazettes
     verified: false
   # NRS and JRB Acts: effective 26 Jun 2025, activated 1 Jan 2026 (see kpmg-gaps-2026)
@@ -116,22 +122,25 @@ instruments:
     secondarySource: [thecable-gazettes, kpmg-gaps-2026]
     verified: false
 
-repeals:   # all repealed in full by NTA s.196 from 1 Jan 2026 (gazetted NTA p. A502; Chambers commentary as secondary)
-  - {by: akn/ng/act/2025/7, target: TODO/ng/act/pita,   on: 2026-01-01, section: "196", source: nta-text, page: A502, secondarySource: chambers-cit-2026, verified: false}
-  - {by: akn/ng/act/2025/7, target: TODO/ng/act/cita,   on: 2026-01-01, section: "196", source: nta-text, page: A502, secondarySource: chambers-cit-2026, verified: false}
-  - {by: akn/ng/act/2025/7, target: TODO/ng/act/cgta,   on: 2026-01-01, section: "196", source: nta-text, page: A502, secondarySource: chambers-cit-2026, verified: false}
-  - {by: akn/ng/act/2025/7, target: TODO/ng/act/vata,   on: 2026-01-01, section: "196", source: nta-text, page: A502, secondarySource: chambers-cit-2026, verified: false}
-  - {by: akn/ng/act/2025/7, target: TODO/ng/act/iditra, on: 2026-01-01, section: "196", source: nta-text, page: A502, secondarySource: chambers-cit-2026, verified: false}
+repeals:   # repealed in full from 1 Jan 2026 by NTA s.195 (s.196, p. A502 in the gazetted text); Chambers as secondary
+  - {by: akn/ng/act/2025/7, target: TODO/ng/act/pita,   on: 2026-01-01, byProvision: akn/ng/act/2025/7/sec_195, source: nta-certified, secondarySource: [nta-text, chambers-cit-2026], verified: false}
+  - {by: akn/ng/act/2025/7, target: TODO/ng/act/cita,   on: 2026-01-01, byProvision: akn/ng/act/2025/7/sec_195, source: nta-certified, secondarySource: [nta-text, chambers-cit-2026], verified: false}
+  - {by: akn/ng/act/2025/7, target: TODO/ng/act/cgta,   on: 2026-01-01, byProvision: akn/ng/act/2025/7/sec_195, source: nta-certified, secondarySource: [nta-text, chambers-cit-2026], verified: false}
+  - {by: akn/ng/act/2025/7, target: TODO/ng/act/vata,   on: 2026-01-01, byProvision: akn/ng/act/2025/7/sec_195, source: nta-certified, secondarySource: [nta-text, chambers-cit-2026], verified: false}
+  - {by: akn/ng/act/2025/7, target: TODO/ng/act/iditra, on: 2026-01-01, byProvision: akn/ng/act/2025/7/sec_195, source: nta-certified, secondarySource: [nta-text, chambers-cit-2026], verified: false}
   # TODO: Petroleum Profits Tax Act, Stamp Duties Act, FIRS Establishment Act (by NRS Act), others listed in the NTA
 
 provisions:
-  - {akn: akn/ng/act/2025/7/sec_58, instrument: akn/ng/act/2025/7, number: "58 + Fourth Schedule", summary: "Sets personal income tax rates by income band.", validFrom: 2026-01-01, source: nta-text, page: A542, secondarySource: mondaq-nta-analysis, verified: false}
-  - {akn: akn/ng/act/2025/7/sec_183_2, instrument: akn/ng/act/2025/7, number: "183(2)", summary: "Lets companies keep IDITRA incentives for the unexpired period.", validFrom: 2026-01-01, source: nta-text, page: A492, secondarySource: chambers-cit-2026, verified: false}
-  - {akn: akn/ng/act/2025/7/sec_27_1, instrument: akn/ng/act/2025/7, number: "27(1)", summary: "Brings chargeable gains into total profits.", validFrom: 2026-01-01, source: nta-text, secondarySource: chambers-cit-2026, verified: false}
-  - {akn: akn/ng/act/2025/7/sec_56, instrument: akn/ng/act/2025/7, number: "56", summary: "Company income tax rate.", validFrom: 2026-01-01, source: nta-text, page: A428, secondarySource: chambers-cit-2026, verified: false}
-  - {akn: akn/ng/act/2025/7/sec_155_4, instrument: akn/ng/act/2025/7, number: "155(4)", summary: "Time limit for claiming input VAT.", validFrom: 2026-01-01, source: nta-text, secondarySource: chambers-cit-2026, verified: false}
+  - {akn: akn/ng/act/2025/7/sec_58, instrument: akn/ng/act/2025/7, numbers: {gazetted: {number: "58 + Fourth Schedule", page: A542}, certified: {number: "58 + Fourth Schedule"}}, summary: "Sets personal income tax rates by income band.", validFrom: 2026-01-01, source: nta-text, secondarySource: mondaq-nta-analysis, verified: false}
+  - {akn: akn/ng/act/2025/7/sec_182_2, instrument: akn/ng/act/2025/7, numbers: {gazetted: {number: "183(2)", page: A492}, certified: {number: "182(2)"}}, summary: "Lets companies keep IDITRA incentives for the unexpired period.", validFrom: 2026-01-01, source: nta-certified, secondarySource: [nta-text, chambers-cit-2026], verified: false}
+  - {akn: akn/ng/act/2025/7/sec_27_1, instrument: akn/ng/act/2025/7, numbers: {gazetted: {number: "27(1)"}}, summary: "Brings chargeable gains into total profits.", validFrom: 2026-01-01, source: nta-text, secondarySource: chambers-cit-2026, verified: false}
+  - {akn: akn/ng/act/2025/7/sec_56, instrument: akn/ng/act/2025/7, numbers: {gazetted: {number: "56", page: A428}, certified: {number: "56"}}, summary: "Company income tax rate.", validFrom: 2026-01-01, source: nta-text, secondarySource: chambers-cit-2026, verified: false}
+  - {akn: akn/ng/act/2025/7/sec_155_4, instrument: akn/ng/act/2025/7, numbers: {gazetted: {number: "155(4)"}}, summary: "Time limit for claiming input VAT.", validFrom: 2026-01-01, source: nta-text, secondarySource: chambers-cit-2026, verified: false}
+  - {akn: akn/ng/act/2025/7/sec_195, instrument: akn/ng/act/2025/7, numbers: {gazetted: {number: "196", page: A502}, certified: {number: "195"}}, summary: "Repeals the old tax Acts listed in it.", validFrom: 2026-01-01, source: nta-certified, secondarySource: [nta-text, chambers-cit-2026], verified: false}
+  # Commencement: gazetted s.203 (p. A515); the certified edition has it in the long-title bracket (its s.202 is the citation only).
+  - {akn: akn/ng/act/2025/7/commencement, instrument: akn/ng/act/2025/7, numbers: {gazetted: {number: "203", page: A515, text: "first day of January, 2026"}, certified: {number: "long title (Commencement)", text: "[1st January, 2026]"}}, summary: "Commencement of the Act.", validFrom: 2026-01-01, source: nta-certified, secondarySource: nta-text, verified: false}
   # Rent relief: an NTA provision; section number still to find in the Act. validFrom = NTA commencement.
-  - {akn: TODO/ng/act/2025/7/sec_rent_relief, instrument: akn/ng/act/2025/7, number: "30(2)(a)(vi)", summary: "Relief for rent paid by individuals.", validFrom: 2026-01-01, source: nta-text, page: A417, secondarySource: pwc-individual-dev, verified: false}
+  - {akn: TODO/ng/act/2025/7/sec_rent_relief, instrument: akn/ng/act/2025/7, numbers: {gazetted: {number: "30(2)(a)(vi)", page: A417}}, summary: "Relief for rent paid by individuals.", validFrom: 2026-01-01, source: nta-text, secondarySource: pwc-individual-dev, verified: false}
   # Old provisions: section numbers unknown until checked against the old Acts.
   - {akn: TODO/ng/act/pita/sec_bands, instrument: TODO/ng/act/pita, number: TODO, summary: "Old personal income tax bands.", validTo: 2026-01-01, source: pwc-individual, verified: false}
   - {akn: TODO/ng/act/pita/sec_cra, instrument: TODO/ng/act/pita, number: TODO, summary: "Old consolidated relief allowance.", validTo: 2026-01-01, source: businessday-pit, verified: false}
@@ -177,4 +186,4 @@ grants:
   - {id: ng.grant.pioneer.existing, title: "Existing pioneer status certificates", grantedUnder: TODO/ng/act/iditra}
 
 savings:
-  - {saver: akn/ng/act/2025/7/sec_183_2, saves: ng.grant.pioneer.existing, until: null, note: "for the unexpired period of each grant", source: nta-text, page: A492, secondarySource: chambers-cit-2026, verified: false}
+  - {saver: akn/ng/act/2025/7/sec_182_2, saves: ng.grant.pioneer.existing, until: null, note: "for the unexpired period of each grant", source: nta-certified, secondarySource: [nta-text, chambers-cit-2026], verified: false}

@@ -4,7 +4,7 @@
  "builtWith": "Built with Relate",
  "lawPack": {
   "file": "data/ng-tax-2026.rl",
-  "buildHash": "1501bcd2dbb7a537ac5e6ff8674acefe43b10ab2b5be6c0d2955908b73628cb4"
+  "buildHash": "96b050ebd435b72a023a7de8cd1c4ad64750413bb76e07c301f84319ae1b1263"
  },
  "dates": [
   "0001-01-01",
@@ -645,7 +645,7 @@
   "CGTA": {
    "akn": "TODO/ng/act/cgta",
    "title": "Capital Gains Tax Act",
-   "source": "https://www.nrs.gov.ng/uploads/NIGERIA_TAX_ACT_2025_ef6bb812a5.pdf",
+   "source": "https://tat.gov.ng/NIGERIA-TAX-ADMINISTRATION-ACT-2025.pdf",
    "verified": false,
    "at": [
     {
@@ -671,7 +671,7 @@
   "CITA": {
    "akn": "TODO/ng/act/cita",
    "title": "Companies Income Tax Act",
-   "source": "https://www.nrs.gov.ng/uploads/NIGERIA_TAX_ACT_2025_ef6bb812a5.pdf",
+   "source": "https://tat.gov.ng/NIGERIA-TAX-ADMINISTRATION-ACT-2025.pdf",
    "verified": false,
    "at": [
     {
@@ -697,7 +697,7 @@
   "IDITRA": {
    "akn": "TODO/ng/act/iditra",
    "title": "Industrial Development (Income Tax Relief) Act",
-   "source": "https://www.nrs.gov.ng/uploads/NIGERIA_TAX_ACT_2025_ef6bb812a5.pdf",
+   "source": "https://tat.gov.ng/NIGERIA-TAX-ADMINISTRATION-ACT-2025.pdf",
    "verified": false,
    "at": [
     {
@@ -723,7 +723,7 @@
   "PITA": {
    "akn": "TODO/ng/act/pita",
    "title": "Personal Income Tax Act",
-   "source": "https://www.nrs.gov.ng/uploads/NIGERIA_TAX_ACT_2025_ef6bb812a5.pdf",
+   "source": "https://tat.gov.ng/NIGERIA-TAX-ADMINISTRATION-ACT-2025.pdf",
    "verified": false,
    "at": [
     {
@@ -749,7 +749,7 @@
   "VAT Act": {
    "akn": "TODO/ng/act/vata",
    "title": "Value Added Tax Act",
-   "source": "https://www.nrs.gov.ng/uploads/NIGERIA_TAX_ACT_2025_ef6bb812a5.pdf",
+   "source": "https://tat.gov.ng/NIGERIA-TAX-ADMINISTRATION-ACT-2025.pdf",
    "verified": false,
    "at": [
     {
@@ -824,6 +824,54 @@
     }
    ]
   },
+  "NTA|203": {
+   "akn": "akn/ng/act/2025/7/commencement",
+   "verified": false,
+   "at": [
+    {
+     "status": "NOT_YET",
+     "endedOn": null,
+     "successor": null,
+     "successorRef": null
+    },
+    {
+     "status": "NOT_YET",
+     "endedOn": null,
+     "successor": null,
+     "successorRef": null
+    },
+    {
+     "status": "IN_FORCE",
+     "endedOn": null,
+     "successor": null,
+     "successorRef": null
+    }
+   ]
+  },
+  "NTA|long title (Commencement)": {
+   "akn": "akn/ng/act/2025/7/commencement",
+   "verified": false,
+   "at": [
+    {
+     "status": "NOT_YET",
+     "endedOn": null,
+     "successor": null,
+     "successorRef": null
+    },
+    {
+     "status": "NOT_YET",
+     "endedOn": null,
+     "successor": null,
+     "successorRef": null
+    },
+    {
+     "status": "IN_FORCE",
+     "endedOn": null,
+     "successor": null,
+     "successorRef": null
+    }
+   ]
+  },
   "NTA|155(4)": {
    "akn": "akn/ng/act/2025/7/sec_155_4",
    "verified": false,
@@ -848,8 +896,80 @@
     }
    ]
   },
+  "NTA|182(2)": {
+   "akn": "akn/ng/act/2025/7/sec_182_2",
+   "verified": false,
+   "at": [
+    {
+     "status": "NOT_YET",
+     "endedOn": null,
+     "successor": null,
+     "successorRef": null
+    },
+    {
+     "status": "NOT_YET",
+     "endedOn": null,
+     "successor": null,
+     "successorRef": null
+    },
+    {
+     "status": "IN_FORCE",
+     "endedOn": null,
+     "successor": null,
+     "successorRef": null
+    }
+   ]
+  },
   "NTA|183(2)": {
-   "akn": "akn/ng/act/2025/7/sec_183_2",
+   "akn": "akn/ng/act/2025/7/sec_182_2",
+   "verified": false,
+   "at": [
+    {
+     "status": "NOT_YET",
+     "endedOn": null,
+     "successor": null,
+     "successorRef": null
+    },
+    {
+     "status": "NOT_YET",
+     "endedOn": null,
+     "successor": null,
+     "successorRef": null
+    },
+    {
+     "status": "IN_FORCE",
+     "endedOn": null,
+     "successor": null,
+     "successorRef": null
+    }
+   ]
+  },
+  "NTA|195": {
+   "akn": "akn/ng/act/2025/7/sec_195",
+   "verified": false,
+   "at": [
+    {
+     "status": "NOT_YET",
+     "endedOn": null,
+     "successor": null,
+     "successorRef": null
+    },
+    {
+     "status": "NOT_YET",
+     "endedOn": null,
+     "successor": null,
+     "successorRef": null
+    },
+    {
+     "status": "IN_FORCE",
+     "endedOn": null,
+     "successor": null,
+     "successorRef": null
+    }
+   ]
+  },
+  "NTA|196": {
+   "akn": "akn/ng/act/2025/7/sec_195",
    "verified": false,
    "at": [
     {

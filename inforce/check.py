@@ -90,7 +90,8 @@ def resolve(store: Store, c: Claim, on: str) -> list[Item]:
     # citation
     note = None
     if c.section:
-        akn = law.provision_by_number(store, c.act, c.section)
+        found = law.provision_lookup(store, c.act, c.section)
+        akn = found["akn"] if found else None
         if akn:
             st = law.provision_status(store, akn, on)
             inst = law.instrument_status(store, c.act, on)
@@ -100,7 +101,11 @@ def resolve(store: Store, c: Claim, on: str) -> list[Item]:
             return [Item(c.line, c.text + f" s. {c.section}", c.kind, akn, st["status"],
                          verified=st["verified"] is True, endedOn=_d(st["endedOn"]), repealedBy=st["repealedBy"],
                          source=inst["source"] if inst else None, path=path, mentions=c.mentions,
-                         note=None if st["verified"] is True else "provision not yet verified")]
+                         note="; ".join(filter(None, [
+                             None if found["current"] == c.section else
+                             f"s.{c.section} is s.{found['current']} in the certified (current) text",
+                             found["note"] if found["current"] != c.section else None,
+                             None if st["verified"] is True else "provision not yet verified"])) or None)]
         note = f"section {c.section} is not in the law pack; status is for the whole Act"
     inst = law.instrument_status(store, c.act, on)
     if inst is None:

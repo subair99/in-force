@@ -109,6 +109,25 @@ def _str(value: Any) -> str | None:
     return None if value is None else str(value)
 
 
+def provision_numbering(e: dict[str, Any]) -> tuple[str | None, str | None, str | None]:
+    """(number to show, gazetted page, note) for a provision.
+
+    With `numbers:` per edition, the certified (current) number is shown; where the gazetted text
+    numbers it differently, the note says so ("s.183(2) in the gazetted text"). A number known only
+    from the gazetted text is shown with a note that the certified numbering is not yet checked.
+    """
+    nums = e.get("numbers") or {}
+    if not nums:
+        return _str(e.get("number")), _str(e.get("page")), None
+    cert, gaz = nums.get("certified") or {}, nums.get("gazetted") or {}
+    page = _str(gaz.get("page")) or _str(e.get("page"))
+    if cert:
+        note = (f"s.{gaz['number']} in the gazetted text"
+                if gaz and str(gaz["number"]) != str(cert["number"]) else None)
+        return str(cert["number"]), page, note
+    return str(gaz["number"]), page, "gazetted text; certified numbering not yet checked"
+
+
 def build_rows(data: dict[str, list[dict[str, Any]]], report: LoadReport) -> dict[str, list[dict[str, Any]]]:
     """Turn YAML entries into parameter rows for the load_*.cypher queries."""
     w = report.warnings
@@ -151,25 +170,34 @@ def build_rows(data: dict[str, list[dict[str, Any]]], report: LoadReport) -> dic
             "commencesOn": _date(e.get("commencesOn"), f"{where}.commencesOn", w),
             "verified": v(e), "stub": False, "source": src(e, where), "secondarySource": src2(e, where),
             "page": _str(e.get("page")), "note": e.get("note"),
+            "commencementSection": _str(e.get("commencementSection")),
         })
     inst_akns = {i["akn"] for i in instruments}
 
+    version_keys = {v_["key"] for v_ in versions}
+    numbered: list[dict[str, Any]] = []   # section number per published edition (gazetted, certified)
     provisions = []
     for e in data.get("provisions", []):
         where = f"provision {e['akn']}"
         inst = e.get("instrument")
         if inst not in inst_akns:
             raise BadReference(f"{where}: instrument {inst!r} is not defined")
+        number, page, note = provision_numbering(e)
+        for edition, d in (e.get("numbers") or {}).items():
+            vkey = f"{inst}#{edition}"
+            if vkey not in version_keys:
+                raise BadReference(f"{where}: numbers.{edition} names no version of {inst}")
+            numbered.append({"provision": e["akn"], "version": vkey, "number": str(d["number"]),
+                             "page": _str(d.get("page")), "text": d.get("text")})
         provisions.append({
-            "akn": e["akn"], "instrument": inst,
-            "number": None if e.get("number") is None else str(e["number"]),
+            "akn": e["akn"], "instrument": inst, "number": number, "numberNote": note,
             "summary": e.get("summary"),
             "validFrom": _date(e.get("validFrom"), f"{where}.validFrom", w),
             "validTo": _date(e.get("validTo"), f"{where}.validTo", w),
             "recordedAt": _date(e.get("recordedAt"), f"{where}.recordedAt", w),
             "closedAt": _date(e.get("closedAt"), f"{where}.closedAt", w),
             "verified": v(e), "stub": False, "source": src(e, where),
-            "page": _str(e.get("page")), "secondarySource": src2(e, where),
+            "page": page, "secondarySource": src2(e, where),
         })
     prov_akns = {p["akn"] for p in provisions}
     commencing = {i["akn"] for i in instruments if i["commencesOn"]}
@@ -181,7 +209,7 @@ def build_rows(data: dict[str, list[dict[str, Any]]], report: LoadReport) -> dic
     def stub_provision(akn: str, why: str) -> None:
         # Referenced but not defined: create an empty, unverified placeholder.
         # No dates, no instrument, no summary: nothing is invented.
-        provisions.append({"akn": akn, "instrument": None, "number": None, "summary": None,
+        provisions.append({"akn": akn, "instrument": None, "number": None, "numberNote": None, "summary": None,
                            "validFrom": None, "validTo": None, "recordedAt": None, "closedAt": None,
                            "verified": False, "stub": True, "source": None, "page": None, "secondarySource": None})
         prov_akns.add(akn)
@@ -214,8 +242,14 @@ def build_rows(data: dict[str, list[dict[str, Any]]], report: LoadReport) -> dic
             raise BadReference(f"{where}: repealing instrument is not defined")
         if e["target"] not in inst_akns | prov_akns:
             raise BadReference(f"{where}: target is not a defined instrument or provision")
+        bp = e.get("byProvision")
+        if bp is not None and bp not in prov_akns:
+            raise BadReference(f"{where}: byProvision {bp!r} is not defined")
+        bp_row = next((p for p in provisions if p["akn"] == bp), None)
         repeals.append({"by": e["by"], "target": e["target"], "on": _date(e.get("on"), f"{where}.on", w),
-                        "section": _str(e.get("section")), "page": _str(e.get("page")),
+                        "byProvision": bp,
+                        "section": bp_row["number"] if bp_row else _str(e.get("section")),
+                        "page": _str(e.get("page")),
                         "verified": v(e), "source": src(e, where), "secondarySource": src2(e, where)})
 
     replacements = []
@@ -263,16 +297,17 @@ def build_rows(data: dict[str, list[dict[str, Any]]], report: LoadReport) -> dic
                         "page": _str(e.get("page")), "secondarySource": src2(e, where)})
 
     sources = [{"id": s["id"], "url": s["url"], "kind": s.get("kind"), "title": s.get("title"),
-                "citation": s.get("citation")}
+                "citation": s.get("citation"), "note": s.get("note")}
                for s in data.get("sources", [])]
 
-    return {"source": sources, "instrument": instruments, "version": versions, "provision": provisions, "rule": rules,
+    return {"source": sources, "instrument": instruments, "version": versions, "provision": provisions,
+            "numbered": numbered, "rule": rules,
             "also_sets": also_sets, "repeal": repeals, "replacement": replacements, "succession": successions, "related": related,
             "grant": grants, "saving": savings}
 
 
 # Order matters: nodes before the relationships that MATCH them.
-LOAD_ORDER = ("source", "instrument", "version", "provision", "rule", "also_sets", "repeal", "replacement", "succession", "related",
+LOAD_ORDER = ("source", "instrument", "version", "provision", "numbered", "rule", "also_sets", "repeal", "replacement", "succession", "related",
               "grant", "saving")
 
 
