@@ -365,6 +365,7 @@ def evaluate(store: Store, on: str) -> dict[str, Any]:
                 "successorRef": succ["id"] if succ else (scale["provision"] if scale else None),
                 "scale": scale["rules"] if scale and not succ else None,
                 "related": [{"id": x["id"], "text": x["text"]} for x in r.get("related", [])],
+                "notes": r.get("notes", []), "successorNotes": succ.get("notes", []) if succ else [],
                 "path": r["path"]}
         elif t["label"] == "Instrument":
             i = law.instrument_status(store, t["key"], on)
@@ -400,6 +401,7 @@ def evaluate(store: Store, on: str) -> dict[str, Any]:
             a["because"].append({**b, "rule": t.get("rule"), "endedOn": _d(t.get("endedOn")),
                                  "successor": t.get("successor"), "successorRef": t.get("successorRef"),
                                  "scale": t.get("scale"), "related": t.get("related", []),
+                                 "notes": t.get("notes", []), "successorNotes": t.get("successorNotes", []),
                                  "path": t.get("path", [])})
         a["alsoCheck"] = sorted(ripple.get(aid, []))
 

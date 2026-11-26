@@ -97,6 +97,10 @@ def _what(kind: str, e: dict[str, Any], data: dict[str, Any]) -> str:
     if kind == "rule":
         val = f"value {e['value']} {e.get('unit') or ''}".strip() if e.get("value") is not None else "no value"
         also = f"; also set by {', '.join(e['alsoProvisions'])}" if e.get("alsoProvisions") else ""
+        provs = {p_["akn"]: p_ for p_ in data.get("provisions", [])}
+        for akn in [e.get("provision"), *(e.get("alsoProvisions") or [])]:
+            if provs.get(akn, {}).get("note"):
+                also += f"; note ({akn.rsplit('/', 1)[-1]}): {provs[akn]['note']}"
         return f"{val}; says \"{e.get('text')}\"{also}"
     if kind == "repeal":
         bp = next((p for p in data.get("provisions", []) if p["akn"] == e.get("byProvision")), None)

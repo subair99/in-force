@@ -38,6 +38,8 @@ class Item:
     mentions: int = 1
     successorScale: list[dict[str, Any]] | None = None   # the whole new scale, when replaced as a whole
     related: list[dict[str, Any]] = field(default_factory=list)  # read together; not successors
+    ruleNotes: list[str] = field(default_factory=list)       # notes on the provisions setting the cited rule
+    successorNotes: list[str] = field(default_factory=list)  # ... and on its successor's provisions
 
 
 def _d(v: Any) -> str | None:
@@ -54,6 +56,9 @@ def _rule_item(c: Claim, r: dict[str, Any]) -> Item:
     else:
         successor = ref = status = None
     notes = [] if r["verified"] else ["rule not yet verified against the Act's text"]
+    notes += r.get("notes", [])
+    succ_notes = succ.get("notes", []) if succ else []
+    notes += [f"successor {n}" for n in succ_notes]
     if r["status"] == "REPEALED" and not successor:
         notes.append("ended with no replacement")
     notes += [f"related (not a successor): {x['text']} ({x['id']})" for x in r.get("related", [])]
@@ -62,6 +67,7 @@ def _rule_item(c: Claim, r: dict[str, Any]) -> Item:
         endedOn=_d(r["endedOn"]), repealedBy=r["repealedBy"],
         successor=successor, successorRef=ref, successorStatus=status,
         successorScale=scale["rules"] if scale else None,
+        ruleNotes=r.get("notes", []), successorNotes=succ_notes,
         related=[{"id": x["id"], "text": x["text"]} for x in r.get("related", [])],
         source=r["source"], path=r["path"], mentions=c.mentions, note="; ".join(notes) or None,
     )

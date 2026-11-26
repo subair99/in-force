@@ -59,6 +59,7 @@ sources:
 
 instruments:
   - akn: akn/ng/act/2025/7          # id format as used by judy.legal; confirm
+    verified: true
     short: NTA
     title: Nigeria Tax Act, 2025
     kind: act
@@ -123,24 +124,23 @@ instruments:
     verified: false
 
 repeals:   # repealed in full from 1 Jan 2026 by NTA s.195 (s.196, p. A502 in the gazetted text); Chambers as secondary
-  - {by: akn/ng/act/2025/7, target: TODO/ng/act/pita,   on: 2026-01-01, byProvision: akn/ng/act/2025/7/sec_195, source: nta-certified, secondarySource: [nta-text, chambers-cit-2026], verified: false}
-  - {by: akn/ng/act/2025/7, target: TODO/ng/act/cita,   on: 2026-01-01, byProvision: akn/ng/act/2025/7/sec_195, source: nta-certified, secondarySource: [nta-text, chambers-cit-2026], verified: false}
-  - {by: akn/ng/act/2025/7, target: TODO/ng/act/cgta,   on: 2026-01-01, byProvision: akn/ng/act/2025/7/sec_195, source: nta-certified, secondarySource: [nta-text, chambers-cit-2026], verified: false}
-  - {by: akn/ng/act/2025/7, target: TODO/ng/act/vata,   on: 2026-01-01, byProvision: akn/ng/act/2025/7/sec_195, source: nta-certified, secondarySource: [nta-text, chambers-cit-2026], verified: false}
-  - {by: akn/ng/act/2025/7, target: TODO/ng/act/iditra, on: 2026-01-01, byProvision: akn/ng/act/2025/7/sec_195, source: nta-certified, secondarySource: [nta-text, chambers-cit-2026], verified: false}
+  - {by: akn/ng/act/2025/7, target: TODO/ng/act/pita,   on: 2026-01-01, byProvision: akn/ng/act/2025/7/sec_195, source: nta-certified, secondarySource: [nta-text, chambers-cit-2026], verified: true}
+  - {by: akn/ng/act/2025/7, target: TODO/ng/act/cita,   on: 2026-01-01, byProvision: akn/ng/act/2025/7/sec_195, source: nta-certified, secondarySource: [nta-text, chambers-cit-2026], verified: true}
+  - {by: akn/ng/act/2025/7, target: TODO/ng/act/cgta,   on: 2026-01-01, byProvision: akn/ng/act/2025/7/sec_195, source: nta-certified, secondarySource: [nta-text, chambers-cit-2026], verified: true}
+  - {by: akn/ng/act/2025/7, target: TODO/ng/act/vata,   on: 2026-01-01, byProvision: akn/ng/act/2025/7/sec_195, source: nta-certified, secondarySource: [nta-text, chambers-cit-2026], verified: true}
+  - {by: akn/ng/act/2025/7, target: TODO/ng/act/iditra, on: 2026-01-01, byProvision: akn/ng/act/2025/7/sec_195, source: nta-certified, secondarySource: [nta-text, chambers-cit-2026], verified: true}
   # TODO: Petroleum Profits Tax Act, Stamp Duties Act, FIRS Establishment Act (by NRS Act), others listed in the NTA
 
 provisions:
-  - {akn: akn/ng/act/2025/7/sec_58, instrument: akn/ng/act/2025/7, numbers: {gazetted: {number: "58 + Fourth Schedule", page: A542}, certified: {number: "58 + Fourth Schedule"}}, summary: "Sets personal income tax rates by income band.", validFrom: 2026-01-01, source: nta-text, secondarySource: mondaq-nta-analysis, verified: false}
-  - {akn: akn/ng/act/2025/7/sec_182_2, instrument: akn/ng/act/2025/7, numbers: {gazetted: {number: "183(2)", page: A492}, certified: {number: "182(2)"}}, summary: "Lets companies keep IDITRA incentives for the unexpired period.", validFrom: 2026-01-01, source: nta-certified, secondarySource: [nta-text, chambers-cit-2026], verified: false}
-  - {akn: akn/ng/act/2025/7/sec_27_1, instrument: akn/ng/act/2025/7, numbers: {gazetted: {number: "27(1)", page: A414, note: "s.27(1) read on the gazetted scan, p.A414; wording matches the certified text"}, certified: {number: "27(1)", page: A414}}, summary: "Brings chargeable gains into total profits.", validFrom: 2026-01-01, source: nta-text, secondarySource: chambers-cit-2026, verified: false}
-  - {akn: akn/ng/act/2025/7/sec_56, instrument: akn/ng/act/2025/7, numbers: {gazetted: {number: "56", page: A428}, certified: {number: "56"}}, summary: "Company income tax rate.", validFrom: 2026-01-01, source: nta-text, secondarySource: chambers-cit-2026, verified: false}
-  - {akn: akn/ng/act/2025/7/sec_155_4, instrument: akn/ng/act/2025/7, numbers: {gazetted: {number: "156(5)", page: A478}, certified: {number: "155(4)", page: "A477–478"}}, summary: "Time limit for claiming input VAT.", note: "gazetted s.156 has an extra subsection (4) on zero-rated suppliers that is not in the certified s.155(4); content differs between editions, not only numbering", validFrom: 2026-01-01, source: nta-text, secondarySource: chambers-cit-2026, verified: false}
-  - {akn: akn/ng/act/2025/7/sec_195, instrument: akn/ng/act/2025/7, numbers: {gazetted: {number: "196", page: A502}, certified: {number: "195"}}, summary: "Repeals the old tax Acts listed in it.", validFrom: 2026-01-01, source: nta-certified, secondarySource: [nta-text, chambers-cit-2026], verified: false}
+  - {akn: akn/ng/act/2025/7/sec_58, instrument: akn/ng/act/2025/7, numbers: {gazetted: {number: "58 + Fourth Schedule", page: A542}, certified: {number: "58 + Fourth Schedule", page: "A540"}}, summary: "Sets personal income tax rates by income band.", validFrom: 2026-01-01, source: nta-text, secondarySource: mondaq-nta-analysis, verified: true}
+  - {akn: akn/ng/act/2025/7/sec_182_2, instrument: akn/ng/act/2025/7, numbers: {gazetted: {number: "183(2)", page: A492}, certified: {number: "182(2)", page: "A491"}}, summary: "Lets companies keep IDITRA incentives for the unexpired period.", validFrom: 2026-01-01, source: nta-certified, secondarySource: [nta-text, chambers-cit-2026], verified: true}
+  - {akn: akn/ng/act/2025/7/sec_27_1, instrument: akn/ng/act/2025/7, numbers: {gazetted: {number: "27(1)", page: A414, note: "s.27(1) read on the gazetted scan, p.A414; wording matches the certified text"}, certified: {number: "27(1)", page: A414}}, summary: "Brings chargeable gains into total profits.", validFrom: 2026-01-01, source: nta-text, secondarySource: chambers-cit-2026, verified: true}
+  - {akn: akn/ng/act/2025/7/sec_56, instrument: akn/ng/act/2025/7, numbers: {gazetted: {number: "56", page: A428}, certified: {number: "56", page: "A427–428"}}, summary: "Company income tax rate.", note: "Proviso: the 30% rate is to be reduced to 25% from a date set by Presidential order on the advice of the National Economic Council.", validFrom: 2026-01-01, source: nta-text, secondarySource: chambers-cit-2026, verified: true}
+  - {akn: akn/ng/act/2025/7/sec_155_4, instrument: akn/ng/act/2025/7, numbers: {gazetted: {number: "156(5)", page: A478}, certified: {number: "155(4)", page: "A477–478"}}, summary: "Time limit for claiming input VAT.", note: "gazetted s.156 has an extra subsection (4) on zero-rated suppliers that is not in the certified s.155(4); content differs between editions, not only numbering", validFrom: 2026-01-01, source: nta-text, secondarySource: chambers-cit-2026, verified: true}
+  - {akn: akn/ng/act/2025/7/sec_195, instrument: akn/ng/act/2025/7, numbers: {gazetted: {number: "196", page: A502}, certified: {number: "195", page: "A501–502"}}, summary: "Repeals the old tax Acts listed in it.", validFrom: 2026-01-01, source: nta-certified, secondarySource: [nta-text, chambers-cit-2026], verified: true}
   # Commencement: gazetted s.203 (p. A515); the certified edition has it in the long-title bracket (its s.202 is the citation only).
-  - {akn: akn/ng/act/2025/7/commencement, instrument: akn/ng/act/2025/7, numbers: {gazetted: {number: "203", page: A515, text: "first day of January, 2026"}, certified: {number: "long title (Commencement)", text: "[1st January, 2026]"}}, summary: "Commencement of the Act.", validFrom: 2026-01-01, source: nta-certified, secondarySource: nta-text, verified: false}
-  # Rent relief: an NTA provision; section number still to find in the Act. validFrom = NTA commencement.
-  - {akn: TODO/ng/act/2025/7/sec_rent_relief, instrument: akn/ng/act/2025/7, numbers: {gazetted: {number: "30(2)(a)(vi)", page: A417}, certified: {number: "30(2)(a)(vi)", page: A416}}, summary: "Relief for rent paid by individuals.", validFrom: 2026-01-01, source: nta-text, secondarySource: pwc-individual-dev, verified: false}
+  - {akn: akn/ng/act/2025/7/commencement, instrument: akn/ng/act/2025/7, numbers: {gazetted: {number: "203", page: A515, text: "first day of January, 2026"}, certified: {number: "long title (Commencement)", page: A395, text: "[1st January, 2026]"}}, summary: "Commencement of the Act.", validFrom: 2026-01-01, source: nta-certified, secondarySource: nta-text, verified: true}
+  - {akn: akn/ng/act/2025/7/sec_30_2_a_vi, instrument: akn/ng/act/2025/7, numbers: {gazetted: {number: "30(2)(a)(vi)", page: A417}, certified: {number: "30(2)(a)(vi)", page: A416}}, summary: "Relief for rent paid by individuals.", validFrom: 2026-01-01, source: nta-text, secondarySource: pwc-individual-dev, verified: true}
   # Old provisions: section numbers unknown until checked against the old Acts.
   - {akn: TODO/ng/act/pita/sec_bands, instrument: TODO/ng/act/pita, number: TODO, summary: "Old personal income tax bands.", validTo: 2026-01-01, source: pwc-individual, verified: false}
   - {akn: TODO/ng/act/pita/sec_cra, instrument: TODO/ng/act/pita, number: TODO, summary: "Old consolidated relief allowance.", validTo: 2026-01-01, source: businessday-pit, verified: false}
@@ -150,20 +150,20 @@ rules:
   # ---- Personal income tax (PAYE) ----
   - {id: ng.pit.band1.old, provision: TODO/ng/act/pita/sec_bands, text: "PIT: first NGN 300,000 at 7%", topic: pit_band, value: 0.07, unit: rate, source: pwc-individual, verified: false}
   - {id: ng.pit.band2.old, provision: TODO/ng/act/pita/sec_bands, text: "PIT: next NGN 300,000 at 11%", topic: pit_band, value: 0.11, unit: rate, source: pwc-individual, verified: false}
-  - {id: ng.pit.band1.2026, provision: akn/ng/act/2025/7/sec_58, text: "PIT: first NGN 800,000 at 0%", topic: pit_band, value: 0.0, unit: rate, source: nta-text, page: A542, secondarySource: pwc-individual, verified: false}
-  - {id: ng.pit.band2.2026, provision: akn/ng/act/2025/7/sec_58, text: "PIT: next NGN 2,200,000 at 15%", topic: pit_band, value: 0.15, unit: rate, source: nta-text, page: A542, secondarySource: pwc-individual, verified: false}
-  - {id: ng.pit.top.2026, provision: akn/ng/act/2025/7/sec_58, text: "PIT: income over NGN 50,000,000 at 25%", topic: pit_band, value: 0.25, unit: rate, source: nta-text, page: A542, secondarySource: kpmg-pit, verified: false}
+  - {id: ng.pit.band1.2026, provision: akn/ng/act/2025/7/sec_58, text: "PIT: first NGN 800,000 at 0%", topic: pit_band, value: 0.0, unit: rate, source: nta-text, page: A542, secondarySource: pwc-individual, verified: true}
+  - {id: ng.pit.band2.2026, provision: akn/ng/act/2025/7/sec_58, text: "PIT: next NGN 2,200,000 at 15%", topic: pit_band, value: 0.15, unit: rate, source: nta-text, page: A542, secondarySource: pwc-individual, verified: true}
+  - {id: ng.pit.top.2026, provision: akn/ng/act/2025/7/sec_58, text: "PIT: income over NGN 50,000,000 at 25%", topic: pit_band, value: 0.25, unit: rate, source: nta-text, page: A542, secondarySource: kpmg-pit, verified: true}
   # TODO: remaining old and new bands, from the Acts directly
   - {id: ng.pit.cra.old, provision: TODO/ng/act/pita/sec_cra, text: "CRA: 20% of gross income plus the higher of NGN 200,000 or 1% of gross", topic: relief, source: businessday-pit, verified: false}
-  - {id: ng.pit.rent_relief.2026, provision: TODO/ng/act/2025/7/sec_rent_relief, text: "Rent relief: 20% of annual rent, capped at NGN 500,000", topic: relief, value: 500000, unit: NGN_cap, source: nta-text, page: A417, secondarySource: pwc-individual-dev, verified: false}
+  - {id: ng.pit.rent_relief.2026, provision: akn/ng/act/2025/7/sec_30_2_a_vi, text: "Rent relief: 20% of annual rent, capped at NGN 500,000", topic: relief, value: 500000, unit: NGN_cap, source: nta-text, page: A417, secondarySource: pwc-individual-dev, verified: true}
   # ---- Company / CGT / VAT ----
   - {id: ng.cgt.company.old, provision: TODO/ng/act/cgta/sec_rate, text: "Company capital gains taxed at 10%", topic: cgt, value: 0.10, unit: rate, source: chambers-cit-2026, verified: false}
-  - {id: ng.cgt.company.2026, provision: akn/ng/act/2025/7/sec_27_1, alsoProvisions: [akn/ng/act/2025/7/sec_56], text: "Company gains form part of total profits taxed at 30% (non-small companies)", topic: cgt, value: 0.30, unit: rate, source: chambers-cit-2026, verified: false}
-  - {id: ng.vat.input_services.2026, provision: akn/ng/act/2025/7/sec_155_4, text: "Input VAT on services and fixed assets recoverable; claim within 5 years", topic: vat, source: chambers-cit-2026, verified: false}
+  - {id: ng.cgt.company.2026, provision: akn/ng/act/2025/7/sec_27_1, alsoProvisions: [akn/ng/act/2025/7/sec_56], text: "Company gains form part of total profits taxed at 30% (non-small companies)", topic: cgt, value: 0.30, unit: rate, source: nta-certified, page: "A414, A427–428", secondarySource: [nta-text, chambers-cit-2026], verified: true}
+  - {id: ng.vat.input_services.2026, provision: akn/ng/act/2025/7/sec_155_4, text: "Input VAT on services and fixed assets recoverable; claim within 5 years", topic: vat, source: nta-certified, page: "A477–478", secondarySource: [nta-text, chambers-cit-2026], verified: true}
   # ---- PIT bands 3-5 (NTA s.58 + Fourth Schedule) ----
-  - {id: ng.pit.band3.2026, provision: akn/ng/act/2025/7/sec_58, text: "PIT: next NGN 9,000,000 at 18%", topic: pit_band, value: 0.18, unit: rate, source: nta-text, page: A542, secondarySource: pwc-individual, verified: false}
-  - {id: ng.pit.band4.2026, provision: akn/ng/act/2025/7/sec_58, text: "PIT: next NGN 13,000,000 at 21%", topic: pit_band, value: 0.21, unit: rate, source: nta-text, page: A542, secondarySource: pwc-individual, verified: false}
-  - {id: ng.pit.band5.2026, provision: akn/ng/act/2025/7/sec_58, text: "PIT: next NGN 25,000,000 at 23%", topic: pit_band, value: 0.23, unit: rate, source: nta-text, page: A542, secondarySource: pwc-individual, verified: false}
+  - {id: ng.pit.band3.2026, provision: akn/ng/act/2025/7/sec_58, text: "PIT: next NGN 9,000,000 at 18%", topic: pit_band, value: 0.18, unit: rate, source: nta-text, page: A542, secondarySource: pwc-individual, verified: true}
+  - {id: ng.pit.band4.2026, provision: akn/ng/act/2025/7/sec_58, text: "PIT: next NGN 13,000,000 at 21%", topic: pit_band, value: 0.21, unit: rate, source: nta-text, page: A542, secondarySource: pwc-individual, verified: true}
+  - {id: ng.pit.band5.2026, provision: akn/ng/act/2025/7/sec_58, text: "PIT: next NGN 25,000,000 at 23%", topic: pit_band, value: 0.23, unit: rate, source: nta-text, page: A542, secondarySource: pwc-individual, verified: true}
   # ---- Old PITA bands 3-6, for the crosswalk ----
   - {id: ng.pit.band3.old, provision: TODO/ng/act/pita/sec_bands, text: "PIT: next NGN 500,000 at 15%", topic: pit_band, value: 0.15, unit: rate, source: pwc-individual, verified: false}
   - {id: ng.pit.band4.old, provision: TODO/ng/act/pita/sec_bands, text: "PIT: next NGN 500,000 at 19%", topic: pit_band, value: 0.19, unit: rate, source: pwc-individual, verified: false}
@@ -186,4 +186,4 @@ grants:
   - {id: ng.grant.pioneer.existing, title: "Existing pioneer status certificates", grantedUnder: TODO/ng/act/iditra}
 
 savings:
-  - {saver: akn/ng/act/2025/7/sec_182_2, saves: ng.grant.pioneer.existing, until: null, note: "for the unexpired period of each grant", source: nta-certified, secondarySource: [nta-text, chambers-cit-2026], verified: false}
+  - {saver: akn/ng/act/2025/7/sec_182_2, saves: ng.grant.pioneer.existing, until: null, note: "for the unexpired period of each grant", source: nta-certified, secondarySource: [nta-text, chambers-cit-2026], verified: true}

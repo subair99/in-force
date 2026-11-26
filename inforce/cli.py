@@ -165,11 +165,14 @@ def _print_check(result: dict, label: str) -> None:
     for n, i in enumerate(items, 1):
         verdict = _v(i["verdict"]) + ("" if i["verified"] else " *")
         succ = i["successor"] or ""
+        for n_ in i.get("successorNotes") or []:
+            succ += f"\n[yellow]{n_}[/yellow]"
         if not succ and i["verdict"] == "REPEALED":
             succ = "no replacement" + (f" (related: {i['related'][0]['text']})" if i.get("related") else "")
         if succ and i["successorStatus"] and i["successorStatus"] != "IN_FORCE":
             succ += f" ({i['successorStatus']})"
-        table.add_row(str(n), str(i["line"]), i["claim"], verdict, i["endedOn"] or "", succ)
+        claim = i["claim"] + "".join(f"\n[yellow]{n_}[/yellow]" for n_ in i.get("ruleNotes") or [])
+        table.add_row(str(n), str(i["line"]), claim, verdict, i["endedOn"] or "", succ)
     console.print(table)
     console.print("[bold]Why[/bold]")
     for n, i in enumerate(items, 1):
@@ -237,8 +240,9 @@ def _print_scan(result: dict, label: str) -> None:
             t.add_column(col)
         for a in direct:
             for n, b in enumerate(sorted(a["because"], key=lambda b: (b["line"] or 0, b["target"]))):
+                now = (b["successor"] or "") + "".join(f"\n[yellow]{n_}[/yellow]" for n_ in b.get("successorNotes") or [])
                 t.add_row(a["id"] if n == 0 else "", str(b["line"] or ""), b["rule"] or b["target"],
-                          b["endedOn"] or "", b["successor"] or "")
+                          b["endedOn"] or "", now)
         console.print(t)
     if inherited:
         t = Table(title="ALSO CHECK: uses or tests the above", title_justify="left")
@@ -303,8 +307,12 @@ def _print_brief(b: dict) -> None:
                 console.print(f"  - {t['was']}: [red]ended {t['endedOn']}[/red], with no replacement.{star}")
             for x in t.get("related") or []:
                 console.print(f"      related, not a successor: {x['text']} [dim]({x['id']})[/dim]")
+            for n_ in t.get("nowNotes") or []:
+                console.print(f"      [yellow]{n_}[/yellow]")
         else:
             console.print(f"  - {t['now']}: [green]{t.get('status', 'IN_FORCE')}[/green]{star}")
+            for n_ in t.get("nowNotes") or []:
+                console.print(f"      [yellow]{n_}[/yellow]")
     console.print("\n[bold]WHY[/bold]")
     for w in b["why"]:
         if w.get("chain"):
@@ -469,7 +477,10 @@ def _print_ask(r: dict) -> None:
         succ = i["successor"] or ("no replacement" if i["status"] == "REPEALED" else "")
         for x in i["related"]:
             succ += f"\n[dim]related, not a successor: {x['text']}[/dim]"
-        t.add_row(str(n), f"{i['text']}\n[dim]{i['rule']}[/dim]", _v(i["status"]) + ("" if i["verified"] else " *"),
+        for n_ in i.get("successorNotes") or []:
+            succ += f"\n[yellow]{n_}[/yellow]"
+        rule_cell = f"{i['text']}\n[dim]{i['rule']}[/dim]" + "".join(f"\n[yellow]{n_}[/yellow]" for n_ in i.get("notes") or [])
+        t.add_row(str(n), rule_cell, _v(i["status"]) + ("" if i["verified"] else " *"),
                   succ, ", ".join(i["via"]))
     console.print(t)
     console.print("[dim]* unverified. InForce retrieves rules and their status; it does not write answers.[/dim]")

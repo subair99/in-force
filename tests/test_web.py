@@ -60,3 +60,14 @@ def test_committed_export_matches_the_law_pack(tmp_path):
     for k in ("generated",):
         committed.pop(k), fresh.pop(k)
     assert committed == fresh
+
+
+def test_export_carries_the_verification_status():
+    """The browser page shows the same 'N of M law entries verified' as the README."""
+    from inforce import loader
+    from inforce.paths import RULES_DIR
+    committed = json.loads((ROOT / "web" / "export.json").read_text())
+    items = loader.verify_list(RULES_DIR)
+    assert committed["verification"] == {"verified": sum(i["verified"] for i in items), "total": len(items),
+                                         "summary": loader.verify_summary(RULES_DIR)}
+    assert "of " in (ROOT / "web" / "app.js").read_text() and "verification" in (ROOT / "web" / "app.js").read_text()

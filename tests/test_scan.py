@@ -175,7 +175,7 @@ def test_fixed_repo_has_no_stale(repo, law_pack):
     r = scan(repo, "2026-03-01", path)
     assert [a["id"] for a in r["artifacts"] if a["status"] == "STALE"] == []
     arts = by_id(r)
-    assert arts["payroll/paye.py::PIT_BANDS"]["status"] == "SUSPECT"  # new law, but unverified
+    assert arts["payroll/paye.py::PIT_BANDS"]["status"] == "CURRENT"  # new law, verified against the Act
 
 
 def test_scan_cli_exit_code(repo, law_pack):

@@ -12,6 +12,8 @@ from .conftest import RULES
 def rules(tmp_path):
     d = tmp_path / "rules"
     shutil.copytree(RULES, d)
+    for f in d.glob("*.yaml"):  # start from "nothing verified", whatever the human has ticked in the real YAML
+        f.write_text(f.read_text().replace("verified: true", "verified: false"))
     return d
 
 
@@ -53,7 +55,9 @@ def test_apply_sets_only_ticked_rows(rules, tmp_path):
     assert verified(rules) == set(picks)
     added = [ln for ln in res.diff.splitlines() if ln.startswith("+") and not ln.startswith("+++")]
     removed = [ln for ln in res.diff.splitlines() if ln.startswith("-") and not ln.startswith("---")]
-    assert len(added) == 4 and len(removed) == 3  # 3 lines edited + 1 inserted (block-style Act), nothing else
+    # 4 lines set to true: the block-style Act either gains a "verified: true" line or has its existing one edited
+    assert len(added) == 4 and len(removed) in (3, 4)
+    assert all("verified: true" in ln for ln in added)
     # applying again changes nothing; regenerating keeps ticks
     again = apply_ticks(sheet, rules)
     assert again.applied == [] and len(again.already) == 4

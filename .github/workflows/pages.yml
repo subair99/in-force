@@ -52,7 +52,7 @@ jobs:
           for i in 1 2 3 4 5 6; do curl -sSf "$URL" -o page.html && break; sleep 10; done
           grep -q "InForce checks whether a provision is in force. It is not legal or tax advice." page.html
           grep -q "published commentary" page.html
-          curl -sSf "${URL}export.json" | python3 -c "import json, sys; d = json.load(sys.stdin); assert d['builtWith'] == 'Built with Relate' and len(d['rules']) > 0; print(len(d['rules']), 'rules,', d['unverified'], 'unverified')"
+          curl -sSf "${URL}export.json" | python3 -c "import json, sys; d = json.load(sys.stdin); assert d['builtWith'] == 'Built with Relate' and len(d['rules']) > 0; print(len(d['rules']), 'rules;', d['verification']['summary'])"
           curl -sSf "${URL}checker.js" | grep -q "export function check"
           for p in README.md CLAUDE.md data/ng-tax-2026.rl docs/PLAN.md; do
             code=$(curl -s -o /dev/null -w '%{http_code}' "${URL}${p}")

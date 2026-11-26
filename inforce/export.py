@@ -41,6 +41,14 @@ def js_patterns(path: Path = DEFAULT_PATTERNS) -> dict[str, Any]:
 def _d(v: Any) -> Any:
     return v.isoformat() if isinstance(v, (dt.date, dt.datetime)) else v
 
+def _verification() -> dict[str, Any]:
+    """The same generated status line as the README (`inforce verify --summary`)."""
+    from .loader import verify_list, verify_summary
+    from .paths import RULES_DIR
+    items = verify_list(RULES_DIR)
+    return {"verified": sum(i["verified"] for i in items), "total": len(items), "summary": verify_summary(RULES_DIR)}
+
+
 def build_export(law_pack: str | Path) -> dict[str, Any]:
     with open_store(law_pack, read_only=True) as store:
         dates = [BEFORE_ALL] + [_d(r["d"]) for r in store.run("change_dates")]
@@ -60,7 +68,8 @@ def build_export(law_pack: str | Path) -> dict[str, Any]:
                     "related": [x["text"] for x in r.get("related", [])],
                 })
             info = store.run("rule_info", id=row["id"])[0]
-            rules[row["id"]] = {"text": info["text"], "topic": info["topic"], "value": info["value"],
+            rules[row["id"]] = {"notes": law.rule_notes(store, row["id"]),
+                                "text": info["text"], "topic": info["topic"], "value": info["value"],
                                 "unit": info["unit"], "verified": info["verified"] is True,
                                 "provision": info["provision"], "source": info["source"], "at": at}
 
@@ -94,6 +103,7 @@ def build_export(law_pack: str | Path) -> dict[str, Any]:
         "rules": rules, "acts": acts, "provisions": provisions,
         "patterns": js_patterns(),
         "unverified": sum(not r["verified"] for r in rules.values()),
+        "verification": _verification(),
         "disclaimer": DISCLAIMER,
     }
 

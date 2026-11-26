@@ -88,6 +88,7 @@ def ask(question: str, on: str, law_pack: str | Path, top: int = 5, log=None) ->
                 "successor": succ["text"] if succ else (law.scale_text(scale) if scale else None),
                 "successorRef": succ["id"] if succ else (scale["provision"] if scale else None),
                 "related": [{"id": x["id"], "text": x["text"]} for x in r.get("related", [])],
+                "notes": r.get("notes", []), "successorNotes": succ.get("notes", []) if succ else [],
                 "score": round(h["score"], 5), "via": h["via"], "path": r["path"],
             })
     # The answer follows the best hit: itself if live on the date, else what replaced it (if anything).

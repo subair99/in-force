@@ -41,13 +41,16 @@ function render(result) {
   for (const i of result.items) {
     let now = i.successor ?? (i.verdict === "REPEALED" ? "no replacement" : "");
     if (i.related?.length) now += (now ? " · " : "") + `related, not a successor: ${i.related.join("; ")}`;
+
     const status = el("td", {}, el("span", { class: `badge ${i.verdict}` }, i.verdict), i.verified ? "" : " *");
-    const claim = el("td", {}, i.claim, i.note ? el("div", { class: "note" }, i.note) : "");
+    const claim = el("td", {}, i.claim, i.note ? el("div", { class: "note" }, i.note) : "",
+                     ...(i.ruleNotes ?? []).map((n) => el("div", { class: "note proviso" }, n)));
     claim.setAttribute("data-label", "Claim");
     status.setAttribute("data-label", "Status");
     body.append(el("tr", {}, el("td", { class: "num", "data-label": "Line" }, String(i.line)), claim, status,
                    el("td", { class: "date", "data-label": "Ended" }, i.endedOn ?? ""),
-                   el("td", { "data-label": "Now" }, now)));
+                   el("td", { "data-label": "Now" }, now,
+                      ...(i.successorNotes ?? []).map((n) => el("div", { class: "note proviso" }, n)))));
   }
   table.append(body);
   out.append(el("div", { class: "scroll" }, table));
@@ -78,8 +81,10 @@ async function init() {
     const res = await fetch("export.json", { cache: "no-store" });
     DATA = await res.json();
     const n = Object.keys(DATA.rules).length;
-    $("meta").textContent = `Law data exported ${longDate(DATA.generated)}: ${n} rules, ` +
-      `${DATA.unverified} not yet verified; statuses change on ${DATA.dates.slice(1).map(longDate).join(", ")}.`;
+    const v = DATA.verification;
+    $("meta").textContent = `Law data exported ${longDate(DATA.generated)}: ${n} rules; ` +
+      (v ? `${v.verified} of ${v.total} law entries verified against the Act's text` : `${DATA.unverified} rules not yet verified`) +
+      `; statuses change on ${DATA.dates.slice(1).map(longDate).join(", ")}.`;
   } catch (e) {
     $("meta").textContent = "The law data could not be loaded, so nothing can be checked right now.";
   }

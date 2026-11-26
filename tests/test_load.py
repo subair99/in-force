@@ -90,7 +90,7 @@ def test_on_key_is_not_a_yaml11_boolean(law_pack):
     path, _ = law_pack
     data = loader.read_yaml(RULES)
     assert all("on" in r for r in data["repeals"])
-    assert all(r["verified"] is False for r in data["rules"])  # true/false still booleans
+    assert all(isinstance(r["verified"], bool) for r in data["rules"])  # true/false still booleans
     with open_store(path, read_only=True) as s:
         rows = s.execute("MATCH ()-[r:REPEALS]->() RETURN count(r) AS n, count(r.on) AS dated LIMIT 1")
     assert rows[0]["n"] == rows[0]["dated"] > 0
@@ -157,7 +157,6 @@ def test_verify_lists_every_law_entry_with_source_and_line():
     data = loader.read_yaml(RULES)
     assert len(items) == sum(len(data.get(s, [])) for s in loader.LAW_SECTIONS)
     assert all(i["where"].startswith("ng-tax-2026.yaml:") for i in items)
-    assert not any(i["verified"] for i in items)  # nothing verified yet, and InForce never sets it
     band3 = next(i for i in items if i["entry"] == "ng.pit.band3.2026")
     assert band3["source"] == "https://www.nrs.gov.ng/uploads/NIGERIA_TAX_ACT_2025_ef6bb812a5.pdf"  # gazetted NTA
     assert band3["page"] == "A542" and band3["secondarySources"] == ["https://taxsummaries.pwc.com/nigeria/individual"]
@@ -191,12 +190,12 @@ def test_build_hash_ignores_line_endings(tmp_path):
 
 @pytest.mark.parametrize("short,commences", [("NTA", "2026-01-01"), ("NTAA", "2026-01-01"),
                                              ("NRS Act", "2025-06-26"), ("JRB Act", "2025-06-26")])
-def test_reform_acts_commencement_recorded_unverified(law_pack, short, commences):
+def test_reform_acts_commencement_recorded(law_pack, short, commences):
     path, _ = law_pack
     with open_store(path, read_only=True) as s:
         r = s.execute("MATCH (i:Instrument {short: $s}) RETURN i.commencesOn AS c, i.verified AS v LIMIT 1",
                       {"s": short})[0]
-    assert (r["c"].isoformat(), r["v"]) == (commences, False)
+    assert (r["c"].isoformat(), r["v"]) == (commences, _yaml_verified("instrument", short))
 
 
 
@@ -219,7 +218,7 @@ def test_reform_act_sources(law_pack, short, primary, secondary):
     with open_store(path, read_only=True) as s:
         r = s.execute("MATCH (i:Instrument {short: $s}) OPTIONAL MATCH (i)-[:FROM]->(src:Source) "
                       "RETURN src.url AS url, i.secondarySource AS sec, i.verified AS v LIMIT 1", {"s": short})[0]
-    assert (r["url"], r["sec"], r["v"]) == (primary, secondary, False)
+    assert (r["url"], r["sec"], r["v"]) == (primary, secondary, _yaml_verified("instrument", short))
 
 
 
@@ -244,7 +243,8 @@ def test_rent_relief_is_nta_s30_2_a_vi_page_a417(law_pack):
     r = _one(path, "MATCH (r:Rule {id: 'ng.pit.rent_relief.2026'})-[:FROM]->(s:Source) "
                    "RETURN r.page AS page, s.id AS src, r.secondarySource AS src2, r.verified AS v LIMIT 1")
     assert p == {"n": "30(2)(a)(vi)", "page": "A417"}
-    assert r == {"page": "A417", "src": "nta-text", "src2": ["pwc-individual-dev"], "v": False}
+    assert r == {"page": "A417", "src": "nta-text", "src2": ["pwc-individual-dev"],
+                 "v": _yaml_verified("rule", "ng.pit.rent_relief.2026")}
 
 
 def test_fourth_schedule_page_a542_on_s58_and_all_six_bands(law_pack):
@@ -281,9 +281,6 @@ def test_jrb_primary_source_and_ntaa_commencement_page(law_pack):
                     "note": "gazetted bracket reportedly reads 26 Jun 2025 (text extraction, not yet visually confirmed)"}
 
 
-def test_nothing_is_verified_yet():
-    assert not [i for i in loader.verify_list(RULES) if i["verified"]]
-
 
 # --- Two official editions of the NTA number some sections differently -------------------------
 
@@ -295,12 +292,12 @@ def _numbers(path, akn):
 
 
 @pytest.mark.parametrize("akn,gazetted,certified", [
-    ("akn/ng/act/2025/7/sec_182_2", ("183(2)", "A492"), ("182(2)", None)),       # IDITRA saving
-    ("akn/ng/act/2025/7/sec_195", ("196", "A502"), ("195", None)),               # the repeals
-    ("akn/ng/act/2025/7/commencement", ("203", "A515"), ("long title (Commencement)", None)),
-    ("akn/ng/act/2025/7/sec_56", ("56", "A428"), ("56", None)),                  # same in both
-    ("akn/ng/act/2025/7/sec_58", ("58 + Fourth Schedule", "A542"), ("58 + Fourth Schedule", None)),
-    ("TODO/ng/act/2025/7/sec_rent_relief", ("30(2)(a)(vi)", "A417"), ("30(2)(a)(vi)", "A416")),
+    ("akn/ng/act/2025/7/sec_182_2", ("183(2)", "A492"), ("182(2)", "A491")),     # IDITRA saving
+    ("akn/ng/act/2025/7/sec_195", ("196", "A502"), ("195", "A501–502")),         # the repeals
+    ("akn/ng/act/2025/7/commencement", ("203", "A515"), ("long title (Commencement)", "A395")),
+    ("akn/ng/act/2025/7/sec_56", ("56", "A428"), ("56", "A427–428")),            # same number in both
+    ("akn/ng/act/2025/7/sec_58", ("58 + Fourth Schedule", "A542"), ("58 + Fourth Schedule", "A540")),
+    ("akn/ng/act/2025/7/sec_30_2_a_vi", ("30(2)(a)(vi)", "A417"), ("30(2)(a)(vi)", "A416")),
     ("akn/ng/act/2025/7/sec_27_1", ("27(1)", "A414"), ("27(1)", "A414")),          # same number and page
     ("akn/ng/act/2025/7/sec_155_4", ("156(5)", "A478"), ("155(4)", "A477–478")),   # different number AND content
 ])
@@ -369,7 +366,6 @@ def test_nta_sources_per_edition():
     assert versions["gazetted"]["source"] == "nta-text" and versions["certified"]["source"] == "nta-certified"
     nta = [p for p in data["provisions"] if p["instrument"] == "akn/ng/act/2025/7"]
     assert len(nta) == 8 and all(p["source"] in ("nta-text", "nta-certified") for p in nta)
-    assert not any(p.get("verified") for p in nta)
 
 
 def test_ntaa_commencement_in_long_title(law_pack):
@@ -390,4 +386,69 @@ def test_verify_sheet_shows_both_numberings(tmp_path):
     assert "Section long title" not in text
     assert "### Section 155(4) (s.156(5) in the gazetted text)" in text
     assert 'gazetted text: "203" (p. A515) says "first day of January, 2026"' in text
+
+
+def _yaml_verified(kind, key):
+    """The verified flag as the human set it in the YAML (tests follow the data, not a snapshot of it)."""
+    data = loader.read_yaml(RULES)
+    if kind == "instrument":
+        e = next(i for i in data["instruments"] if i.get("short") == key)
+    else:
+        e = next(r for r in data["rules"] if r["id"] == key)
+    return e.get("verified") is True
+
+
+def test_loader_refuses_while_any_entry_is_unverified(tmp_path):
+    """Verification is the human's: until every entry is verified, a build needs --allow-unverified."""
+    items = loader.verify_list(RULES)
+    if all(i["verified"] for i in items):
+        pytest.skip("every entry is verified")
+    with pytest.raises(loader.UnverifiedLaw) as ei:
+        loader.load(RULES, tmp_path / "x.rl", embed=False)
+    assert len(ei.value.entries) == sum(not i["verified"] for i in items)
+
+
+PROVISO = ("s.56: Proviso: the 30% rate is to be reduced to 25% from a date set by Presidential order "
+           "on the advice of the National Economic Council.")
+
+
+def test_company_rate_carries_the_s56_proviso_everywhere(law_pack):
+    from inforce import law
+    from inforce.ask import ask
+    from inforce.check import check_text
+    from inforce.export import build_export
+    path, _ = law_pack
+    with open_store(path, read_only=True) as s:
+        assert law.rule_status(s, "ng.cgt.company.2026", "2026-03-01")["notes"] == [PROVISO]
+        assert law.rule_status(s, "ng.cgt.company.old", "2026-03-01")["successors"][0]["notes"] == [PROVISO]
+    # as the claim's own rule, and as the successor of the repealed 10% rate
+    [now] = [i for i in check_text("Capital gains are taxed at 30% for companies.", "2026-03-01", path)["items"]
+             if i["ref"] == "ng.cgt.company.2026"]
+    assert now["ruleNotes"] == [PROVISO] and PROVISO in now["note"]
+    [old] = [i for i in check_text("Companies pay capital gains tax at 10%.", "2026-03-01", path)["items"]
+             if i["ref"] == "ng.cgt.company.old"]
+    assert old["successorRef"] == "ng.cgt.company.2026" and old["successorNotes"] == [PROVISO]
+    hits = {i["rule"]: i for i in ask("company capital gains rate", "2026-03-01", path)["items"]}
+    assert hits["ng.cgt.company.2026"]["notes"] == [PROVISO]
+    assert build_export(path)["rules"]["ng.cgt.company.2026"]["notes"] == [PROVISO]
+
+
+def test_two_verified_rules_cite_the_certified_edition(law_pack):
+    path, _ = law_pack
+    with open_store(path, read_only=True) as s:
+        rows = {r["id"]: r for r in s.execute(
+            "MATCH (r:Rule)-[:FROM]->(src:Source) WHERE r.id IN ['ng.cgt.company.2026', 'ng.vat.input_services.2026'] "
+            "RETURN r.id AS id, src.id AS src, r.page AS page, r.secondarySource AS src2 LIMIT 5")}
+    assert rows["ng.cgt.company.2026"]["page"] == "A414, A427–428"
+    assert rows["ng.vat.input_services.2026"]["page"] == "A477–478"
+    assert all((r["src"], r["src2"]) == ("nta-certified", ["nta-text", "chambers-cit-2026"]) for r in rows.values())
+
+
+def test_rent_relief_provision_renamed():
+    data = loader.read_yaml(RULES)
+    text = (RULES / "ng-tax-2026.yaml").read_text()
+    assert "sec_rent_relief" not in text and "section number still to find" not in text
+    assert any(p["akn"] == "akn/ng/act/2025/7/sec_30_2_a_vi" for p in data["provisions"])
+    assert next(r for r in data["rules"] if r["id"] == "ng.pit.rent_relief.2026")["provision"] == \
+        "akn/ng/act/2025/7/sec_30_2_a_vi"
 

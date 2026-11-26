@@ -4,7 +4,7 @@
  "builtWith": "Built with Relate",
  "lawPack": {
   "file": "data/ng-tax-2026.rl",
-  "buildHash": "ef7f0f12707561d656df3355f8076bc69103fc10a7fcfc8a801ded3721b9d652"
+  "buildHash": "0ae49ab165d99e2bd55a4804be49acf9f8c31f33759156d958533e6e0d6a1558"
  },
  "dates": [
   "0001-01-01",
@@ -13,13 +13,16 @@
  ],
  "rules": {
   "ng.cgt.company.2026": {
+   "notes": [
+    "s.56: Proviso: the 30% rate is to be reduced to 25% from a date set by Presidential order on the advice of the National Economic Council."
+   ],
    "text": "Company gains form part of total profits taxed at 30% (non-small companies)",
    "topic": "cgt",
    "value": 0.3,
    "unit": "rate",
-   "verified": false,
+   "verified": true,
    "provision": "akn/ng/act/2025/7/sec_27_1",
-   "source": "https://chambers.com/practice-guides/guides/corporate-tax-2026/nigeria/trends-and-developments",
+   "source": "https://tat.gov.ng/NIGERIA-TAX-ADMINISTRATION-ACT-2025.pdf",
    "at": [
     {
      "status": "NOT_YET",
@@ -45,6 +48,7 @@
    ]
   },
   "ng.cgt.company.old": {
+   "notes": [],
    "text": "Company capital gains taxed at 10%",
    "topic": "cgt",
    "value": 0.1,
@@ -77,11 +81,12 @@
    ]
   },
   "ng.pit.band1.2026": {
+   "notes": [],
    "text": "PIT: first NGN 800,000 at 0%",
    "topic": "pit_band",
    "value": 0.0,
    "unit": "rate",
-   "verified": false,
+   "verified": true,
    "provision": "akn/ng/act/2025/7/sec_58",
    "source": "https://www.nrs.gov.ng/uploads/NIGERIA_TAX_ACT_2025_ef6bb812a5.pdf",
    "at": [
@@ -109,6 +114,7 @@
    ]
   },
   "ng.pit.band1.old": {
+   "notes": [],
    "text": "PIT: first NGN 300,000 at 7%",
    "topic": "pit_band",
    "value": 0.07,
@@ -141,11 +147,12 @@
    ]
   },
   "ng.pit.band2.2026": {
+   "notes": [],
    "text": "PIT: next NGN 2,200,000 at 15%",
    "topic": "pit_band",
    "value": 0.15,
    "unit": "rate",
-   "verified": false,
+   "verified": true,
    "provision": "akn/ng/act/2025/7/sec_58",
    "source": "https://www.nrs.gov.ng/uploads/NIGERIA_TAX_ACT_2025_ef6bb812a5.pdf",
    "at": [
@@ -173,6 +180,7 @@
    ]
   },
   "ng.pit.band2.old": {
+   "notes": [],
    "text": "PIT: next NGN 300,000 at 11%",
    "topic": "pit_band",
    "value": 0.11,
@@ -205,11 +213,12 @@
    ]
   },
   "ng.pit.band3.2026": {
+   "notes": [],
    "text": "PIT: next NGN 9,000,000 at 18%",
    "topic": "pit_band",
    "value": 0.18,
    "unit": "rate",
-   "verified": false,
+   "verified": true,
    "provision": "akn/ng/act/2025/7/sec_58",
    "source": "https://www.nrs.gov.ng/uploads/NIGERIA_TAX_ACT_2025_ef6bb812a5.pdf",
    "at": [
@@ -237,6 +246,7 @@
    ]
   },
   "ng.pit.band3.old": {
+   "notes": [],
    "text": "PIT: next NGN 500,000 at 15%",
    "topic": "pit_band",
    "value": 0.15,
@@ -269,11 +279,12 @@
    ]
   },
   "ng.pit.band4.2026": {
+   "notes": [],
    "text": "PIT: next NGN 13,000,000 at 21%",
    "topic": "pit_band",
    "value": 0.21,
    "unit": "rate",
-   "verified": false,
+   "verified": true,
    "provision": "akn/ng/act/2025/7/sec_58",
    "source": "https://www.nrs.gov.ng/uploads/NIGERIA_TAX_ACT_2025_ef6bb812a5.pdf",
    "at": [
@@ -301,6 +312,7 @@
    ]
   },
   "ng.pit.band4.old": {
+   "notes": [],
    "text": "PIT: next NGN 500,000 at 19%",
    "topic": "pit_band",
    "value": 0.19,
@@ -333,11 +345,12 @@
    ]
   },
   "ng.pit.band5.2026": {
+   "notes": [],
    "text": "PIT: next NGN 25,000,000 at 23%",
    "topic": "pit_band",
    "value": 0.23,
    "unit": "rate",
-   "verified": false,
+   "verified": true,
    "provision": "akn/ng/act/2025/7/sec_58",
    "source": "https://www.nrs.gov.ng/uploads/NIGERIA_TAX_ACT_2025_ef6bb812a5.pdf",
    "at": [
@@ -365,6 +378,7 @@
    ]
   },
   "ng.pit.band5.old": {
+   "notes": [],
    "text": "PIT: next NGN 1,600,000 at 21%",
    "topic": "pit_band",
    "value": 0.21,
@@ -397,6 +411,7 @@
    ]
   },
   "ng.pit.band6.old": {
+   "notes": [],
    "text": "PIT: above NGN 3,200,000 at 24%",
    "topic": "pit_band",
    "value": 0.24,
@@ -429,6 +444,7 @@
    ]
   },
   "ng.pit.cra.old": {
+   "notes": [],
    "text": "CRA: 20% of gross income plus the higher of NGN 200,000 or 1% of gross",
    "topic": "relief",
    "value": null,
@@ -467,12 +483,13 @@
    ]
   },
   "ng.pit.rent_relief.2026": {
+   "notes": [],
    "text": "Rent relief: 20% of annual rent, capped at NGN 500,000",
    "topic": "relief",
    "value": 500000,
    "unit": "NGN_cap",
-   "verified": false,
-   "provision": "TODO/ng/act/2025/7/sec_rent_relief",
+   "verified": true,
+   "provision": "akn/ng/act/2025/7/sec_30_2_a_vi",
    "source": "https://www.nrs.gov.ng/uploads/NIGERIA_TAX_ACT_2025_ef6bb812a5.pdf",
    "at": [
     {
@@ -499,11 +516,12 @@
    ]
   },
   "ng.pit.top.2026": {
+   "notes": [],
    "text": "PIT: income over NGN 50,000,000 at 25%",
    "topic": "pit_band",
    "value": 0.25,
    "unit": "rate",
-   "verified": false,
+   "verified": true,
    "provision": "akn/ng/act/2025/7/sec_58",
    "source": "https://www.nrs.gov.ng/uploads/NIGERIA_TAX_ACT_2025_ef6bb812a5.pdf",
    "at": [
@@ -531,13 +549,16 @@
    ]
   },
   "ng.vat.input_services.2026": {
+   "notes": [
+    "s.155(4): gazetted s.156 has an extra subsection (4) on zero-rated suppliers that is not in the certified s.155(4); content differs between editions, not only numbering"
+   ],
    "text": "Input VAT on services and fixed assets recoverable; claim within 5 years",
    "topic": "vat",
    "value": null,
    "unit": null,
-   "verified": false,
+   "verified": true,
    "provision": "akn/ng/act/2025/7/sec_155_4",
-   "source": "https://chambers.com/practice-guides/guides/corporate-tax-2026/nigeria/trends-and-developments",
+   "source": "https://tat.gov.ng/NIGERIA-TAX-ADMINISTRATION-ACT-2025.pdf",
    "at": [
     {
      "status": "NOT_YET",
@@ -776,7 +797,7 @@
    "akn": "akn/ng/act/2025/7",
    "title": "Nigeria Tax Act, 2025",
    "source": null,
-   "verified": false,
+   "verified": true,
    "at": [
     {
      "status": "NOT_YET",
@@ -800,33 +821,9 @@
   }
  },
  "provisions": {
-  "NTA|30(2)(a)(vi)": {
-   "akn": "TODO/ng/act/2025/7/sec_rent_relief",
-   "verified": false,
-   "at": [
-    {
-     "status": "NOT_YET",
-     "endedOn": null,
-     "successor": null,
-     "successorRef": null
-    },
-    {
-     "status": "NOT_YET",
-     "endedOn": null,
-     "successor": null,
-     "successorRef": null
-    },
-    {
-     "status": "IN_FORCE",
-     "endedOn": null,
-     "successor": null,
-     "successorRef": null
-    }
-   ]
-  },
   "NTA|203": {
    "akn": "akn/ng/act/2025/7/commencement",
-   "verified": false,
+   "verified": true,
    "at": [
     {
      "status": "NOT_YET",
@@ -850,7 +847,7 @@
   },
   "NTA|long title (Commencement)": {
    "akn": "akn/ng/act/2025/7/commencement",
-   "verified": false,
+   "verified": true,
    "at": [
     {
      "status": "NOT_YET",
@@ -874,7 +871,7 @@
   },
   "NTA|155(4)": {
    "akn": "akn/ng/act/2025/7/sec_155_4",
-   "verified": false,
+   "verified": true,
    "at": [
     {
      "status": "NOT_YET",
@@ -898,7 +895,7 @@
   },
   "NTA|156(5)": {
    "akn": "akn/ng/act/2025/7/sec_155_4",
-   "verified": false,
+   "verified": true,
    "at": [
     {
      "status": "NOT_YET",
@@ -922,7 +919,7 @@
   },
   "NTA|182(2)": {
    "akn": "akn/ng/act/2025/7/sec_182_2",
-   "verified": false,
+   "verified": true,
    "at": [
     {
      "status": "NOT_YET",
@@ -946,7 +943,7 @@
   },
   "NTA|183(2)": {
    "akn": "akn/ng/act/2025/7/sec_182_2",
-   "verified": false,
+   "verified": true,
    "at": [
     {
      "status": "NOT_YET",
@@ -970,7 +967,7 @@
   },
   "NTA|195": {
    "akn": "akn/ng/act/2025/7/sec_195",
-   "verified": false,
+   "verified": true,
    "at": [
     {
      "status": "NOT_YET",
@@ -994,7 +991,7 @@
   },
   "NTA|196": {
    "akn": "akn/ng/act/2025/7/sec_195",
-   "verified": false,
+   "verified": true,
    "at": [
     {
      "status": "NOT_YET",
@@ -1018,7 +1015,31 @@
   },
   "NTA|27(1)": {
    "akn": "akn/ng/act/2025/7/sec_27_1",
-   "verified": false,
+   "verified": true,
+   "at": [
+    {
+     "status": "NOT_YET",
+     "endedOn": null,
+     "successor": null,
+     "successorRef": null
+    },
+    {
+     "status": "NOT_YET",
+     "endedOn": null,
+     "successor": null,
+     "successorRef": null
+    },
+    {
+     "status": "IN_FORCE",
+     "endedOn": null,
+     "successor": null,
+     "successorRef": null
+    }
+   ]
+  },
+  "NTA|30(2)(a)(vi)": {
+   "akn": "akn/ng/act/2025/7/sec_30_2_a_vi",
+   "verified": true,
    "at": [
     {
      "status": "NOT_YET",
@@ -1042,7 +1063,7 @@
   },
   "NTA|56": {
    "akn": "akn/ng/act/2025/7/sec_56",
-   "verified": false,
+   "verified": true,
    "at": [
     {
      "status": "NOT_YET",
@@ -1066,7 +1087,7 @@
   },
   "NTA|58 + Fourth Schedule": {
    "akn": "akn/ng/act/2025/7/sec_58",
-   "verified": false,
+   "verified": true,
    "at": [
     {
      "status": "NOT_YET",
@@ -1199,6 +1220,11 @@
    }
   ]
  },
- "unverified": 17,
+ "unverified": 8,
+ "verification": {
+  "verified": 24,
+  "total": 47,
+  "summary": "Each rule links to its source; verification against the Act's text is in progress (24 of 47 law entries verified)."
+ },
  "disclaimer": "InForce checks whether a provision is in force. It is not legal or tax advice."
 }

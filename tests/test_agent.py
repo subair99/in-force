@@ -31,7 +31,7 @@ def test_record_answer_is_tracked_and_survives_scan(repo, law_pack):  # noqa: F8
     assert agent["status"] == "STALE" and agent["origin"] == "agent"
     # re-recording a fixed answer replaces it
     r2 = record_answer(repo, "a1", "Under the Nigeria Tax Act the first NGN 800,000 is taxed at 0%.", "2026-03-01", path)
-    assert r2["verdict"] == "SUSPECT"  # current law, unverified
+    assert r2["verdict"] == "CURRENT"  # current law, verified NTA rules
 
 
 def test_second_writer_retries_while_first_holds_the_store(repo, law_pack):  # noqa: F811

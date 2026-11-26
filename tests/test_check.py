@@ -60,7 +60,7 @@ def test_new_law_answer_is_not_stale(law_pack):
     text = ("Under the Nigeria Tax Act, the first NGN 800,000 is taxed at 0% and the next NGN 2,200,000 at 15%. "
             "Rent relief replaces the old allowance.")
     r = check_text(text, "2026-03-01", path)
-    assert r["verdict"] == "SUSPECT"  # current law, but rules are still unverified
+    assert r["verdict"] == "CURRENT"  # current law, and the NTA rules are now verified against the Act
     assert all(i["verdict"] == "IN_FORCE" for i in r["items"])
 
 

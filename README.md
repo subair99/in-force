@@ -181,20 +181,20 @@ relate --database demo/naira-payroll/.inforce/project.rl --read-only --mode tabl
 
 ## Data and accuracy
 
-- **What is stored:** identifiers, dates, relationships, rule values and short summaries in our own words, built from published commentary on the Nigeria Tax Act 2025 (sources in `data/rules/*.yaml`). No Act text is copied.
-- **Status:** <!-- inforce:verify-status -->Each rule links to its source; verification against the Act's text is in progress (0 of 47 law entries verified).<!-- /inforce:verify-status -->
+- **What is stored:** identifiers, dates, relationships, rule values and short summaries in our own words. Nigeria Tax Act entries cite both official editions (the gazetted text and the certified copy, with page numbers); entries for the repealed Acts cite published commentary (sources in `data/rules/*.yaml`). No Act text is copied.
+- **Status:** <!-- inforce:verify-status -->Each rule links to its source; verification against the Act's text is in progress (24 of 47 law entries verified).<!-- /inforce:verify-status -->
 - **Checking entries:** `make verify` lists every entry with its source and verified flag. `inforce verify --sheet` makes a checklist grouped by section of the Act, and `inforce verify --apply` records the ticks. The loader refuses unverified entries unless `--allow-unverified` is given; the demo uses that flag. Until an entry is verified, every verdict that rests on it is marked unverified.
 - **Synthetic demo:** the demo payroll repo is synthetic, with no real people, salaries or employers.
 
 ## Built with
 
 - **Libraries:** Relate (`relate-db` 1.3.0 and the `relate` CLI), Python, Typer, Rich, PyYAML, the MCP Python SDK and model2vec (`minishlab/potion-base-8M`, local CPU embeddings). The demo recordings use asciinema and agg.
-- **AI tools:** Claude Code (Anthropic; model Claude Opus 5.5) wrote most of the code, tests and documentation in this repo under the author's direction. The author set the scope, specification and plan, made the design decisions, supplied the law data and reviewed the changes; verifying the law data against the Act is the author's job. The sessions in `demo/transcripts/` are Claude Code using InForce through MCP.
+- **AI tools:** Claude Code (Anthropic; model Claude Opus 5.5) wrote most of the code, tests and documentation in this repo under the author's direction. The author set the scope, specification and plan, made the design decisions, supplied the law data and reviewed the changes. The sessions in `demo/transcripts/` are Claude Code using InForce through MCP. In the author's words: "Rules were checked against both official editions of the Nigeria Tax Act (gazetted and certified) with Claude reading the scans; I reviewed the results. Rules from the repealed Acts are sourced from published commentary and are not yet verified."
 - **Reused work:** none, beyond the libraries listed.
 
 ## Limits and what's next
 
-- **Unverified law data:** the rules come from published commentary and are still being checked against the Act's text. Some old-Act section numbers are still `TODO`. Only Nigerian federal tax is covered, and only the rules in the pack.
+- **Partly verified law data:** the Nigeria Tax Act entries have been checked against both official editions; the rules from the repealed Acts come from published commentary and are not yet verified, and some old-Act section numbers are still `TODO`. Only Nigerian federal tax is covered, and only the rules in the pack.
 - **Explicit patterns:**
   - `scan` and `check` match the patterns in `patterns/`, not every way of writing a rule. They follow Python `from x import y`, but not `import x` with attribute use.
   - Code comments are not scanned.

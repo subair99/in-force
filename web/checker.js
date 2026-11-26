@@ -75,19 +75,19 @@ export function resolve(c, data, idx) {
   const item = (ref, verdict, at, extra = {}) => ({
     line: c.line, claim: c.text, kind: c.kind, ref, verdict, mentions: c.mentions,
     endedOn: at?.endedOn ?? null, successor: at?.successor ?? null, successorRef: at?.successorRef ?? null,
-    related: at?.related ?? [], ...extra,
+    related: at?.related ?? [], successorNotes: data.rules[at?.successorRef]?.notes ?? [], ...extra,
   });
   if (c.kind === "concept") {
     const r = data.rules[c.rule];
     if (!r) return [item(c.rule, "NOT_RECOGNISED", null, { verified: false })];
-    return [item(c.rule, r.at[idx].status, r.at[idx], { verified: r.verified, source: r.source })];
+    return [item(c.rule, r.at[idx].status, r.at[idx], { verified: r.verified, source: r.source, ruleNotes: r.notes ?? [] })];
   }
   if (c.kind === "figure") {
     let hits = Object.entries(data.rules).filter(([, r]) =>
       r.topic === c.topic && r.value !== null && Math.abs(r.value - c.value) < 1e-6);
     if (c.amount) hits = hits.filter(([, r]) => numbers(r.text).has(c.amount));
     if (!hits.length) return [item(null, "NOT_RECOGNISED", null, { verified: false })];
-    return hits.map(([id, r]) => item(id, r.at[idx].status, r.at[idx], { verified: r.verified, source: r.source }));
+    return hits.map(([id, r]) => item(id, r.at[idx].status, r.at[idx], { verified: r.verified, source: r.source, ruleNotes: r.notes ?? [] }));
   }
   if (c.section) {
     const p = data.provisions[`${c.act}|${c.section}`];

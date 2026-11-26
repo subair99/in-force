@@ -67,11 +67,13 @@ def rule_status(store: Store, rule_id: str, on: str | dt.date) -> dict[str, Any]
     rule["verified"] = rule["verified"] is True
     rule["path"] = _rule_path(rule, st)
 
+    rule["notes"] = rule_notes(store, rule_id)
     chain = store.run("rule_successors", id=rule_id)
     for c in chain:
         cs = provision_status(store, c["provision"], on) if c["provision"] else None
         c["status"] = cs["status"] if cs else "UNKNOWN"
         c["verified"] = c["verified"] is True
+        c["notes"] = rule_notes(store, c["id"])
     live = [c for c in chain if c["status"] in LIVE]
     if live:
         rule["successors"] = [max(live, key=lambda c: c["depth"])]
@@ -103,6 +105,12 @@ def scale_text(scale: dict[str, Any]) -> str:
     """'NTA s. 58 (whole scale): PIT: first ... · PIT: next ...'"""
     where = f"{scale['short'] or ''} s. {scale['number']}".strip() if scale.get("number") else scale["provision"]
     return f"{where} (whole scale): " + " · ".join(r["text"] for r in scale["rules"])
+
+
+def rule_notes(store: Store, rule_id: str) -> list[str]:
+    """Notes on the provisions that set a rule, e.g. 's.56: Proviso: the 30% rate is to be reduced ...'."""
+    return [f"s.{r['number']}: {r['note']}" if r["number"] else r["note"]
+            for r in store.run("rule_notes", id=rule_id)]
 
 
 def fallout(store: Store, instrument: str, on: str | dt.date) -> list[dict[str, Any]]:

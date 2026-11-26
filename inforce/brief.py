@@ -62,7 +62,8 @@ def _truth_rows(becauses: list[dict[str, Any]]) -> list[dict[str, Any]]:
             continue
         row = {"was": was, "ref": b["target"], "refs": [b["target"]], "endedOn": b.get("endedOn"),
                "now": b.get("successor"), "nowRef": b.get("successorRef"),
-               "scale": b.get("scale"), "related": b.get("related", [])}
+               "scale": b.get("scale"), "related": b.get("related", []),
+               "nowNotes": b.get("successorNotes", [])}
         if b.get("scale"):
             by_scale[b["successorRef"]] = row
         rows.append(row)
@@ -137,10 +138,12 @@ def brief_text(text: str, on: str, law_pack: str | Path, label: str = "text", lo
     r = check_text(text, on, law_pack, log=log)
     stale = [i for i in r["items"] if i["verdict"] == "REPEALED"]
     truth = [{"was": i["claim"], "ref": i["ref"], "endedOn": i["endedOn"], "now": i["successor"],
-              "nowRef": i["successorRef"], "scale": i.get("successorScale"), "related": i.get("related", [])}
+              "nowRef": i["successorRef"], "scale": i.get("successorScale"), "related": i.get("related", []),
+              "nowNotes": i.get("successorNotes", [])}
              for i in stale]
     truth += [{"was": None, "ref": i["ref"], "endedOn": None, "now": i["claim"], "nowRef": i["ref"],
-               "status": i["verdict"]} for i in r["items"] if i["verdict"] in ("IN_FORCE", "SAVED")]
+               "status": i["verdict"], "nowNotes": i.get("ruleNotes", [])}
+              for i in r["items"] if i["verdict"] in ("IN_FORCE", "SAVED")]
     return {
         "target": label, "repo": None, "on": on, "verdict": r["verdict"],
         "truth": truth,
