@@ -2,7 +2,7 @@
 // recordedAt, closedAt, verified, stub, source}]. recordedAt/closedAt: when this text was on record (bitemporal).
 UNWIND $rows AS r
 MERGE (p:Provision {akn: r.akn})
-SET p.number = r.number, p.numberNote = r.numberNote, p.summary = r.summary,
+SET p.number = r.number, p.numberNote = r.numberNote, p.summary = r.summary, p.note = r.note,
     p.validFrom = date(r.validFrom), p.validTo = date(r.validTo),
     p.recordedAt = date(r.recordedAt), p.closedAt = date(r.closedAt),
     p.verified = r.verified, p.stub = r.stub, p.page = r.page, p.secondarySource = r.secondarySource

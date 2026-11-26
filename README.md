@@ -36,7 +36,7 @@ If `python3 -m venv` fails on Debian/Ubuntu, install `python3-venv` (or use `uv 
   PASS  ask: top rule ng.pit.cra.old (hybrid)
   PASS  what-if (repo): 5 artifacts would turn STALE; both stores restored
   PASS  what-if (law): 1 grant(s) would fall
-  PASS  diff: s.183(2) -> s.182(2), s.196 -> s.195, s.203 -> long title (Commencement)
+  PASS  diff: s.156(5) -> s.155(4), s.183(2) -> s.182(2), s.196 -> s.195, s.203 -> long title (Commencement)
 ```
 
 The "fixed repo" step replays the edits a real Claude Code session made through InForce's MCP tools ([transcript](demo/transcripts/agent-session.md)), so the demo needs no model. "SUSPECT" means current law that a human has not yet verified against the Act's text (see [Data and accuracy](#data-and-accuracy)).

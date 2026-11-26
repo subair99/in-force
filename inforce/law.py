@@ -164,7 +164,7 @@ def diff_known_on(store: Store, d1: str | dt.date, d2: str | dt.date) -> dict[st
     # Section numbers that differ between the editions on record on d1 and d2 (e.g. gazetted -> certified).
     n1 = {(r["akn"]): r for r in store.run("known_numbers", d=d1)}
     n2 = {(r["akn"]): r for r in store.run("known_numbers", d=d2)}
-    numbering = [{"akn": k, "summary": n1[k]["summary"], "act": n1[k]["short"],
+    numbering = [{"akn": k, "summary": n1[k]["summary"], "act": n1[k]["short"], "note": n1[k]["note"],
                   "d1": {"version": n1[k]["version"], "number": n1[k]["number"], "page": n1[k]["page"]},
                   "d2": {"version": n2[k]["version"], "number": n2[k]["number"], "page": n2[k]["page"]}}
                  for k in sorted(set(n1) & set(n2)) if n1[k]["number"] != n2[k]["number"]]

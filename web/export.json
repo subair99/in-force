@@ -4,7 +4,7 @@
  "builtWith": "Built with Relate",
  "lawPack": {
   "file": "data/ng-tax-2026.rl",
-  "buildHash": "96b050ebd435b72a023a7de8cd1c4ad64750413bb76e07c301f84319ae1b1263"
+  "buildHash": "ec7ab216347fd74625b700cb611bc9cbf78c354e776b4ec75b6b8769e4dc8da7"
  },
  "dates": [
   "0001-01-01",
@@ -873,6 +873,30 @@
    ]
   },
   "NTA|155(4)": {
+   "akn": "akn/ng/act/2025/7/sec_155_4",
+   "verified": false,
+   "at": [
+    {
+     "status": "NOT_YET",
+     "endedOn": null,
+     "successor": null,
+     "successorRef": null
+    },
+    {
+     "status": "NOT_YET",
+     "endedOn": null,
+     "successor": null,
+     "successorRef": null
+    },
+    {
+     "status": "IN_FORCE",
+     "endedOn": null,
+     "successor": null,
+     "successorRef": null
+    }
+   ]
+  },
+  "NTA|156(5)": {
    "akn": "akn/ng/act/2025/7/sec_155_4",
    "verified": false,
    "at": [

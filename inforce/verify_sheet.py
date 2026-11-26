@@ -40,7 +40,9 @@ def _homes(data: dict[str, list[dict[str, Any]]]) -> dict[tuple[str, str], tuple
         if not p:
             return ("(unknown Act)", "section not recorded")
         number, _, note = provision_numbering(p)
-        return (p["instrument"], f"section {number}" + (f" ({note})" if note else ""))
+        # "section 182(2)", but a location that is not a number stands alone ("long title (Commencement)")
+        where = f"section {number}" if str(number)[:1].isdigit() else str(number)
+        return (p["instrument"], where + (f" ({note})" if note else ""))
 
     def of_rule(rid: str) -> tuple[str, str]:
         r = rule.get(rid)
@@ -84,12 +86,14 @@ def _what(kind: str, e: dict[str, Any], data: dict[str, Any]) -> str:
         if nums:
             where = "; ".join(
                 f"{ed} text: \"{d['number']}\"" + (f" (p. {d['page']})" if d.get("page") else "")
-                + (f" says \"{d['text']}\"" if d.get("text") else "") for ed, d in nums.items())
+                + (f" says \"{d['text']}\"" if d.get("text") else "")
+                + (f" [{d['note']}]" if d.get("note") else "") for ed, d in nums.items())
             if "certified" not in nums:
                 where += "; certified numbering not yet checked"
         else:
             where = f"section number \"{e.get('number')}\""
-        return f"{where}; {dates or 'no dates'}; summary \"{e.get('summary')}\""
+        extra = f"; note: {e['note']}" if e.get("note") else ""
+        return f"{where}; {dates or 'no dates'}; summary \"{e.get('summary')}\"{extra}"
     if kind == "rule":
         val = f"value {e['value']} {e.get('unit') or ''}".strip() if e.get("value") is not None else "no value"
         also = f"; also set by {', '.join(e['alsoProvisions'])}" if e.get("alsoProvisions") else ""

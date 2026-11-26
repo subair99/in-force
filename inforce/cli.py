@@ -532,7 +532,10 @@ def _print_diff(r: dict) -> None:
         def num(x: dict) -> str:
             return f"{_sec(x['number'])} ({x['version']}" + (f", p. {x['page']}" if x.get("page") else "") + ")"
         for n in r["numbering"]:
-            t.add_row(f"{n['act']} {n['summary'] or n['akn']}\n[dim]{n['akn']}[/dim]", num(n["d1"]), num(n["d2"]))
+            label = f"{n['act']} {n['summary'] or n['akn']}\n[dim]{n['akn']}[/dim]"
+            if n.get("note"):
+                label += f"\n[yellow]{n['note']}[/yellow]"
+            t.add_row(label, num(n["d1"]), num(n["d2"]))
         console.print(t)
     if r.get("numberingUnchecked"):
         console.print(f"[dim]{len(r['numberingUnchecked'])} provision(s) are numbered in only one of these editions "

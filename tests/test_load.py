@@ -300,6 +300,9 @@ def _numbers(path, akn):
     ("akn/ng/act/2025/7/commencement", ("203", "A515"), ("long title (Commencement)", None)),
     ("akn/ng/act/2025/7/sec_56", ("56", "A428"), ("56", None)),                  # same in both
     ("akn/ng/act/2025/7/sec_58", ("58 + Fourth Schedule", "A542"), ("58 + Fourth Schedule", None)),
+    ("TODO/ng/act/2025/7/sec_rent_relief", ("30(2)(a)(vi)", "A417"), ("30(2)(a)(vi)", "A416")),
+    ("akn/ng/act/2025/7/sec_27_1", ("27(1)", None), ("27(1)", "A414")),
+    ("akn/ng/act/2025/7/sec_155_4", ("156(5)", "A478"), ("155(4)", "A477–478")),   # different number AND content
 ])
 def test_each_edition_returns_its_own_number(law_pack, akn, gazetted, certified):
     path, _ = law_pack
@@ -313,13 +316,17 @@ def test_default_display_is_certified_with_gazetted_note(law_pack):
                       "RETURN p.number AS n, p.numberNote AS note LIMIT 1")[0]
         reps = s.execute("MATCH (:Instrument {short: 'NTA'})-[r:REPEALS]->() RETURN r.section AS sec, "
                          "r.byProvision AS bp, r.source AS src, r.secondarySource AS src2 LIMIT 10")
-        unchecked = s.execute("MATCH (p:Provision {akn: 'akn/ng/act/2025/7/sec_155_4'}) "
-                              "RETURN p.number AS n, p.numberNote AS note LIMIT 1")[0]
+        vat = s.execute("MATCH (p:Provision {akn: 'akn/ng/act/2025/7/sec_155_4'}) "
+                        "RETURN p.number AS n, p.numberNote AS nn, p.note AS note LIMIT 1")[0]
+        toc = s.execute("MATCH (:Provision {akn: 'akn/ng/act/2025/7/sec_27_1'})-[n:NUMBERED_AS]->(:Version {version: 'gazetted'}) "
+                        "RETURN n.note AS note LIMIT 1")[0]
     assert p == {"n": "182(2)", "note": "s.183(2) in the gazetted text"}
     assert len(reps) == 5 and all((r["sec"], r["bp"], r["src"], r["src2"]) ==
                                   ("195", "akn/ng/act/2025/7/sec_195", "nta-certified", ["nta-text", "chambers-cit-2026"])
                                   for r in reps)
-    assert unchecked == {"n": "155(4)", "note": "gazetted text; certified numbering not yet checked"}
+    assert (vat["n"], vat["nn"]) == ("155(4)", "s.156(5) in the gazetted text")
+    assert "extra subsection (4) on zero-rated suppliers" in vat["note"] and "content differs" in vat["note"]
+    assert toc["note"] == "s.27 read from the gazetted table of contents; subsection and page TODO"
 
 
 def test_diff_shows_both_renumberings(law_pack):
@@ -331,7 +338,8 @@ def test_diff_shows_both_renumberings(law_pack):
     with open_store(path, read_only=True) as s:
         d = law.diff_known_on(s, "2025-12-31", "2026-01-07")
     moves = {(n["d1"]["number"], n["d2"]["number"]) for n in d["numbering"]}
-    assert {("183(2)", "182(2)"), ("196", "195"), ("203", "long title (Commencement)")} == moves
+    assert {("183(2)", "182(2)"), ("196", "195"), ("203", "long title (Commencement)"), ("156(5)", "155(4)")} == moves
+    assert d["numberingUnchecked"] == []  # every NTA provision is now numbered in both editions
     assert all(n["d1"]["version"] == "gazetted" and n["d2"]["version"] == "certified" for n in d["numbering"])
     import json
     res = CliRunner().invoke(app, ["diff", "--known-on", "2025-12-31", "--known-on", "2026-01-07", "--json",
@@ -378,5 +386,8 @@ def test_verify_sheet_shows_both_numberings(tmp_path):
     repeal_rows = [ln for ln in text.splitlines() if ln.startswith("- [") and "**repeal**" in ln]
     assert len(repeal_rows) == 5 and all("under section 195 (s.196 in the gazetted text)" in r for r in repeal_rows)
     assert "### Section 182(2) (s.183(2) in the gazetted text)" in text
+    assert "### Long title (Commencement) (s.203 in the gazetted text)" in text   # not "Section long title"
+    assert "Section long title" not in text
+    assert "### Section 155(4) (s.156(5) in the gazetted text)" in text
     assert 'gazetted text: "203" (p. A515) says "first day of January, 2026"' in text
 

@@ -188,10 +188,10 @@ def build_rows(data: dict[str, list[dict[str, Any]]], report: LoadReport) -> dic
             if vkey not in version_keys:
                 raise BadReference(f"{where}: numbers.{edition} names no version of {inst}")
             numbered.append({"provision": e["akn"], "version": vkey, "number": str(d["number"]),
-                             "page": _str(d.get("page")), "text": d.get("text")})
+                             "page": _str(d.get("page")), "text": d.get("text"), "note": d.get("note")})
         provisions.append({
             "akn": e["akn"], "instrument": inst, "number": number, "numberNote": note,
-            "summary": e.get("summary"),
+            "summary": e.get("summary"), "note": e.get("note"),
             "validFrom": _date(e.get("validFrom"), f"{where}.validFrom", w),
             "validTo": _date(e.get("validTo"), f"{where}.validTo", w),
             "recordedAt": _date(e.get("recordedAt"), f"{where}.recordedAt", w),
@@ -210,6 +210,7 @@ def build_rows(data: dict[str, list[dict[str, Any]]], report: LoadReport) -> dic
         # Referenced but not defined: create an empty, unverified placeholder.
         # No dates, no instrument, no summary: nothing is invented.
         provisions.append({"akn": akn, "instrument": None, "number": None, "numberNote": None, "summary": None,
+                           "note": None,
                            "validFrom": None, "validTo": None, "recordedAt": None, "closedAt": None,
                            "verified": False, "stub": True, "source": None, "page": None, "secondarySource": None})
         prov_akns.add(akn)
