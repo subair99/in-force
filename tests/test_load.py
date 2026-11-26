@@ -301,7 +301,7 @@ def _numbers(path, akn):
     ("akn/ng/act/2025/7/sec_56", ("56", "A428"), ("56", None)),                  # same in both
     ("akn/ng/act/2025/7/sec_58", ("58 + Fourth Schedule", "A542"), ("58 + Fourth Schedule", None)),
     ("TODO/ng/act/2025/7/sec_rent_relief", ("30(2)(a)(vi)", "A417"), ("30(2)(a)(vi)", "A416")),
-    ("akn/ng/act/2025/7/sec_27_1", ("27(1)", None), ("27(1)", "A414")),
+    ("akn/ng/act/2025/7/sec_27_1", ("27(1)", "A414"), ("27(1)", "A414")),          # same number and page
     ("akn/ng/act/2025/7/sec_155_4", ("156(5)", "A478"), ("155(4)", "A477–478")),   # different number AND content
 ])
 def test_each_edition_returns_its_own_number(law_pack, akn, gazetted, certified):
@@ -326,7 +326,7 @@ def test_default_display_is_certified_with_gazetted_note(law_pack):
                                   for r in reps)
     assert (vat["n"], vat["nn"]) == ("155(4)", "s.156(5) in the gazetted text")
     assert "extra subsection (4) on zero-rated suppliers" in vat["note"] and "content differs" in vat["note"]
-    assert toc["note"] == "s.27 read from the gazetted table of contents; subsection and page TODO"
+    assert toc["note"] == "s.27(1) read on the gazetted scan, p.A414; wording matches the certified text"
 
 
 def test_diff_shows_both_renumberings(law_pack):
