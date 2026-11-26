@@ -159,7 +159,8 @@ def test_verify_lists_every_law_entry_with_source_and_line():
     assert all(i["where"].startswith("ng-tax-2026.yaml:") for i in items)
     assert not any(i["verified"] for i in items)  # nothing verified yet, and InForce never sets it
     band3 = next(i for i in items if i["entry"] == "ng.pit.band3.2026")
-    assert band3["source"] == "https://taxsummaries.pwc.com/nigeria/individual"
+    assert band3["source"] == "https://www.nrs.gov.ng/uploads/NIGERIA_TAX_ACT_2025_ef6bb812a5.pdf"  # gazetted NTA
+    assert band3["page"] == "A542" and band3["secondarySources"] == ["https://taxsummaries.pwc.com/nigeria/individual"]
     pita = next(i for i in items if i["kind"] == "repeal" and i["entry"].endswith("pita"))
     assert "target: TODO/ng/act/pita" in (RULES / "ng-tax-2026.yaml").read_text().splitlines()[
         int(pita["where"].split(":")[1]) - 1]
@@ -241,7 +242,9 @@ NTA_PDF = "https://www.nrs.gov.ng/uploads/NIGERIA_TAX_ACT_2025_ef6bb812a5.pdf"
     ("NRS Act", "https://media.premiumtimesng.com/wp-content/files/2026/01/"
                 "Approved-Copy-to-Print.-Nigeria-Revenue-Service-Establishment-Act-2025-1.pdf.pdf",
      ["thecable-gazettes", "kpmg-gaps-2026"]),
-    ("JRB Act", None, ["thecable-gazettes", "kpmg-gaps-2026"]),   # no primary text yet
+    ("JRB Act", "https://media.premiumtimesng.com/wp-content/files/2026/01/"
+                "Approved-Copy-to-Print-Joint-Revenue-Board-of-Nigeria-Establishment-Act-2025-B.pdf",
+     ["thecable-gazettes", "kpmg-gaps-2026"]),
 ])
 def test_reform_act_sources(law_pack, short, primary, secondary):
     path, _ = law_pack
@@ -267,3 +270,55 @@ def test_committed_law_pack_is_up_to_date():
     meta = loader.pack_meta(LAW_PACK)
     assert meta is not None and meta["hash"] == loader.build_hash(RULES)
     assert meta["embedModel"]  # committed with embeddings, so an offline clone never rebuilds it
+
+
+def _one(path, q, params=None):
+    with open_store(path, read_only=True) as s:
+        return s.execute(q, params or {})[0]
+
+
+def test_rent_relief_is_nta_s30_2_a_vi_page_a417(law_pack):
+    path, _ = law_pack
+    p = _one(path, "MATCH (p:Provision)-[:SETS]->(:Rule {id: 'ng.pit.rent_relief.2026'}) "
+                   "RETURN p.number AS n, p.page AS page LIMIT 1")
+    r = _one(path, "MATCH (r:Rule {id: 'ng.pit.rent_relief.2026'})-[:FROM]->(s:Source) "
+                   "RETURN r.page AS page, s.id AS src, r.secondarySource AS src2, r.verified AS v LIMIT 1")
+    assert p == {"n": "30(2)(a)(vi)", "page": "A417"}
+    assert r == {"page": "A417", "src": "nta-text", "src2": ["pwc-individual-dev"], "v": False}
+
+
+def test_fourth_schedule_page_a542_on_s58_and_all_six_bands(law_pack):
+    path, _ = law_pack
+    with open_store(path, read_only=True) as s:
+        p = s.execute("MATCH (p:Provision {akn: 'akn/ng/act/2025/7/sec_58'}) RETURN p.page AS page LIMIT 1")[0]
+        bands = s.execute("MATCH (r:Rule)-[:FROM]->(s:Source) WHERE r.id STARTS WITH 'ng.pit.' AND r.id ENDS WITH '.2026' "
+                          "AND r.topic = 'pit_band' RETURN r.id AS id, r.page AS page, s.id AS src LIMIT 20")
+    assert p["page"] == "A542"
+    assert len(bands) == 6 and all((b["page"], b["src"]) == ("A542", "nta-text") for b in bands)
+
+
+def test_company_rate_set_by_s27_1_and_s56_with_s27_1_primary(law_pack):
+    from inforce import law
+    path, _ = law_pack
+    with open_store(path, read_only=True) as s:
+        sets = {r["akn"]: r["sec"] for r in s.execute(
+            "MATCH (p:Provision)-[x:SETS]->(:Rule {id: 'ng.cgt.company.2026'}) "
+            "RETURN p.akn AS akn, x.secondary AS sec LIMIT 5")}
+        page56 = s.execute("MATCH (p:Provision {akn: 'akn/ng/act/2025/7/sec_56'}) RETURN p.page AS page LIMIT 1")[0]
+        info = law.rule_status(s, "ng.cgt.company.2026", "2026-03-01")
+    assert sets == {"akn/ng/act/2025/7/sec_27_1": False, "akn/ng/act/2025/7/sec_56": True}
+    assert page56["page"] == "A428"
+    assert info["provision"] == "akn/ng/act/2025/7/sec_27_1"  # deterministic: the primary provision
+
+
+def test_jrb_primary_source_and_ntaa_commencement_page(law_pack):
+    path, _ = law_pack
+    jrb = _one(path, "MATCH (i:Instrument {short: 'JRB Act'})-[:FROM]->(s:Source) RETURN s.url AS url, s.title AS t LIMIT 1")
+    ntaa = _one(path, "MATCH (i:Instrument {short: 'NTAA'}) RETURN i.page AS page, i.note AS note, i.verified AS v LIMIT 1")
+    assert jrb["url"].endswith("Approved-Copy-to-Print-Joint-Revenue-Board-of-Nigeria-Establishment-Act-2025-B.pdf")
+    assert "Government Notice No. 25, Act No. 6" in jrb["t"]
+    assert ntaa == {"page": "A265", "note": "check gazetted text vs official 1 Jan 2026 commencement", "v": False}
+
+
+def test_nothing_is_verified_yet():
+    assert not [i for i in loader.verify_list(RULES) if i["verified"]]

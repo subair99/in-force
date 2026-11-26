@@ -4,7 +4,7 @@
  "builtWith": "Built with Relate",
  "lawPack": {
   "file": "data/ng-tax-2026.rl",
-  "buildHash": "50f875698ec323ab7bdd059856cae0b835fd26b6c76f9b0027c4adb905478f25"
+  "buildHash": "6730bdca8727e9481f9476df88143fef3767d803db2e51fc2a74456f5267b90f"
  },
  "dates": [
   "0001-01-01",
@@ -83,7 +83,7 @@
    "unit": "rate",
    "verified": false,
    "provision": "akn/ng/act/2025/7/sec_58",
-   "source": "https://taxsummaries.pwc.com/nigeria/individual",
+   "source": "https://www.nrs.gov.ng/uploads/NIGERIA_TAX_ACT_2025_ef6bb812a5.pdf",
    "at": [
     {
      "status": "NOT_YET",
@@ -147,7 +147,7 @@
    "unit": "rate",
    "verified": false,
    "provision": "akn/ng/act/2025/7/sec_58",
-   "source": "https://taxsummaries.pwc.com/nigeria/individual",
+   "source": "https://www.nrs.gov.ng/uploads/NIGERIA_TAX_ACT_2025_ef6bb812a5.pdf",
    "at": [
     {
      "status": "NOT_YET",
@@ -211,7 +211,7 @@
    "unit": "rate",
    "verified": false,
    "provision": "akn/ng/act/2025/7/sec_58",
-   "source": "https://taxsummaries.pwc.com/nigeria/individual",
+   "source": "https://www.nrs.gov.ng/uploads/NIGERIA_TAX_ACT_2025_ef6bb812a5.pdf",
    "at": [
     {
      "status": "NOT_YET",
@@ -275,7 +275,7 @@
    "unit": "rate",
    "verified": false,
    "provision": "akn/ng/act/2025/7/sec_58",
-   "source": "https://taxsummaries.pwc.com/nigeria/individual",
+   "source": "https://www.nrs.gov.ng/uploads/NIGERIA_TAX_ACT_2025_ef6bb812a5.pdf",
    "at": [
     {
      "status": "NOT_YET",
@@ -339,7 +339,7 @@
    "unit": "rate",
    "verified": false,
    "provision": "akn/ng/act/2025/7/sec_58",
-   "source": "https://taxsummaries.pwc.com/nigeria/individual",
+   "source": "https://www.nrs.gov.ng/uploads/NIGERIA_TAX_ACT_2025_ef6bb812a5.pdf",
    "at": [
     {
      "status": "NOT_YET",
@@ -473,7 +473,7 @@
    "unit": "NGN_cap",
    "verified": false,
    "provision": "TODO/ng/act/2025/7/sec_rent_relief",
-   "source": "https://taxsummaries.pwc.com/nigeria/individual/significant-developments",
+   "source": "https://www.nrs.gov.ng/uploads/NIGERIA_TAX_ACT_2025_ef6bb812a5.pdf",
    "at": [
     {
      "status": "NOT_YET",
@@ -505,7 +505,7 @@
    "unit": "rate",
    "verified": false,
    "provision": "akn/ng/act/2025/7/sec_58",
-   "source": "https://assets.kpmg.com/content/dam/kpmgsites/xx/pdf/2025/09/fa25-168.pdf.coredownload.inline.pdf",
+   "source": "https://www.nrs.gov.ng/uploads/NIGERIA_TAX_ACT_2025_ef6bb812a5.pdf",
    "at": [
     {
      "status": "NOT_YET",
@@ -800,6 +800,30 @@
   }
  },
  "provisions": {
+  "NTA|30(2)(a)(vi)": {
+   "akn": "TODO/ng/act/2025/7/sec_rent_relief",
+   "verified": false,
+   "at": [
+    {
+     "status": "NOT_YET",
+     "endedOn": null,
+     "successor": null,
+     "successorRef": null
+    },
+    {
+     "status": "NOT_YET",
+     "endedOn": null,
+     "successor": null,
+     "successorRef": null
+    },
+    {
+     "status": "IN_FORCE",
+     "endedOn": null,
+     "successor": null,
+     "successorRef": null
+    }
+   ]
+  },
   "NTA|155(4)": {
    "akn": "akn/ng/act/2025/7/sec_155_4",
    "verified": false,

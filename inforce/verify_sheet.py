@@ -72,14 +72,17 @@ def _what(kind: str, e: dict[str, Any], data: dict[str, Any]) -> str:
     titles = {i["akn"]: i.get("title") or i["akn"] for i in data.get("instruments", [])}
     texts = {r["id"]: r.get("text") for r in data.get("rules", [])}
     if kind == "instrument":
-        return f"title \"{e.get('title')}\"; assented {e.get('assentedOn', '-')}; commences {e.get('commencesOn', '-')}"
+        note = f"; note: {e['note']}" if e.get("note") else ""
+        return (f"title \"{e.get('title')}\"; assented {e.get('assentedOn', '-')}; "
+                f"commences {e.get('commencesOn', '-')}{note}")
     if kind == "provision":
         dates = ", ".join(x for x in (f"in force from {e['validFrom']}" if e.get("validFrom") else "",
                                       f"until {e['validTo']}" if e.get("validTo") else "") if x)
         return f"section number \"{e.get('number')}\"; {dates or 'no dates'}; summary \"{e.get('summary')}\""
     if kind == "rule":
         val = f"value {e['value']} {e.get('unit') or ''}".strip() if e.get("value") is not None else "no value"
-        return f"{val}; says \"{e.get('text')}\""
+        also = f"; also set by {', '.join(e['alsoProvisions'])}" if e.get("alsoProvisions") else ""
+        return f"{val}; says \"{e.get('text')}\"{also}"
     if kind == "repeal":
         sec = f" under section {e['section']}" if e.get("section") else ""
         return f"repeals {titles.get(e['target'], e['target'])} on {e.get('on')}{sec}"

@@ -150,6 +150,7 @@ def build_rows(data: dict[str, list[dict[str, Any]]], report: LoadReport) -> dic
             "assentedOn": _date(e.get("assentedOn"), f"{where}.assentedOn", w),
             "commencesOn": _date(e.get("commencesOn"), f"{where}.commencesOn", w),
             "verified": v(e), "stub": False, "source": src(e, where), "secondarySource": src2(e, where),
+            "page": _str(e.get("page")), "note": e.get("note"),
         })
     inst_akns = {i["akn"] for i in instruments}
 
@@ -194,8 +195,17 @@ def build_rows(data: dict[str, list[dict[str, Any]]], report: LoadReport) -> dic
         rules.append({
             "id": e["id"], "provision": e["provision"], "text": e.get("text"), "topic": e.get("topic"),
             "value": e.get("value"), "unit": e.get("unit"), "verified": v(e), "source": src(e, where),
+            "page": _str(e.get("page")), "secondarySource": src2(e, where),
         })
     rule_ids = {r["id"] for r in rules}
+    # A rule may also be set by further provisions (e.g. a rate stated in two sections); the
+    # `provision` field stays the primary one, the others are SETS marked secondary.
+    also_sets = []
+    for e in data.get("rules", []):
+        for akn in e.get("alsoProvisions") or []:
+            if akn not in prov_akns:
+                raise BadReference(f"rule {e['id']}: alsoProvisions names undefined provision {akn!r}")
+            also_sets.append({"rule": e["id"], "provision": akn})
 
     repeals = []
     for e in data.get("repeals", []):
@@ -257,12 +267,12 @@ def build_rows(data: dict[str, list[dict[str, Any]]], report: LoadReport) -> dic
                for s in data.get("sources", [])]
 
     return {"source": sources, "instrument": instruments, "version": versions, "provision": provisions, "rule": rules,
-            "repeal": repeals, "replacement": replacements, "succession": successions, "related": related,
+            "also_sets": also_sets, "repeal": repeals, "replacement": replacements, "succession": successions, "related": related,
             "grant": grants, "saving": savings}
 
 
 # Order matters: nodes before the relationships that MATCH them.
-LOAD_ORDER = ("source", "instrument", "version", "provision", "rule", "repeal", "replacement", "succession", "related",
+LOAD_ORDER = ("source", "instrument", "version", "provision", "rule", "also_sets", "repeal", "replacement", "succession", "related",
               "grant", "saving")
 
 

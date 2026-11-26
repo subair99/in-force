@@ -4,7 +4,8 @@ UNWIND $rows AS r
 MERGE (i:Instrument {akn: r.akn})
 SET i.short = r.short, i.title = r.title, i.kind = r.kind,
     i.assentedOn = date(r.assentedOn), i.commencesOn = date(r.commencesOn),
-    i.verified = r.verified, i.stub = r.stub, i.secondarySource = r.secondarySource
+    i.verified = r.verified, i.stub = r.stub, i.secondarySource = r.secondarySource,
+    i.page = r.page, i.note = r.note
 WITH i, r
 MATCH (s:Source {id: r.source})
 MERGE (i)-[:FROM]->(s)

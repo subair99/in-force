@@ -9,7 +9,8 @@ UNWIND direct AS d
 OPTIONAL MATCH (d)-[:USED_BY|TESTED_BY*1..3]->(rip:Artifact)
 WITH r, direct, collect(DISTINCT rip) AS ripple
 WITH r, direct, [x IN ripple WHERE NOT x IN direct] AS down
-OPTIONAL MATCH (p:Provision)-[:SETS]->(r)
+OPTIONAL MATCH (p:Provision)-[ps:SETS]->(r)
+  WHERE coalesce(ps.secondary, false) = false
 RETURN r.id AS rule, r.text AS text, p.akn AS provision,
        size(direct) AS direct, size(down) AS downstream, size(direct) + size(down) AS weight,
        [x IN direct | x.id] AS directArtifacts, [x IN down | x.id] AS downstreamArtifacts

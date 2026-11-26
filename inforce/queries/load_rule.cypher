@@ -2,10 +2,11 @@
 UNWIND $rows AS r
 MERGE (x:Rule {id: r.id})
 SET x.text = r.text, x.topic = r.topic, x.value = r.value, x.unit = r.unit, x.verified = r.verified,
-    x.embedding = r.embedding
+    x.embedding = r.embedding, x.page = r.page, x.secondarySource = r.secondarySource
 WITH x, r
 MATCH (p:Provision {akn: r.provision})
-MERGE (p)-[:SETS]->(x)
+MERGE (p)-[s:SETS]->(x)
+SET s.secondary = false
 WITH x, r
 MATCH (s:Source {id: r.source})
 MERGE (x)-[:FROM]->(s)
