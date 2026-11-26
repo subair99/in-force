@@ -144,7 +144,7 @@ def build_rows(data: dict[str, list[dict[str, Any]]], report: LoadReport) -> dic
                              "recordedAt": _date(ver.get("recordedAt"), f"{vwhere}.recordedAt", w),
                              "closedAt": _date(ver.get("closedAt"), f"{vwhere}.closedAt", w),
                              "verified": v(e) and ver.get("verified", True) is True,
-                             "source": src(ver, vwhere)})
+                             "source": src(ver, vwhere), "note": ver.get("note")})
         instruments.append({
             "akn": e["akn"], "short": e.get("short"), "title": e.get("title"), "kind": e.get("kind"),
             "assentedOn": _date(e.get("assentedOn"), f"{where}.assentedOn", w),

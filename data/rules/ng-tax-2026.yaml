@@ -62,8 +62,8 @@ instruments:
     source: nta-text
     secondarySource: thecable-gazettes
     versions:
-      - {version: gazetted, recordedAt: TODO, closedAt: 2026-01-06}   # TODO confirm gazette date
-      - {version: certified, recordedAt: 2026-01-06}                  # source: kpmg-certified
+      - {version: gazetted, recordedAt: 2025-06-26, closedAt: 2026-01-06, source: nta-text, note: "Official Gazette No. 117 dated 26 Jun 2025; publication announced by the Presidency on 6 Sep 2025 (Bloomberg Tax)"}
+      - {version: certified, recordedAt: 2026-01-06, source: kpmg-certified, note: "6 Jan 2026 is the date KPMG published the news; KPMG does not state the National Assembly's release day (certified versions released 'as of January 1, 2026')"}
   - akn: TODO/ng/act/pita
     short: PITA
     title: Personal Income Tax Act

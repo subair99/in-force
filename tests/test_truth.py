@@ -168,3 +168,22 @@ def test_loader_warns_on_new_act_provision_without_valid_from(tmp_path):
     report = loader.load(tmp_path / "rules", tmp_path / "x.rl", embed=False)
     warned = [w for w in report.warnings if "no validFrom" in w]
     assert len(warned) == 1 and "i/new/s1" in warned[0]
+
+
+def test_nta_versions_have_known_record_dates(law_pack):
+    """Gazetted 26 Jun 2025 (Gazette No. 117) -> certified (on record by 6 Jan 2026): no 'date unknown' left."""
+    from typer.testing import CliRunner
+
+    from inforce.cli import app
+    path, _ = law_pack
+    with open_store(path, read_only=True) as s:
+        d = law.diff_known_on(s, "2025-12-31", "2026-01-07")
+        notes = {r["v"]: r["note"] for r in s.execute(
+            "MATCH (:Instrument {short: 'NTA'})-[:HAS_VERSION]->(v) RETURN v.version AS v, v.note AS note LIMIT 5")}
+    [nta] = [a for a in d["acts"] if a["short"] == "NTA"]
+    assert [(v["version"], v["recordedAt"].isoformat(), v["startUnknown"]) for v in nta["d1"]] == \
+        [("gazetted", "2025-06-26", False)]
+    assert [(v["version"], v["recordedAt"].isoformat()) for v in nta["d2"]] == [("certified", "2026-01-06")]
+    assert "Gazette No. 117" in notes["gazetted"] and "KPMG" in notes["certified"]
+    res = CliRunner().invoke(app, ["diff", "--known-on", "2025-12-31", "--known-on", "2026-01-07", "--law", str(path)])
+    assert res.exit_code == 0 and "date unknown" not in res.output

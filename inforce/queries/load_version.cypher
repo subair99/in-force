@@ -4,5 +4,5 @@ UNWIND $rows AS r
 MATCH (i:Instrument {akn: r.instrument})
 MERGE (v:Version {key: r.key})
 SET v.version = r.version, v.recordedAt = date(r.recordedAt), v.closedAt = date(r.closedAt),
-    v.verified = r.verified, v.source = r.source
+    v.verified = r.verified, v.source = r.source, v.note = r.note
 MERGE (i)-[:HAS_VERSION]->(v)
