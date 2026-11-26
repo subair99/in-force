@@ -185,3 +185,48 @@ def test_build_hash_ignores_line_endings(tmp_path):
     for f in crlf.glob("*.yaml"):
         f.write_bytes(f.read_bytes().replace(b"\r\n", b"\n").replace(b"\n", b"\r\n"))
     assert loader.build_hash(lf) == loader.build_hash(crlf)
+
+
+def test_nta_repeals_cite_section_196_in_the_gazette(law_pack):
+    """Every NTA repeal records s.196 and the gazetted Act (p. A502), with Chambers kept as secondary."""
+    path, _ = law_pack
+    with open_store(path, read_only=True) as s:
+        rows = s.execute("MATCH (:Instrument {short: 'NTA'})-[r:REPEALS]->(t) "
+                         "RETURN t.short AS t, r.section AS sec, r.page AS page, r.source AS src, "
+                         "r.secondarySource AS src2 LIMIT 20")
+        cite = s.execute("MATCH (s:Source {id: 'nta-text'}) RETURN s.citation AS c LIMIT 1")[0]["c"]
+    assert len(rows) == 5
+    assert all((r["sec"], r["page"], r["src"], r["src2"]) == ("196", "A502", "nta-text", "chambers-cit-2026")
+               for r in rows)
+    assert "Gazette No. 117" in cite and "Act No. 7" in cite
+
+
+@pytest.mark.parametrize("short,commences", [("NTA", "2026-01-01"), ("NTAA", "2026-01-01"),
+                                             ("NRS Act", "2025-06-26"), ("JRB Act", "2025-06-26")])
+def test_reform_acts_commencement_recorded_unverified(law_pack, short, commences):
+    path, _ = law_pack
+    with open_store(path, read_only=True) as s:
+        r = s.execute("MATCH (i:Instrument {short: $s}) RETURN i.commencesOn AS c, i.verified AS v LIMIT 1",
+                      {"s": short})[0]
+    assert (r["c"].isoformat(), r["v"]) == (commences, False)
+
+
+def test_iditra_savings_clause_is_section_183_2(law_pack):
+    """The gazetted NTA numbers the IDITRA savings clause s.183(2) (p. A492); 182(2) was wrong."""
+    path, _ = law_pack
+    with open_store(path, read_only=True) as s:
+        saver = s.execute("MATCH (p:Provision)-[x:SAVES]->(:Grant) RETURN p.akn AS akn, p.number AS n, "
+                          "p.page AS page, x.page AS xpage LIMIT 1")[0]
+        old = s.execute("MATCH (p:Provision) WHERE p.number = '182(2)' OR p.akn ENDS WITH 'sec_182_2' "
+                        "RETURN count(p) AS c LIMIT 1")[0]["c"]
+    assert saver == {"akn": "akn/ng/act/2025/7/sec_183_2", "n": "183(2)", "page": "A492", "xpage": "A492"}
+    assert old == 0
+
+
+def test_verify_sheet_shows_repeal_section_and_gazette_citation(tmp_path):
+    from inforce.verify_sheet import build_sheet
+    text = build_sheet(RULES)
+    rows = [ln for ln in text.splitlines() if ln.startswith("- [") and "**repeal**" in ln]
+    assert len(rows) == 5
+    assert all("under section 196" in r and "Gazette No. 117" in r and "p. A502" in r and "secondary" in r
+               for r in rows)

@@ -14,7 +14,7 @@ from .test_check import STALE
 NODE = shutil.which("node")
 TEXTS = [
     STALE.read_text(),
-    "Under section 182(2) of the Nigeria Tax Act existing pioneer certificates continue. NTA s. 58 sets the bands.",
+    "Under section 183(2) of the Nigeria Tax Act existing pioneer certificates continue. NTA s. 58 sets the bands.",
     "The first NGN 800,000 at 0% and the next ₦9,000,000 at 18%; rent relief applies. The next ₦500,000 at 17%.",
     "PITA, section 33: the CRA. Companies pay capital gains tax at 10% under CGTA.",
     "Nothing here.",

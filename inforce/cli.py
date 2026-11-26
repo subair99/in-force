@@ -760,8 +760,8 @@ def demo(
                f"{len(newly)} artifacts would turn STALE; both stores restored")
 
         step("What if the savings clause went?",
-             "inforce whatif repeal akn/ng/act/2025/7/sec_182_2: existing pioneer certificates rest on it.")
-        w2 = whatif_repeal("akn/ng/act/2025/7/sec_182_2", on, law_pack)
+             "inforce whatif repeal akn/ng/act/2025/7/sec_183_2: existing pioneer certificates rest on it.")
+        w2 = whatif_repeal("akn/ng/act/2025/7/sec_183_2", on, law_pack)
         _print_whatif(w2)
         fell = [c for c in w2["law"]["changes"] if c["after"] == "FELL"]
         expect("what-if (law)", bool(fell) and w2["law"]["unchanged"], f"{len(fell)} grant(s) would fall")

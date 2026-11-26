@@ -104,6 +104,11 @@ def _date(value: Any, where: str, warnings: list[str]) -> str | None:
     return None
 
 
+def _str(value: Any) -> str | None:
+    """Section numbers and gazette pages are labels ("196", "A502"): keep them as text."""
+    return None if value is None else str(value)
+
+
 def build_rows(data: dict[str, list[dict[str, Any]]], report: LoadReport) -> dict[str, list[dict[str, Any]]]:
     """Turn YAML entries into parameter rows for the load_*.cypher queries."""
     w = report.warnings
@@ -115,6 +120,13 @@ def build_rows(data: dict[str, list[dict[str, Any]]], report: LoadReport) -> dic
         sid = e.get("source")
         if sid is not None and sid not in source_ids:
             w.append(f"{where}: source {sid!r} is not in sources; no FROM link")
+        return sid
+
+    def src2(e: dict[str, Any], where: str) -> str | None:
+        """Optional secondary source (e.g. commentary kept next to the Act itself)."""
+        sid = e.get("secondarySource")
+        if sid is not None and sid not in source_ids:
+            w.append(f"{where}: secondary source {sid!r} is not in sources")
         return sid
 
     instruments: list[dict[str, Any]] = []
@@ -152,6 +164,7 @@ def build_rows(data: dict[str, list[dict[str, Any]]], report: LoadReport) -> dic
             "recordedAt": _date(e.get("recordedAt"), f"{where}.recordedAt", w),
             "closedAt": _date(e.get("closedAt"), f"{where}.closedAt", w),
             "verified": v(e), "stub": False, "source": src(e, where),
+            "page": _str(e.get("page")), "secondarySource": src2(e, where),
         })
     prov_akns = {p["akn"] for p in provisions}
     commencing = {i["akn"] for i in instruments if i["commencesOn"]}
@@ -165,7 +178,7 @@ def build_rows(data: dict[str, list[dict[str, Any]]], report: LoadReport) -> dic
         # No dates, no instrument, no summary: nothing is invented.
         provisions.append({"akn": akn, "instrument": None, "number": None, "summary": None,
                            "validFrom": None, "validTo": None, "recordedAt": None, "closedAt": None,
-                           "verified": False, "stub": True, "source": None})
+                           "verified": False, "stub": True, "source": None, "page": None, "secondarySource": None})
         prov_akns.add(akn)
         report.stubs.append(f"provision {akn} (referenced by {why})")
 
@@ -188,7 +201,8 @@ def build_rows(data: dict[str, list[dict[str, Any]]], report: LoadReport) -> dic
         if e["target"] not in inst_akns | prov_akns:
             raise BadReference(f"{where}: target is not a defined instrument or provision")
         repeals.append({"by": e["by"], "target": e["target"], "on": _date(e.get("on"), f"{where}.on", w),
-                        "verified": v(e), "source": src(e, where)})
+                        "section": _str(e.get("section")), "page": _str(e.get("page")),
+                        "verified": v(e), "source": src(e, where), "secondarySource": src2(e, where)})
 
     replacements = []
     for e in data.get("replacements", []):
@@ -231,9 +245,11 @@ def build_rows(data: dict[str, list[dict[str, Any]]], report: LoadReport) -> dic
             raise BadReference(f"{where}: target is not a defined grant or provision")
         savings.append({"saver": e["saver"], "saves": e["saves"],
                         "until": _date(e.get("until"), f"{where}.until", w),
-                        "note": e.get("note"), "verified": v(e), "source": src(e, where)})
+                        "note": e.get("note"), "verified": v(e), "source": src(e, where),
+                        "page": _str(e.get("page")), "secondarySource": src2(e, where)})
 
-    sources = [{"id": s["id"], "url": s["url"], "kind": s.get("kind"), "title": s.get("title")}
+    sources = [{"id": s["id"], "url": s["url"], "kind": s.get("kind"), "title": s.get("title"),
+                "citation": s.get("citation")}
                for s in data.get("sources", [])]
 
     return {"source": sources, "instrument": instruments, "version": versions, "provision": provisions, "rule": rules,
@@ -347,7 +363,15 @@ def verify_list(rules_dir: str | Path) -> list[dict[str, Any]]:
     """Every law entry, for the human check against the Act: what it says, its source and verified flag.
     Read from the YAML (the file the human edits), with the file and line of each entry."""
     data = read_yaml(Path(rules_dir))
-    urls = {s["id"]: s["url"] for s in data.get("sources", [])}
+    def show_source(sid: str | None, page: Any = None) -> str | None:
+        """The source URL, or its citation when the URL is still a placeholder; plus the page if given."""
+        s = srcs.get(sid)
+        if s is None:
+            return sid
+        shown = s["url"] if not str(s["url"]).startswith("TODO") else (s.get("citation") or s["url"])
+        return f"{shown}, p. {page}" if page else shown
+
+    srcs = {s["id"]: s for s in data.get("sources", [])}
     lines: dict[str, list[str]] = {f.name: f.read_text(encoding="utf-8").splitlines()
                                    for f in sorted(Path(rules_dir).glob("*.yaml"))}
 
@@ -375,11 +399,12 @@ def verify_list(rules_dir: str | Path) -> list[dict[str, Any]]:
                 needles = [f"id: {e['id']}"]
             what = e.get("text") or e.get("summary") or e.get("title") or e.get("note") or ""
             if sec == "repeals":
-                what = f"repealed on {e.get('on')}"
+                what = f"repealed on {e.get('on')}" + (f" under section {e['section']}" if e.get("section") else "")
             if e.get("value") is not None:
                 what += f" (value {e['value']} {e.get('unit') or ''})".rstrip()
             out.append({"kind": sec[:-1] if sec != "related" else "related", "entry": label.split(" ", 1)[1],
-                        "what": what, "source": urls.get(e.get("source"), e.get("source")),
+                        "what": what, "source": show_source(e.get("source"), e.get("page")),
+                        "secondarySource": show_source(e.get("secondarySource")),
                         "verified": e.get("verified") is True, "where": where(needles)})
     return out
 

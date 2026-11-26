@@ -31,6 +31,7 @@ sources:
   - id: nta-text
     url: TODO-official-gazette-or-certified-copy-url
     kind: act
+    citation: "Official Gazette No. 117, 26 June 2025: Nigeria Tax Act, 2025 (Act No. 7)"
 
 instruments:
   - akn: akn/ng/act/2025/7          # id format as used by judy.legal; confirm
@@ -39,6 +40,7 @@ instruments:
     kind: act
     assentedOn: 2025-06-26
     commencesOn: 2026-01-01
+    source: nta-text
     versions:
       - {version: gazetted, recordedAt: TODO, closedAt: 2026-01-06}   # TODO confirm gazette date
       - {version: certified, recordedAt: 2026-01-06}                  # source: kpmg-certified
@@ -62,18 +64,41 @@ instruments:
     short: IDITRA
     title: Industrial Development (Income Tax Relief) Act
     kind: act
+  # The other three reform Acts, enacted with the NTA on 26 June 2025 (commencement dates only).
+  # TODO source: gazette citation for each of these three Acts.
+  - akn: TODO/ng/act/2025/ntaa
+    short: NTAA
+    title: Nigeria Tax Administration Act
+    kind: act
+    assentedOn: 2025-06-26
+    commencesOn: 2026-01-01
+    verified: false
+  - akn: TODO/ng/act/2025/nrsa
+    short: NRS Act
+    title: Nigeria Revenue Service (Establishment) Act
+    kind: act
+    assentedOn: 2025-06-26
+    commencesOn: 2025-06-26
+    verified: false
+  - akn: TODO/ng/act/2025/jrba
+    short: JRB Act
+    title: Joint Revenue Board of Nigeria (Establishment) Act
+    kind: act
+    assentedOn: 2025-06-26
+    commencesOn: 2025-06-26
+    verified: false
 
-repeals:   # all repealed in full by the NTA from 1 Jan 2026 (source: chambers-cit-2026)
-  - {by: akn/ng/act/2025/7, target: TODO/ng/act/pita,   on: 2026-01-01, source: chambers-cit-2026, verified: false}
-  - {by: akn/ng/act/2025/7, target: TODO/ng/act/cita,   on: 2026-01-01, source: chambers-cit-2026, verified: false}
-  - {by: akn/ng/act/2025/7, target: TODO/ng/act/cgta,   on: 2026-01-01, source: chambers-cit-2026, verified: false}
-  - {by: akn/ng/act/2025/7, target: TODO/ng/act/vata,   on: 2026-01-01, source: chambers-cit-2026, verified: false}
-  - {by: akn/ng/act/2025/7, target: TODO/ng/act/iditra, on: 2026-01-01, source: chambers-cit-2026, verified: false}
+repeals:   # all repealed in full by NTA s.196 from 1 Jan 2026 (gazetted NTA p. A502; Chambers commentary as secondary)
+  - {by: akn/ng/act/2025/7, target: TODO/ng/act/pita,   on: 2026-01-01, section: "196", source: nta-text, page: A502, secondarySource: chambers-cit-2026, verified: false}
+  - {by: akn/ng/act/2025/7, target: TODO/ng/act/cita,   on: 2026-01-01, section: "196", source: nta-text, page: A502, secondarySource: chambers-cit-2026, verified: false}
+  - {by: akn/ng/act/2025/7, target: TODO/ng/act/cgta,   on: 2026-01-01, section: "196", source: nta-text, page: A502, secondarySource: chambers-cit-2026, verified: false}
+  - {by: akn/ng/act/2025/7, target: TODO/ng/act/vata,   on: 2026-01-01, section: "196", source: nta-text, page: A502, secondarySource: chambers-cit-2026, verified: false}
+  - {by: akn/ng/act/2025/7, target: TODO/ng/act/iditra, on: 2026-01-01, section: "196", source: nta-text, page: A502, secondarySource: chambers-cit-2026, verified: false}
   # TODO: Petroleum Profits Tax Act, Stamp Duties Act, FIRS Establishment Act (by NRS Act), others listed in the NTA
 
 provisions:
   - {akn: akn/ng/act/2025/7/sec_58, instrument: akn/ng/act/2025/7, number: "58 + Fourth Schedule", summary: "Sets personal income tax rates by income band.", validFrom: 2026-01-01, source: mondaq-nta-analysis, verified: false}
-  - {akn: akn/ng/act/2025/7/sec_182_2, instrument: akn/ng/act/2025/7, number: "182(2)", summary: "Lets companies keep IDITRA incentives for the unexpired period.", validFrom: 2026-01-01, source: chambers-cit-2026, verified: false}
+  - {akn: akn/ng/act/2025/7/sec_183_2, instrument: akn/ng/act/2025/7, number: "183(2)", summary: "Lets companies keep IDITRA incentives for the unexpired period.", validFrom: 2026-01-01, source: nta-text, page: A492, secondarySource: chambers-cit-2026, verified: false}
   - {akn: akn/ng/act/2025/7/sec_27_1, instrument: akn/ng/act/2025/7, number: "27(1)", summary: "Brings chargeable gains into total profits.", validFrom: 2026-01-01, source: chambers-cit-2026, verified: false}
   - {akn: akn/ng/act/2025/7/sec_56, instrument: akn/ng/act/2025/7, number: "56", summary: "Company income tax rate.", validFrom: 2026-01-01, source: chambers-cit-2026, verified: false}
   - {akn: akn/ng/act/2025/7/sec_155_4, instrument: akn/ng/act/2025/7, number: "155(4)", summary: "Time limit for claiming input VAT.", validFrom: 2026-01-01, source: chambers-cit-2026, verified: false}
@@ -124,4 +149,4 @@ grants:
   - {id: ng.grant.pioneer.existing, title: "Existing pioneer status certificates", grantedUnder: TODO/ng/act/iditra}
 
 savings:
-  - {saver: akn/ng/act/2025/7/sec_182_2, saves: ng.grant.pioneer.existing, until: null, note: "for the unexpired period of each grant", source: chambers-cit-2026, verified: false}
+  - {saver: akn/ng/act/2025/7/sec_183_2, saves: ng.grant.pioneer.existing, until: null, note: "for the unexpired period of each grant", source: nta-text, page: A492, secondarySource: chambers-cit-2026, verified: false}

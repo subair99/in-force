@@ -81,7 +81,8 @@ def _what(kind: str, e: dict[str, Any], data: dict[str, Any]) -> str:
         val = f"value {e['value']} {e.get('unit') or ''}".strip() if e.get("value") is not None else "no value"
         return f"{val}; says \"{e.get('text')}\""
     if kind == "repeal":
-        return f"repeals {titles.get(e['target'], e['target'])} on {e.get('on')}"
+        sec = f" under section {e['section']}" if e.get("section") else ""
+        return f"repeals {titles.get(e['target'], e['target'])} on {e.get('on')}{sec}"
     if kind == "replacement":
         return f"\"{texts.get(e['old'])}\" is replaced one-to-one by \"{texts.get(e['new'])}\""
     if kind == "succession":
@@ -130,7 +131,14 @@ def build_sheet(rules_dir: str | Path, keep_ticks: dict[tuple[str, str], bool] |
             act, section = homes.get((kind, entry), ("(unknown Act)", "section not recorded"))
             info = listed[(kind, entry)]
             ticked = info["verified"] or keep_ticks.get((kind, entry), False)
-            src = f"[source]({info['source']})" if info["source"] else "**no source**"
+            if not info["source"]:
+                src = "**no source**"
+            elif str(info["source"]).startswith("http"):
+                src = f"[source]({info['source']})"
+            else:  # a citation (e.g. the gazette) rather than a URL
+                src = f"source: {info['source']}"
+            if info.get("secondarySource"):
+                src += f" (secondary: [commentary]({info['secondarySource']}))"
             row = (f"- [{'x' if ticked else ' '}] **{kind}** `{entry}`: check {_what(kind, e, data)}. "
                    f"{src} · `{info['where']}`" + (" · already verified" if info["verified"] else ""))
             groups.setdefault(act, {}).setdefault(section, []).append(row)
