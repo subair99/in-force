@@ -36,6 +36,7 @@ If `python3 -m venv` fails on Debian/Ubuntu, install `python3-venv` (or use `uv 
   PASS  ask: top rule ng.pit.cra.old (hybrid)
   PASS  what-if (repo): 5 artifacts would turn STALE; both stores restored
   PASS  what-if (law): 1 grant(s) would fall
+  PASS  diff: s.183(2) -> s.182(2), s.196 -> s.195, s.203 -> long title (Commencement)
 ```
 
 The "fixed repo" step replays the edits a real Claude Code session made through InForce's MCP tools ([transcript](demo/transcripts/agent-session.md)), so the demo needs no model. "SUSPECT" means current law that a human has not yet verified against the Act's text (see [Data and accuracy](#data-and-accuracy)).
@@ -76,6 +77,7 @@ Why
   | `Grant` | `id` | | `(Provision)-[:SUCCEEDED_BY]->(Provision)` | replaced as a whole (the PIT scale) |
   | `Source` | `url` | | `(Rule)-[:REPLACED_BY]->(Rule)` / `-[:RELATED]->` | one-to-one successor / related, not a successor |
   | `Version` | `key` | | `(Instrument)-[:HAS_VERSION]->(Version {recordedAt, closedAt})` | which published text was on record when |
+  | | | | `(Provision)-[:NUMBERED_AS {number, page}]->(Version)` | section number in each edition (gazetted s.183(2) = certified s.182(2)) |
   | `Artifact` | `id` | | `(Artifact)-[:ENCODES]->(Rule)` | code built on a rule |
   | `Claim` | `id` | | `(Artifact)-[:HAS_CLAIM]->(Claim)-[:CITES]->(Rule\|Provision\|Instrument)` | citations in documents and answers |
   | | | | `(Artifact)-[:USED_BY\|TESTED_BY]->(Artifact)` | callers and tests (followed forward, up to 3 hops) |
@@ -115,7 +117,7 @@ Tested on Linux (Ubuntu in CI, and WSL2). The Windows commands are given but hav
 | `inforce whatif repeal AKN\|ACT [--repo DIR]` | what would fall, measured in a transaction and rolled back (counts and fingerprint before, during and after) |
 | `inforce ask "question" --on D` | hybrid rule search (citations, amounts, vectors, full-text) with status on the date |
 | `inforce fallout ACT` | grants that fell or were saved when an Act was repealed |
-| `inforce diff --known-on D1 --known-on D2` | which published version of each Act was on record on each date |
+| `inforce diff --known-on D1 --known-on D2` | which published edition of each Act was on record on each date, and the section numbers that differ between them |
 | `inforce verify [--summary\|--sheet F\|--apply F]` | the human checklist for verifying entries against the Act |
 | `inforce serve` | MCP server (stdio) with `inforce_check`, `inforce_brief`, `inforce_scan` |
 | `inforce export` | `web/export.json` for the browser checker |
