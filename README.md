@@ -32,14 +32,14 @@ If `python3 -m venv` fails on Debian/Ubuntu, install `python3-venv` (or use `uv 
   PASS  keystones: top keystone: ng.pit.cra.old (8 artifacts)
   PASS  brief: 7 items to re-check
   PASS  fixed repo: 13 STALE before, 0 after
-  PASS  fixed answer: verdict SUSPECT
+  PASS  fixed answer: verdict CURRENT
   PASS  ask: top rule ng.pit.cra.old (hybrid)
   PASS  what-if (repo): 5 artifacts would turn STALE; both stores restored
   PASS  what-if (law): 1 grant(s) would fall
   PASS  diff: s.156(5) -> s.155(4), s.183(2) -> s.182(2), s.196 -> s.195, s.203 -> long title (Commencement)
 ```
 
-The "fixed repo" step replays the edits a real Claude Code session made through InForce's MCP tools ([transcript](demo/transcripts/agent-session.md)), so the demo needs no model. "SUSPECT" means current law that a human has not yet verified against the Act's text (see [Data and accuracy](#data-and-accuracy)).
+The "fixed repo" step replays the edits a real Claude Code session made through InForce's MCP tools ([transcript](demo/transcripts/agent-session.md)), so the demo needs no model. The rewritten answer comes out CURRENT because the Nigeria Tax Act rules it cites have been verified against the Act; anything resting on a rule a human has not yet verified shows as SUSPECT (see [Data and accuracy](#data-and-accuracy)).
 
 ## Use case
 
