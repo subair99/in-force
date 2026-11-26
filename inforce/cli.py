@@ -572,7 +572,8 @@ def verify(
     for col in ("kind", "entry", "says", "source", "verified", "where"):
         t.add_column(col, overflow="fold")
     for i in shown:
-        t.add_row(i["kind"], i["entry"], i["what"], i["source"] or "[red]no source[/red]",
+        t.add_row(i["kind"], i["entry"], i["what"],
+                  (i["source"] + (f", p. {i['page']}" if i.get("page") else "")) if i["source"] else "[red]no source[/red]",
                   "[green]yes[/green]" if i["verified"] else "[yellow]no[/yellow]", i["where"])
     console.print(t)
     console.print("[dim]To verify an entry: check it against the Act's text, then set `verified: true` on it in "

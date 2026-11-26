@@ -196,7 +196,7 @@ def test_nta_repeals_cite_section_196_in_the_gazette(law_pack):
                          "r.secondarySource AS src2 LIMIT 20")
         cite = s.execute("MATCH (s:Source {id: 'nta-text'}) RETURN s.citation AS c LIMIT 1")[0]["c"]
     assert len(rows) == 5
-    assert all((r["sec"], r["page"], r["src"], r["src2"]) == ("196", "A502", "nta-text", "chambers-cit-2026")
+    assert all((r["sec"], r["page"], r["src"], r["src2"]) == ("196", "A502", "nta-text", ["chambers-cit-2026"])
                for r in rows)
     assert "Gazette No. 117" in cite and "Act No. 7" in cite
 
@@ -230,3 +230,31 @@ def test_verify_sheet_shows_repeal_section_and_gazette_citation(tmp_path):
     assert len(rows) == 5
     assert all("under section 196" in r and "Gazette No. 117" in r and "p. A502" in r and "secondary" in r
                for r in rows)
+
+
+NTA_PDF = "https://www.nrs.gov.ng/uploads/NIGERIA_TAX_ACT_2025_ef6bb812a5.pdf"
+
+
+@pytest.mark.parametrize("short,primary,secondary", [
+    ("NTA", NTA_PDF, ["thecable-gazettes"]),
+    ("NTAA", "https://gazettengr.com/wp-content/uploads/NIGERIA-TAX-ADMINISTRATION-ACT-2025.pdf", ["thecable-gazettes"]),
+    ("NRS Act", "https://media.premiumtimesng.com/wp-content/files/2026/01/"
+                "Approved-Copy-to-Print.-Nigeria-Revenue-Service-Establishment-Act-2025-1.pdf.pdf",
+     ["thecable-gazettes", "kpmg-gaps-2026"]),
+    ("JRB Act", None, ["thecable-gazettes", "kpmg-gaps-2026"]),   # no primary text yet
+])
+def test_reform_act_sources(law_pack, short, primary, secondary):
+    path, _ = law_pack
+    with open_store(path, read_only=True) as s:
+        r = s.execute("MATCH (i:Instrument {short: $s}) OPTIONAL MATCH (i)-[:FROM]->(src:Source) "
+                      "RETURN src.url AS url, i.secondarySource AS sec, i.verified AS v LIMIT 1", {"s": short})[0]
+    assert (r["url"], r["sec"], r["v"]) == (primary, secondary, False)
+
+
+def test_every_nta_provision_cites_the_gazetted_copy():
+    data = loader.read_yaml(RULES)
+    nta = [p for p in data["provisions"] if p["instrument"] == "akn/ng/act/2025/7"]
+    assert len(nta) == 6 and all(p["source"] == "nta-text" and p.get("secondarySource") for p in nta)
+    src = {x["id"]: x for x in data["sources"]}["nta-text"]
+    assert src["url"] == NTA_PDF and "Government Notice No. 26" in src["title"]
+    assert not any(p.get("verified") for p in nta)

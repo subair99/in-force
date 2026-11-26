@@ -122,12 +122,16 @@ def build_rows(data: dict[str, list[dict[str, Any]]], report: LoadReport) -> dic
             w.append(f"{where}: source {sid!r} is not in sources; no FROM link")
         return sid
 
-    def src2(e: dict[str, Any], where: str) -> str | None:
-        """Optional secondary source (e.g. commentary kept next to the Act itself)."""
-        sid = e.get("secondarySource")
-        if sid is not None and sid not in source_ids:
-            w.append(f"{where}: secondary source {sid!r} is not in sources")
-        return sid
+    def src2(e: dict[str, Any], where: str) -> list[str] | None:
+        """Optional secondary source(s): one id or a list (e.g. commentary kept next to the Act itself)."""
+        sids = e.get("secondarySource")
+        if sids is None:
+            return None
+        sids = [sids] if isinstance(sids, str) else list(sids)
+        for sid in sids:
+            if sid not in source_ids:
+                w.append(f"{where}: secondary source {sid!r} is not in sources")
+        return sids
 
     instruments: list[dict[str, Any]] = []
     versions: list[dict[str, Any]] = []   # bitemporal: which published version of an Act was on record when
@@ -145,7 +149,7 @@ def build_rows(data: dict[str, list[dict[str, Any]]], report: LoadReport) -> dic
             "akn": e["akn"], "short": e.get("short"), "title": e.get("title"), "kind": e.get("kind"),
             "assentedOn": _date(e.get("assentedOn"), f"{where}.assentedOn", w),
             "commencesOn": _date(e.get("commencesOn"), f"{where}.commencesOn", w),
-            "verified": v(e), "stub": False, "source": src(e, where),
+            "verified": v(e), "stub": False, "source": src(e, where), "secondarySource": src2(e, where),
         })
     inst_akns = {i["akn"] for i in instruments}
 
@@ -363,13 +367,21 @@ def verify_list(rules_dir: str | Path) -> list[dict[str, Any]]:
     """Every law entry, for the human check against the Act: what it says, its source and verified flag.
     Read from the YAML (the file the human edits), with the file and line of each entry."""
     data = read_yaml(Path(rules_dir))
-    def show_source(sid: str | None, page: Any = None) -> str | None:
-        """The source URL, or its citation when the URL is still a placeholder; plus the page if given."""
+    def show_source(sid: str | None) -> str | None:
+        """The source URL, or its citation when the URL is still a placeholder."""
         s = srcs.get(sid)
         if s is None:
             return sid
-        shown = s["url"] if not str(s["url"]).startswith("TODO") else (s.get("citation") or s["url"])
-        return f"{shown}, p. {page}" if page else shown
+        return s["url"] if not str(s["url"]).startswith("TODO") else (s.get("citation") or s["url"])
+
+    def source_label(sid: str | None) -> str | None:
+        s = srcs.get(sid)
+        return (s.get("title") or s.get("citation")) if s else None
+
+    def secondaries(e: dict[str, Any]) -> list[str]:
+        sids = e.get("secondarySource")
+        sids = [] if sids is None else [sids] if isinstance(sids, str) else list(sids)
+        return [show_source(x) for x in sids]
 
     srcs = {s["id"]: s for s in data.get("sources", [])}
     lines: dict[str, list[str]] = {f.name: f.read_text(encoding="utf-8").splitlines()
@@ -403,8 +415,9 @@ def verify_list(rules_dir: str | Path) -> list[dict[str, Any]]:
             if e.get("value") is not None:
                 what += f" (value {e['value']} {e.get('unit') or ''})".rstrip()
             out.append({"kind": sec[:-1] if sec != "related" else "related", "entry": label.split(" ", 1)[1],
-                        "what": what, "source": show_source(e.get("source"), e.get("page")),
-                        "secondarySource": show_source(e.get("secondarySource")),
+                        "what": what, "source": show_source(e.get("source")), "sourceLabel": source_label(e.get("source")),
+                        "page": None if e.get("page") is None else str(e["page"]),
+                        "secondarySources": secondaries(e),
                         "verified": e.get("verified") is True, "where": where(needles)})
     return out
 

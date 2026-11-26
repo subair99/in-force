@@ -4,7 +4,7 @@
  "builtWith": "Built with Relate",
  "lawPack": {
   "file": "data/ng-tax-2026.rl",
-  "buildHash": "004052c8809afec8b88e33bc2ab331f57bca268a058e080d212d5a530194910d"
+  "buildHash": "981ede97bc6d88358e35b828b021efe67c9e54dd6567cda562555ad7399d7ee7"
  },
  "dates": [
   "0001-01-01",
@@ -645,7 +645,7 @@
   "CGTA": {
    "akn": "TODO/ng/act/cgta",
    "title": "Capital Gains Tax Act",
-   "source": "TODO-official-gazette-or-certified-copy-url",
+   "source": "https://www.nrs.gov.ng/uploads/NIGERIA_TAX_ACT_2025_ef6bb812a5.pdf",
    "verified": false,
    "at": [
     {
@@ -671,7 +671,7 @@
   "CITA": {
    "akn": "TODO/ng/act/cita",
    "title": "Companies Income Tax Act",
-   "source": "TODO-official-gazette-or-certified-copy-url",
+   "source": "https://www.nrs.gov.ng/uploads/NIGERIA_TAX_ACT_2025_ef6bb812a5.pdf",
    "verified": false,
    "at": [
     {
@@ -697,7 +697,7 @@
   "IDITRA": {
    "akn": "TODO/ng/act/iditra",
    "title": "Industrial Development (Income Tax Relief) Act",
-   "source": "TODO-official-gazette-or-certified-copy-url",
+   "source": "https://www.nrs.gov.ng/uploads/NIGERIA_TAX_ACT_2025_ef6bb812a5.pdf",
    "verified": false,
    "at": [
     {
@@ -723,7 +723,7 @@
   "PITA": {
    "akn": "TODO/ng/act/pita",
    "title": "Personal Income Tax Act",
-   "source": "TODO-official-gazette-or-certified-copy-url",
+   "source": "https://www.nrs.gov.ng/uploads/NIGERIA_TAX_ACT_2025_ef6bb812a5.pdf",
    "verified": false,
    "at": [
     {
@@ -749,7 +749,7 @@
   "VAT Act": {
    "akn": "TODO/ng/act/vata",
    "title": "Value Added Tax Act",
-   "source": "TODO-official-gazette-or-certified-copy-url",
+   "source": "https://www.nrs.gov.ng/uploads/NIGERIA_TAX_ACT_2025_ef6bb812a5.pdf",
    "verified": false,
    "at": [
     {

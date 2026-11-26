@@ -134,11 +134,14 @@ def build_sheet(rules_dir: str | Path, keep_ticks: dict[tuple[str, str], bool] |
             if not info["source"]:
                 src = "**no source**"
             elif str(info["source"]).startswith("http"):
-                src = f"[source]({info['source']})"
-            else:  # a citation (e.g. the gazette) rather than a URL
+                src = f"[{info.get('sourceLabel') or 'source'}]({info['source']})"
+            else:  # a citation rather than a URL
                 src = f"source: {info['source']}"
-            if info.get("secondarySource"):
-                src += f" (secondary: [commentary]({info['secondarySource']}))"
+            if info.get("page"):
+                src += f", p. {info['page']}"
+            if info.get("secondarySources"):
+                src += " (secondary: " + ", ".join(f"[{n}]({u})" for n, u in
+                                                   enumerate(info["secondarySources"], 1)) + ")"
             row = (f"- [{'x' if ticked else ' '}] **{kind}** `{entry}`: check {_what(kind, e, data)}. "
                    f"{src} · `{info['where']}`" + (" · already verified" if info["verified"] else ""))
             groups.setdefault(act, {}).setdefault(section, []).append(row)
