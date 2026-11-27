@@ -22,7 +22,9 @@ acts:
   - short: Casino Act
     names: ['Casino\s+Act']
   - short: Deep Offshore and Inland Basin Act
-    names: ['Deep\s+Offshore\s+and\s+Inland\s+Basin\s+Act']
+    # the NTA lists it by this name; the LFN 2004 title of Cap. D3 is the longer one
+    names: ['Deep\s+Offshore\s+and\s+Inland\s+Basin\s+Act',
+            'Deep\s+Offshore\s+and\s+Inland\s+Basin\s+Production\s+Sharing\s+Contracts\s+Act']
   - short: Taxes and Levies (Approved List for Collection) Act
     names: ['Taxes\s+and\s+Levies\s+\(Approved\s+List\s+for\s+Collection\)\s+Act']
   - short: Venture Capital (Incentives) Act

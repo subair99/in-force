@@ -81,3 +81,10 @@ def test_known_act_names_are_not_doubled_by_the_catch_all():
 @pytest.mark.parametrize("text", ["the tax act", "a Tax Act", "This Act imposes tax."])
 def test_catch_all_needs_a_named_tax_act(text):
     assert extract(text) == []
+
+
+@pytest.mark.parametrize("name", ["Deep Offshore and Inland Basin Act",
+                                  "Deep Offshore and Inland Basin Production Sharing Contracts Act"])
+def test_deep_offshore_act_under_both_titles(name):
+    [c] = extract(f"Under the {name}, the tax ...")
+    assert (c.kind, c.act, c.text) == ("citation", "Deep Offshore and Inland Basin Act", name)

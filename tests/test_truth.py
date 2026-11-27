@@ -232,6 +232,12 @@ def test_edition_dependent_repeal(editions_pack, ref, on, expected):
     if expected == "UNKNOWN" and ref == "Listed In One Act":
         assert st["repealNote"] == "gazetted edition only" and st["repealEditions"] == ["gazetted"]
         assert st["statusVerified"] is True   # what each edition says was checked
+        assert [(e["version"], e["status"], e["section"], e["paragraph"]) for e in st["editions"]] == [
+            ("gazetted", "REPEALED", "10", "(b)"), ("certified", "IN_FORCE", "9", None)]
+        assert law.editions_text(st["editions"]) == (
+            "UNKNOWN: REPEALED under the gazetted text (s.10(b)), IN_FORCE under the certified text (not listed in s.9)")
+    else:
+        assert st["editions"] is None
 
 
 def test_diff_lists_repeals_that_differ_between_editions(editions_pack):

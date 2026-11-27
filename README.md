@@ -72,7 +72,7 @@ Why
   | Node | Key | | Relationship | Meaning |
   |---|---|---|---|---|
   | `Instrument` | `akn` | | `(Instrument)-[:CONTAINS]->(Provision)-[:SETS]->(Rule)` | structure |
-  | `Provision` | `akn` | | `(Instrument)-[:REPEALS {on, editions, paragraphs}]->(Instrument\|Provision)` | repeal on a date, and the paragraph listing it in each edition (listed in only one edition: status UNKNOWN, depends on the edition) |
+  | `Provision` | `akn` | | `(Instrument)-[:REPEALS {on, editions, paragraphs}]->(Instrument\|Provision)` | repeal on a date, and the paragraph listing it in each edition (listed in only one edition: status UNKNOWN, with the status under each edition spelled out) |
   | `Rule` | `id` | | `(Provision)-[:SAVES {until}]->(Grant\|Provision)` | savings clause |
   | `Grant` | `id` | | `(Provision)-[:SUCCEEDED_BY]->(Provision)` | replaced as a whole (the PIT scale) |
   | `Source` | `url` | | `(Rule)-[:REPLACED_BY]->(Rule)` / `-[:RELATED]->` | one-to-one successor / related, not a successor |

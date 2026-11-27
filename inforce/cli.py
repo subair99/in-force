@@ -177,6 +177,7 @@ def _print_check(result: dict, label: str) -> None:
     table.add_column("now (successor)")
     for n, i in enumerate(items, 1):
         verdict = _v(i["verdict"]) + ("" if i["verified"] else " *")
+        verdict += "".join(f"\n[dim]{e['version']}: {e['status']}[/dim]" for e in i.get("editions") or [])
         succ = i["successor"] or ""
         for n_ in i.get("successorNotes") or []:
             succ += f"\n[yellow]{n_}[/yellow]"

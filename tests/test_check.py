@@ -1,3 +1,5 @@
+import pytest
+
 from inforce.check import check_text
 from inforce.paths import ROOT
 
@@ -159,3 +161,36 @@ def test_taxes_and_levies_act_depends_on_the_edition(law_pack):
     assert (env["verdict"], item["verdict"], item["successorRef"]) == ("SUSPECT", "UNKNOWN", None)
     assert "listed in gazetted s.196(j), absent from certified s.195; status depends on edition" in item["note"]
     assert "(gazetted only)" in " ".join(item["path"])
+    # the verdict stays UNKNOWN, but what each edition says is spelled out
+    assert [(e["version"], e["status"], e["section"], e["paragraph"]) for e in item["editions"]] == [
+        ("gazetted", "REPEALED", "196", "(j)"), ("certified", "IN_FORCE", "195", None)]
+    assert item["note"].startswith("UNKNOWN: REPEALED under the gazetted text (s.196(j)), "
+                                   "IN_FORCE under the certified text (not listed in s.195)")
+
+
+def test_taxes_and_levies_cli_shows_both_edition_verdicts(law_pack, tmp_path):
+    from typer.testing import CliRunner
+    from inforce.cli import app
+    path, _ = law_pack
+    f = tmp_path / "a.txt"
+    f.write_text("Under the Taxes and Levies (Approved List for Collection) Act.")
+    res = CliRunner().invoke(app, ["check", str(f), "--on", "2026-03-01", "--law", str(path)],
+                             env={"COLUMNS": "300"})
+    assert res.exit_code == 0, res.output
+    assert "gazetted: REPEALED" in res.output and "certified: IN_FORCE" in res.output
+    assert "REPEALED under the gazetted text (s.196(j)), IN_FORCE under the certified text (not listed in s.195)" in res.output
+
+
+def test_an_act_repealed_in_both_editions_has_no_per_edition_split(law_pack):
+    path, _ = law_pack
+    [item] = check_text("Under the Casino Act.", "2026-03-01", path)["items"]
+    assert (item["verdict"], item["editions"]) == ("REPEALED", None)
+
+
+@pytest.mark.parametrize("name", ["Deep Offshore and Inland Basin Act",
+                                  "Deep Offshore and Inland Basin Production Sharing Contracts Act"])
+def test_deep_offshore_act_matches_under_both_titles(law_pack, name):
+    path, _ = law_pack
+    [item] = check_text(f"Under the {name}.", "2026-03-01", path)["items"]
+    assert (item["claim"], item["ref"], item["verdict"], item["verified"]) == (
+        name, "TODO/ng/act/deep_offshore", "REPEALED", True)

@@ -648,6 +648,7 @@
      "verified": false,
      "startUnknown": false,
      "note": null,
+     "editions": null,
      "successor": null,
      "successorRef": null
     },
@@ -657,6 +658,7 @@
      "verified": false,
      "startUnknown": false,
      "note": null,
+     "editions": null,
      "successor": null,
      "successorRef": null
     },
@@ -666,6 +668,7 @@
      "verified": false,
      "startUnknown": false,
      "note": null,
+     "editions": null,
      "successor": null,
      "successorRef": null
     }
@@ -683,6 +686,7 @@
      "verified": false,
      "startUnknown": false,
      "note": null,
+     "editions": null,
      "successor": null,
      "successorRef": null
     },
@@ -692,6 +696,7 @@
      "verified": false,
      "startUnknown": false,
      "note": null,
+     "editions": null,
      "successor": null,
      "successorRef": null
     },
@@ -701,6 +706,7 @@
      "verified": false,
      "startUnknown": false,
      "note": null,
+     "editions": null,
      "successor": null,
      "successorRef": null
     }
@@ -718,6 +724,7 @@
      "verified": false,
      "startUnknown": false,
      "note": null,
+     "editions": null,
      "successor": null,
      "successorRef": null
     },
@@ -727,6 +734,7 @@
      "verified": false,
      "startUnknown": false,
      "note": null,
+     "editions": null,
      "successor": null,
      "successorRef": null
     },
@@ -736,6 +744,7 @@
      "verified": false,
      "startUnknown": false,
      "note": null,
+     "editions": null,
      "successor": null,
      "successorRef": null
     }
@@ -753,6 +762,7 @@
      "verified": false,
      "startUnknown": true,
      "note": null,
+     "editions": null,
      "successor": null,
      "successorRef": null
     },
@@ -762,6 +772,7 @@
      "verified": false,
      "startUnknown": true,
      "note": null,
+     "editions": null,
      "successor": null,
      "successorRef": null
     },
@@ -771,6 +782,7 @@
      "verified": true,
      "startUnknown": false,
      "note": null,
+     "editions": null,
      "successor": "Nigeria Tax Act, 2025",
      "successorRef": "akn/ng/act/2025/7"
     }
@@ -788,6 +800,7 @@
      "verified": false,
      "startUnknown": true,
      "note": null,
+     "editions": null,
      "successor": null,
      "successorRef": null
     },
@@ -797,6 +810,7 @@
      "verified": false,
      "startUnknown": true,
      "note": null,
+     "editions": null,
      "successor": null,
      "successorRef": null
     },
@@ -806,6 +820,7 @@
      "verified": true,
      "startUnknown": false,
      "note": null,
+     "editions": null,
      "successor": "Nigeria Tax Act, 2025",
      "successorRef": "akn/ng/act/2025/7"
     }
@@ -823,6 +838,7 @@
      "verified": false,
      "startUnknown": true,
      "note": null,
+     "editions": null,
      "successor": null,
      "successorRef": null
     },
@@ -832,6 +848,7 @@
      "verified": false,
      "startUnknown": true,
      "note": null,
+     "editions": null,
      "successor": null,
      "successorRef": null
     },
@@ -841,6 +858,7 @@
      "verified": true,
      "startUnknown": false,
      "note": null,
+     "editions": null,
      "successor": "Nigeria Tax Act, 2025",
      "successorRef": "akn/ng/act/2025/7"
     }
@@ -858,6 +876,7 @@
      "verified": false,
      "startUnknown": true,
      "note": null,
+     "editions": null,
      "successor": null,
      "successorRef": null
     },
@@ -867,6 +886,7 @@
      "verified": false,
      "startUnknown": true,
      "note": null,
+     "editions": null,
      "successor": null,
      "successorRef": null
     },
@@ -876,6 +896,7 @@
      "verified": true,
      "startUnknown": false,
      "note": null,
+     "editions": null,
      "successor": "Nigeria Tax Act, 2025",
      "successorRef": "akn/ng/act/2025/7"
     }
@@ -893,6 +914,7 @@
      "verified": false,
      "startUnknown": true,
      "note": null,
+     "editions": null,
      "successor": null,
      "successorRef": null
     },
@@ -902,6 +924,7 @@
      "verified": false,
      "startUnknown": true,
      "note": null,
+     "editions": null,
      "successor": null,
      "successorRef": null
     },
@@ -911,6 +934,7 @@
      "verified": true,
      "startUnknown": false,
      "note": null,
+     "editions": null,
      "successor": "Nigeria Tax Act, 2025",
      "successorRef": "akn/ng/act/2025/7"
     }
@@ -928,6 +952,7 @@
      "verified": false,
      "startUnknown": true,
      "note": null,
+     "editions": null,
      "successor": null,
      "successorRef": null
     },
@@ -937,6 +962,7 @@
      "verified": false,
      "startUnknown": true,
      "note": null,
+     "editions": null,
      "successor": null,
      "successorRef": null
     },
@@ -946,6 +972,7 @@
      "verified": true,
      "startUnknown": false,
      "note": null,
+     "editions": null,
      "successor": "Nigeria Tax Act, 2025",
      "successorRef": "akn/ng/act/2025/7"
     }
@@ -963,6 +990,7 @@
      "verified": false,
      "startUnknown": true,
      "note": null,
+     "editions": null,
      "successor": null,
      "successorRef": null
     },
@@ -972,6 +1000,7 @@
      "verified": false,
      "startUnknown": true,
      "note": null,
+     "editions": null,
      "successor": null,
      "successorRef": null
     },
@@ -981,6 +1010,7 @@
      "verified": true,
      "startUnknown": false,
      "note": null,
+     "editions": null,
      "successor": "Nigeria Tax Act, 2025",
      "successorRef": "akn/ng/act/2025/7"
     }
@@ -998,6 +1028,7 @@
      "verified": false,
      "startUnknown": true,
      "note": null,
+     "editions": null,
      "successor": null,
      "successorRef": null
     },
@@ -1007,6 +1038,7 @@
      "verified": false,
      "startUnknown": true,
      "note": null,
+     "editions": null,
      "successor": null,
      "successorRef": null
     },
@@ -1016,6 +1048,7 @@
      "verified": true,
      "startUnknown": false,
      "note": null,
+     "editions": null,
      "successor": "Nigeria Tax Act, 2025",
      "successorRef": "akn/ng/act/2025/7"
     }
@@ -1033,6 +1066,7 @@
      "verified": false,
      "startUnknown": true,
      "note": null,
+     "editions": null,
      "successor": null,
      "successorRef": null
     },
@@ -1042,6 +1076,7 @@
      "verified": false,
      "startUnknown": true,
      "note": null,
+     "editions": null,
      "successor": null,
      "successorRef": null
     },
@@ -1051,6 +1086,7 @@
      "verified": true,
      "startUnknown": false,
      "note": null,
+     "editions": null,
      "successor": "Nigeria Tax Act, 2025",
      "successorRef": "akn/ng/act/2025/7"
     }
@@ -1068,6 +1104,7 @@
      "verified": false,
      "startUnknown": true,
      "note": null,
+     "editions": null,
      "successor": null,
      "successorRef": null
     },
@@ -1077,6 +1114,7 @@
      "verified": false,
      "startUnknown": true,
      "note": null,
+     "editions": null,
      "successor": null,
      "successorRef": null
     },
@@ -1085,7 +1123,23 @@
      "endedOn": "2026-01-01",
      "verified": true,
      "startUnknown": false,
-     "note": "listed in gazetted s.196(j), absent from certified s.195; status depends on edition",
+     "note": "UNKNOWN: REPEALED under the gazetted text (s.196(j)), IN_FORCE under the certified text (not listed in s.195); listed in gazetted s.196(j), absent from certified s.195; status depends on edition",
+     "editions": [
+      {
+       "version": "gazetted",
+       "status": "REPEALED",
+       "section": "196",
+       "paragraph": "(j)",
+       "page": "A502"
+      },
+      {
+       "version": "certified",
+       "status": "IN_FORCE",
+       "section": "195",
+       "paragraph": null,
+       "page": "A501–502"
+      }
+     ],
      "successor": null,
      "successorRef": null
     }
@@ -1103,6 +1157,7 @@
      "verified": false,
      "startUnknown": true,
      "note": null,
+     "editions": null,
      "successor": null,
      "successorRef": null
     },
@@ -1112,6 +1167,7 @@
      "verified": false,
      "startUnknown": true,
      "note": null,
+     "editions": null,
      "successor": null,
      "successorRef": null
     },
@@ -1121,6 +1177,7 @@
      "verified": true,
      "startUnknown": false,
      "note": null,
+     "editions": null,
      "successor": "Nigeria Tax Act, 2025",
      "successorRef": "akn/ng/act/2025/7"
     }
@@ -1138,6 +1195,7 @@
      "verified": false,
      "startUnknown": true,
      "note": null,
+     "editions": null,
      "successor": null,
      "successorRef": null
     },
@@ -1147,6 +1205,7 @@
      "verified": false,
      "startUnknown": true,
      "note": null,
+     "editions": null,
      "successor": null,
      "successorRef": null
     },
@@ -1156,6 +1215,7 @@
      "verified": true,
      "startUnknown": false,
      "note": null,
+     "editions": null,
      "successor": "Nigeria Tax Act, 2025",
      "successorRef": "akn/ng/act/2025/7"
     }
@@ -1173,6 +1233,7 @@
      "verified": true,
      "startUnknown": false,
      "note": null,
+     "editions": null,
      "successor": null,
      "successorRef": null
     },
@@ -1182,6 +1243,7 @@
      "verified": true,
      "startUnknown": false,
      "note": null,
+     "editions": null,
      "successor": null,
      "successorRef": null
     },
@@ -1191,6 +1253,7 @@
      "verified": true,
      "startUnknown": false,
      "note": null,
+     "editions": null,
      "successor": null,
      "successorRef": null
     }
@@ -1617,6 +1680,10 @@
     "aliases": [
      {
       "source": "\\b(?:Deep\\s+Offshore\\s+and\\s+Inland\\s+Basin\\s+Act)\\b",
+      "flags": "iu"
+     },
+     {
+      "source": "\\b(?:Deep\\s+Offshore\\s+and\\s+Inland\\s+Basin\\s+Production\\s+Sharing\\s+Contracts\\s+Act)\\b",
       "flags": "iu"
      }
     ]

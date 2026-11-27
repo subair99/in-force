@@ -21,6 +21,7 @@ TEXTS = [
     "The Stamp Duties Act and the Nigeria Tax Administration Act; section 4 of the Petroleum Profits Tax Act.",
     "The Casino Act; the Taxes and Levies (Approved List for Collection) Act; the Federal Inland Revenue Service "
     "(Establishment) Act.",
+    "The Deep Offshore and Inland Basin Production Sharing Contracts Act; the Deep Offshore and Inland Basin Act.",
 ]
 RUNNER = """
 import { check } from %s;
@@ -33,7 +34,7 @@ console.log(JSON.stringify(cases.map(([t, on]) => check(t, data, on))));
 
 def norm(items):
     return [(i["line"], i["claim"], i["kind"], i["ref"], i["verdict"], i["successorRef"], i["mentions"],
-             i["verified"] is True)
+             i["verified"] is True, json.dumps(i.get("editions"), sort_keys=True))
             for i in items]
 
 
@@ -101,3 +102,22 @@ def test_browser_notes_unknown_start_dates(tmp_path, law_pack):
     old, new = json.loads(out.stdout)
     assert all(START_UNKNOWN in (i["note"] or "") for i in old["items"])
     assert all(START_UNKNOWN not in (i["note"] or "") for i in new["items"])
+
+
+@pytest.mark.skipif(NODE is None, reason="node not installed")
+def test_browser_shows_both_edition_verdicts(tmp_path, law_pack):
+    path, _ = law_pack
+    export = tmp_path / "export.json"
+    write_export(path, export)
+    text = "Under the Taxes and Levies (Approved List for Collection) Act."
+    (tmp_path / "cases.json").write_text(json.dumps([[text, "2026-03-01"]]))
+    script = tmp_path / "run.mjs"
+    script.write_text(RUNNER % json.dumps((ROOT / "web" / "checker.js").as_uri()))
+    out = subprocess.run([NODE, str(script), str(export), str(tmp_path / "cases.json")],
+                         capture_output=True, text=True, check=True)
+    [res] = json.loads(out.stdout)
+    [item] = res["items"]
+    assert (res["verdict"], item["verdict"]) == ("SUSPECT", "UNKNOWN")
+    assert [(e["version"], e["status"]) for e in item["editions"]] == [("gazetted", "REPEALED"), ("certified", "IN_FORCE")]
+    assert "REPEALED under the gazetted text (s.196(j)), IN_FORCE under the certified text (not listed in s.195)" in item["note"]
+    assert "${e.version}: ${e.status}" in (ROOT / "web" / "app.js").read_text()   # the page renders them

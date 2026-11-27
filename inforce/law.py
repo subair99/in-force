@@ -30,7 +30,26 @@ def instrument_status(store: Store, ref: str, on: str | dt.date) -> dict[str, An
         return None
     row = rows[0]
     row["path"] = _instrument_path(row)
+    row["editions"] = None
+    if row["status"] == "UNKNOWN" and row.get("repealedBy"):
+        row["editions"] = [
+            {"version": e["version"], "status": "REPEALED" if e["listed"] else "IN_FORCE",
+             "section": e["section"], "paragraph": e["paragraph"], "page": e["page"]}
+            for e in store.run("repeal_editions", by=row["repealedBy"], akn=row["akn"])]
     return row
+
+
+def editions_text(editions: list[dict[str, Any]] | None) -> str | None:
+    """'UNKNOWN: REPEALED under the gazetted text (s.196(j)), IN_FORCE under the certified text
+    (not listed in s.195)': what each edition of the repealing Act says, for an UNKNOWN verdict."""
+    if not editions:
+        return None
+    parts = []
+    for e in editions:
+        sec = f"s.{e['section']}" if e["section"] else "its repeal list"
+        where = f"{sec}{e['paragraph'] or ''}" if e["status"] == "REPEALED" else f"not listed in {sec}"
+        parts.append(f"{e['status']} under the {e['version']} text ({where})")
+    return "UNKNOWN: " + ", ".join(parts)
 
 
 def provision_by_number(store: Store, ref: str, number: str) -> str | None:

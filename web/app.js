@@ -42,7 +42,8 @@ function render(result) {
     let now = i.successor ?? (i.verdict === "REPEALED" ? "no replacement" : "");
     if (i.related?.length) now += (now ? " · " : "") + `related, not a successor: ${i.related.join("; ")}`;
 
-    const status = el("td", {}, el("span", { class: `badge ${i.verdict}` }, i.verdict), i.verified ? "" : " *");
+    const status = el("td", {}, el("span", { class: `badge ${i.verdict}` }, i.verdict), i.verified ? "" : " *",
+                      ...(i.editions ?? []).map((e) => el("div", { class: "note" }, `${e.version}: ${e.status}`)));
     const claim = el("td", {}, i.claim, i.note ? el("div", { class: "note" }, i.note) : "",
                      ...(i.ruleNotes ?? []).map((n) => el("div", { class: "note proviso" }, n)));
     claim.setAttribute("data-label", "Claim");

@@ -47,6 +47,7 @@ class Item:
     related: list[dict[str, Any]] = field(default_factory=list)  # read together; not successors
     ruleNotes: list[str] = field(default_factory=list)       # notes on the provisions setting the cited rule
     successorNotes: list[str] = field(default_factory=list)  # ... and on its successor's provisions
+    editions: list[dict[str, Any]] | None = None  # UNKNOWN: the status under each edition of the repealing Act
 
 
 def _d(v: Any) -> str | None:
@@ -136,15 +137,16 @@ def resolve(store: Store, c: Claim, on: str) -> list[Item]:
         note = "; ".join(filter(None, [note, "repeal verified; the repealed Act's own entry (title, dates) is not"]))
     if start_unknown(inst["status"], inst["commencesOn"]):
         note = "; ".join(filter(None, [note, START_UNKNOWN]))
-    if inst["status"] == "UNKNOWN" and inst["repealNote"]:
-        note = "; ".join(filter(None, [note, inst["repealNote"]]))
+    if inst["status"] == "UNKNOWN":
+        note = "; ".join(filter(None, [note, law.editions_text(inst["editions"]), inst["repealNote"]]))
     return [Item(c.line, c.text + (f" s. {c.section}" if c.section else ""), c.kind, inst["akn"], inst["status"],
                  verified=verified, endedOn=_d(inst["endedOn"]), repealedBy=inst["repealedBy"],
                  # an edition-dependent repeal (UNKNOWN) names no successor: the Act may still stand
                  successor=inst["repealedByTitle"] if inst["status"] == "REPEALED" else None,
                  successorRef=inst["repealedBy"] if inst["status"] == "REPEALED" else None,
                  successorStatus="IN_FORCE" if inst["repealedBy"] and inst["status"] == "REPEALED" else None,
-                 source=inst["source"], sourceTitle=inst["sourceTitle"], path=inst["path"], note=note, mentions=c.mentions)]
+                 source=inst["source"], sourceTitle=inst["sourceTitle"], path=inst["path"], note=note, mentions=c.mentions,
+                 editions=inst["editions"])]
 
 
 def overall(items: list[Item]) -> str:
