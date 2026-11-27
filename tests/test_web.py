@@ -72,3 +72,12 @@ def test_export_carries_the_verification_status():
     assert committed["verification"] == {"verified": sum(i["verified"] for i in items), "total": len(items),
                                          "summary": loader.verify_summary(RULES_DIR)}
     assert "of " in (ROOT / "web" / "app.js").read_text() and "verification" in (ROOT / "web" / "app.js").read_text()
+
+
+def test_no_stale_all_unverified_claims():
+    """Once entries are verified, the page footer and the YAML header must not say none are."""
+    page = (ROOT / "web" / "index.html").read_text()
+    assert "come from published commentary on the Nigeria Tax Act" not in page
+    assert "Nigeria Tax Act entries are checked against the Act's official editions" in page
+    header = (ROOT / "data" / "rules" / "ng-tax-2026.yaml").read_text().split("\n---", 1)[0]
+    assert "EVERY entry is verified: false" not in header

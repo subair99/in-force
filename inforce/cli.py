@@ -748,7 +748,7 @@ def demo(
         with open_store(law_pack, read_only=True, log=_log) as store:
             counts = {r["label"]: r["n"] for r in store.run("law_counts")}
         console.print(", ".join(f"{k} {v}" for k, v in counts.items()))
-        console.print("[yellow]All rules are unverified until checked against the Act's text by a human.[/yellow]")
+        console.print(f"[yellow]{loader.verify_summary(RULES_DIR)} Unverified entries are marked *.[/yellow]")
         expect("law pack", counts.get("Rule", 0) > 0, f"{counts.get('Rule', 0)} rules loaded")
 
         answer = repo / "answers" / "stale_answer.md"

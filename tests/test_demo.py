@@ -25,3 +25,14 @@ def test_demo_fast_passes_every_step(law_pack):
     pasted = [ln.rstrip() for ln in (ROOT / "README.md").read_text().splitlines() if ln.startswith("  PASS")]
     # (the test runner renders 80 columns wide, so a long line may be cut where Rich wraps it)
     assert len(pasted) == len(ran) and all(p.startswith(r) for p, r in zip(pasted, ran, strict=True))
+
+
+def test_demo_states_the_true_verification_status(law_pack):
+    """Step 1 must give the same 'N of M law entries verified' as the loader, not 'all unverified'."""
+    from inforce import loader
+    from inforce.paths import RULES_DIR
+    path, _ = law_pack
+    res = CliRunner(env={"COLUMNS": "400"}).invoke(app, ["demo", "--fast", "--law", str(path)])
+    assert res.exit_code == 0, res.output[-2000:]
+    assert loader.verify_summary(RULES_DIR) in res.output
+    assert "All rules are unverified" not in res.output

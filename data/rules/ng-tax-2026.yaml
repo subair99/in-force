@@ -1,8 +1,10 @@
 # InForce law pack: Nigeria tax reform (seed)
 #
-# EVERY entry is verified: false. Values come from secondary commentary
-# (PwC, Chambers, KPMG, Mondaq, BusinessDay) and MUST be checked by a human
-# against the Act's text before verified is set to true.
+# Every entry starts as verified: false. A human sets verified: true only after
+# checking it against the Act's text (`inforce verify` lists the status). The
+# Nigeria Tax Act entries have been checked against its official editions; the
+# repealed Acts' entries still come from secondary commentary (PwC, Chambers,
+# KPMG, Mondaq, BusinessDay) and stay verified: false.
 # Claude Code: do not edit values or flip `verified`. Add TODO comments instead.
 # Store summaries in our own words only. Never paste section text.
 
