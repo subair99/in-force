@@ -127,3 +127,15 @@ def test_readme_headline_example_matches_a_real_run(law_pack):
     for item in env["items"]:
         mark = "REPEALED  " if item["verified"] else "REPEALED *"
         assert f"│ {item['claim'].ljust(29)} │ {mark} │" in readme, item["claim"]
+
+
+def test_in_force_with_no_start_date_says_so(law_pack):
+    """The old Acts have no commencement date in the pack: a 1990 check must not look certain."""
+    from inforce.check import START_UNKNOWN
+    path, _ = law_pack
+    items = check_text("Under PITA the CRA applies.", "1990-01-01", path)["items"]
+    assert [i["verdict"] for i in items] == ["IN_FORCE", "IN_FORCE"]
+    assert all(START_UNKNOWN in i["note"] for i in items)
+    # a known start date gives no such note (NTA commences 1 Jan 2026)
+    [nta] = check_text("Under the Nigeria Tax Act.", "2026-03-01", path)["items"]
+    assert START_UNKNOWN not in (nta["note"] or "")

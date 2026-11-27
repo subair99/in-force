@@ -194,7 +194,7 @@ relate --database demo/naira-payroll/.inforce/project.rl --read-only --mode tabl
 
 ## Limits and what's next
 
-- **Partly verified law data:** the Nigeria Tax Act entries have been checked against both official editions; the rules from the repealed Acts come from published commentary and are not yet verified, and some old-Act section numbers are still `TODO`. Only Nigerian federal tax is covered, and only the rules in the pack.
+- **Partly verified law data:** the Nigeria Tax Act entries have been checked against both official editions; the rules from the repealed Acts come from published commentary and are not yet verified, and some old-Act section numbers are still `TODO`. The repealed Acts have no commencement dates in the pack yet, so a check dated before they began reports IN_FORCE with a note that the start date is not in the law pack. Only Nigerian federal tax is covered, and only the rules in the pack.
 - **Explicit patterns:**
   - `scan` and `check` match the patterns in `patterns/`, not every way of writing a rule. They follow Python `from x import y`, but not `import x` with attribute use.
   - Code comments are not scanned.

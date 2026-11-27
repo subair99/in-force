@@ -17,6 +17,12 @@ from .store import Store, open_store
 
 DISCLAIMER = "InForce checks whether a provision is in force. It is not legal or tax advice."
 STALE_STATUSES = ("REPEALED",)
+# IN_FORCE with no start date in the pack (the old Acts are stubs): say so rather than look certain.
+START_UNKNOWN = "start date not in the law pack, so counted as in force on any earlier date"
+
+
+def start_unknown(status: str | None, starts_on: Any) -> bool:
+    return status == "IN_FORCE" and starts_on is None
 
 
 @dataclass
@@ -57,6 +63,8 @@ def _rule_item(c: Claim, r: dict[str, Any]) -> Item:
     else:
         successor = ref = status = None
     notes = [] if r["verified"] else ["rule not yet verified against the Act's text"]
+    if start_unknown(r["status"], r.get("startsOn")):
+        notes.append(START_UNKNOWN)
     notes += r.get("notes", [])
     succ_notes = succ.get("notes", []) if succ else []
     notes += [f"successor {n}" for n in succ_notes]
@@ -113,6 +121,7 @@ def resolve(store: Store, c: Claim, on: str) -> list[Item]:
                              None if found["current"] == c.section else
                              f"s.{c.section} is s.{found['current']} in the certified (current) text",
                              found["note"] if found["current"] != c.section else None,
+                             START_UNKNOWN if start_unknown(st["status"], st["startsOn"]) else None,
                              None if st["verified"] is True else "provision not yet verified"])) or None)]
         note = f"section {c.section} is not in the law pack; status is for the whole Act"
     inst = law.instrument_status(store, c.act, on)
@@ -125,6 +134,8 @@ def resolve(store: Store, c: Claim, on: str) -> list[Item]:
         note = "; ".join(filter(None, [note, "repeal not yet verified" if repealed else "Act not yet verified"]))
     elif repealed and inst["instrumentVerified"] is not True:
         note = "; ".join(filter(None, [note, "repeal verified; the repealed Act's own entry (title, dates) is not"]))
+    if start_unknown(inst["status"], inst["commencesOn"]):
+        note = "; ".join(filter(None, [note, START_UNKNOWN]))
     return [Item(c.line, c.text + (f" s. {c.section}" if c.section else ""), c.kind, inst["akn"], inst["status"],
                  verified=verified, endedOn=_d(inst["endedOn"]), repealedBy=inst["repealedBy"],
                  successor=inst["repealedByTitle"], successorRef=inst["repealedBy"],

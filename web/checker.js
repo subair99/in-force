@@ -80,6 +80,10 @@ export function dateIndex(dates, on) {
   return idx;
 }
 
+// The status entry's notes as the page shows them (same wording as inforce/check.py).
+const withStart = (note, at, data) =>
+  at?.startUnknown ? [note, data.startUnknownNote].filter(Boolean).join("; ") : note;
+
 const numbers = (s) => new Set((s || "").match(/\d[\d,]*/g)?.map((n) => n.replace(/,/g, "")) ?? []);
 
 export function resolve(c, data, idx) {
@@ -87,6 +91,7 @@ export function resolve(c, data, idx) {
     line: c.line, claim: c.text, kind: c.kind, ref, verdict, mentions: c.mentions,
     endedOn: at?.endedOn ?? null, successor: at?.successor ?? null, successorRef: at?.successorRef ?? null,
     related: at?.related ?? [], successorNotes: data.rules[at?.successorRef]?.notes ?? [], ...extra,
+    note: withStart(extra.note ?? null, at, data),
   });
   if (c.kind === "concept") {
     const r = data.rules[c.rule];

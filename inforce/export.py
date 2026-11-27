@@ -15,7 +15,7 @@ from typing import Any
 import yaml
 
 from . import law
-from .check import DISCLAIMER
+from .check import DISCLAIMER, START_UNKNOWN, start_unknown
 from .cite_parser import DEFAULT_PATTERNS
 from .store import open_store
 
@@ -67,6 +67,7 @@ def build_export(law_pack: str | Path) -> dict[str, Any]:
                     "successor": succ["text"] if succ else (law.scale_text(scale) if scale else None),
                     "successorRef": succ["id"] if succ else (scale["provision"] if scale else None),
                     "related": [x["text"] for x in r.get("related", [])],
+                    "startUnknown": start_unknown(r["status"], r.get("startsOn")),
                 })
             info = store.run("rule_info", id=row["id"])[0]
             rules[row["id"]] = {"notes": law.rule_notes(store, row["id"]),
@@ -80,6 +81,7 @@ def build_export(law_pack: str | Path) -> dict[str, Any]:
             for d in dates:
                 i = law.instrument_status(store, row["akn"], d)
                 at.append({"status": i["status"], "endedOn": _d(i["endedOn"]), "verified": i["statusVerified"] is True,
+                           "startUnknown": start_unknown(i["status"], i["commencesOn"]),
                            "successor": i["repealedByTitle"], "successorRef": i["repealedBy"]})
             i0 = law.instrument_status(store, row["akn"], dates[-1])
             acts[row["short"] or row["akn"]] = {"akn": row["akn"], "title": row["title"], "source": i0["source"],
@@ -91,6 +93,7 @@ def build_export(law_pack: str | Path) -> dict[str, Any]:
             for d in dates:
                 p = law.provision_status(store, row["akn"], d)
                 at.append({"status": p["status"], "endedOn": _d(p["endedOn"]),
+                           "startUnknown": start_unknown(p["status"], p["startsOn"]),
                            "successor": None, "successorRef": None})
             provisions[f"{row['short']}|{row['number']}"] = {"akn": row["akn"], "verified": row["verified"] is True,
                                                              "at": at}
@@ -105,6 +108,7 @@ def build_export(law_pack: str | Path) -> dict[str, Any]:
         "patterns": js_patterns(),
         "unverified": sum(not r["verified"] for r in rules.values()),
         "verification": _verification(),
+        "startUnknownNote": START_UNKNOWN,
         "disclaimer": DISCLAIMER,
     }
 

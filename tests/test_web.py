@@ -82,3 +82,20 @@ def test_no_stale_all_unverified_claims():
     assert "Nigeria Tax Act entries are checked against the Act's official editions" in page
     header = (ROOT / "data" / "rules" / "ng-tax-2026.yaml").read_text().split("\n---", 1)[0]
     assert "EVERY entry is verified: false" not in header
+
+
+@pytest.mark.skipif(NODE is None, reason="node not installed")
+def test_browser_notes_unknown_start_dates(tmp_path, law_pack):
+    from inforce.check import START_UNKNOWN
+    path, _ = law_pack
+    export = tmp_path / "export.json"
+    write_export(path, export)
+    cases = [["Under PITA the CRA applies.", "1990-01-01"], ["Under the Nigeria Tax Act.", "2026-03-01"]]
+    (tmp_path / "cases.json").write_text(json.dumps(cases))
+    script = tmp_path / "run.mjs"
+    script.write_text(RUNNER % json.dumps((ROOT / "web" / "checker.js").as_uri()))
+    out = subprocess.run([NODE, str(script), str(export), str(tmp_path / "cases.json")],
+                         capture_output=True, text=True, check=True)
+    old, new = json.loads(out.stdout)
+    assert all(START_UNKNOWN in (i["note"] or "") for i in old["items"])
+    assert all(START_UNKNOWN not in (i["note"] or "") for i in new["items"])

@@ -64,6 +64,7 @@ def rule_status(store: Store, rule_id: str, on: str | dt.date) -> dict[str, Any]
     rule["endedOn"] = st["endedOn"] if st else None
     rule["repealedBy"] = st["repealedBy"] if st else None
     rule["savers"] = st["savers"] if st else []
+    rule["startsOn"] = st["startsOn"] if st else None
     rule["verified"] = rule["verified"] is True
     rule["path"] = _rule_path(rule, st)
 

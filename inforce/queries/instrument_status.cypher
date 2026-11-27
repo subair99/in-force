@@ -21,5 +21,5 @@ RETURN i.akn AS akn, i.short AS short, i.title AS title,
     WHEN rep IS NOT NULL THEN coalesce(rep.verified, false) = true
     ELSE coalesce(i.verified, false) = true
   END AS statusVerified,
-  src.url AS source, src.title AS sourceTitle
+  src.url AS source, src.title AS sourceTitle, i.commencesOn AS commencesOn
 LIMIT 1
