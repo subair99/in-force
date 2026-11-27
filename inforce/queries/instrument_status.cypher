@@ -14,5 +14,12 @@ RETURN i.akn AS akn, i.short AS short, i.title AS title,
   END AS status,
   rep.on AS endedOn, repealer.akn AS repealedBy, repealer.short AS repealedByShort,
   repealer.title AS repealedByTitle, rep.verified AS verified, i.verified AS instrumentVerified,
+  // What the status rests on: a REPEALED verdict on the repeal edge (a verified repeal of an
+  // unverified stub Act is a verified repeal), any other verdict on the Act's own entry.
+  CASE
+    WHEN i.commencesOn IS NOT NULL AND i.commencesOn > date($on) THEN coalesce(i.verified, false) = true
+    WHEN rep IS NOT NULL THEN coalesce(rep.verified, false) = true
+    ELSE coalesce(i.verified, false) = true
+  END AS statusVerified,
   src.url AS source, src.title AS sourceTitle
 LIMIT 1

@@ -48,7 +48,7 @@ Developers of Nigerian payroll, accounting and tax-assistant software, and the p
 ```
 $ inforce check "Under PITA the first ₦300,000 is taxed at 7%." --on 2026-11-25
 text on 2026-11-25: STALE
-│ 1 │ 1 │ PITA                          │ REPEALED * │ 2026-01-01 │ Nigeria Tax Act, 2025                   │
+│ 1 │ 1 │ PITA                          │ REPEALED   │ 2026-01-01 │ Nigeria Tax Act, 2025                   │
 │ 2 │ 1 │ first ₦300,000 is taxed at 7% │ REPEALED * │ 2026-01-01 │ NTA s. 58 + Fourth Schedule (whole      │
 │   │   │                               │            │            │ scale): PIT: first NGN 800,000 at 0% ·  │
 │   │   │                               │            │            │ PIT: next NGN 2,200,000 at 15% · ...    │

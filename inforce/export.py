@@ -79,7 +79,7 @@ def build_export(law_pack: str | Path) -> dict[str, Any]:
             at = []
             for d in dates:
                 i = law.instrument_status(store, row["akn"], d)
-                at.append({"status": i["status"], "endedOn": _d(i["endedOn"]),
+                at.append({"status": i["status"], "endedOn": _d(i["endedOn"]), "verified": i["statusVerified"] is True,
                            "successor": i["repealedByTitle"], "successorRef": i["repealedBy"]})
             i0 = law.instrument_status(store, row["akn"], dates[-1])
             acts[row["short"] or row["akn"]] = {"akn": row["akn"], "title": row["title"], "source": i0["source"],

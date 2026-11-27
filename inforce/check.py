@@ -119,9 +119,12 @@ def resolve(store: Store, c: Claim, on: str) -> list[Item]:
     if inst is None:
         return [Item(c.line, c.text, c.kind, c.act, "NOT_RECOGNISED", mentions=c.mentions,
                      note=f"Act {c.act} not in law pack")]
-    verified = inst["instrumentVerified"] is True and (inst["verified"] is True or inst["status"] != "REPEALED")
+    verified = inst["statusVerified"] is True
+    repealed = inst["status"] == "REPEALED"
     if not verified:
-        note = "; ".join(filter(None, [note, "Act or repeal not yet verified"]))
+        note = "; ".join(filter(None, [note, "repeal not yet verified" if repealed else "Act not yet verified"]))
+    elif repealed and inst["instrumentVerified"] is not True:
+        note = "; ".join(filter(None, [note, "repeal verified; the repealed Act's own entry (title, dates) is not"]))
     return [Item(c.line, c.text + (f" s. {c.section}" if c.section else ""), c.kind, inst["akn"], inst["status"],
                  verified=verified, endedOn=_d(inst["endedOn"]), repealedBy=inst["repealedBy"],
                  successor=inst["repealedByTitle"], successorRef=inst["repealedBy"],

@@ -105,3 +105,25 @@ def test_source_title_explains_a_misleading_url(law_pack):
     [item] = check_text("Under PITA.", "2026-03-01", path)["items"]
     assert "ADMINISTRATION" in item["source"]
     assert item["sourceTitle"].startswith("Nigeria Tax Act, 2025")
+
+
+def test_verified_repeal_of_a_stub_act_is_verified(law_pack):
+    """NTA s.195 repealing PITA is verified; the PITA stub is not. The REPEALED verdict rests on the repeal."""
+    path, _ = law_pack
+    [item] = check_text("Under PITA.", "2026-03-01", path)["items"]
+    assert (item["verdict"], item["verified"]) == ("REPEALED", True)
+    assert "repeal verified" in item["note"]
+    # before the repeal, IN_FORCE rests on the stub's own entry, which is unverified
+    [before] = check_text("Under PITA.", "2025-06-01", path)["items"]
+    assert (before["verdict"], before["verified"]) == ("IN_FORCE", False)
+    assert "Act not yet verified" in before["note"]
+
+
+def test_readme_headline_example_matches_a_real_run(law_pack):
+    """README's PITA example: the verdict column (with or without *) must be what `check` gives."""
+    path, _ = law_pack
+    env = check_text("Under PITA the first ₦300,000 is taxed at 7%.", "2026-11-25", path)
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    for item in env["items"]:
+        mark = "REPEALED  " if item["verified"] else "REPEALED *"
+        assert f"│ {item['claim'].ljust(29)} │ {mark} │" in readme, item["claim"]

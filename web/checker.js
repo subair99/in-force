@@ -109,7 +109,7 @@ export function resolve(c, data, idx) {
   if (!a) return [item(c.act, "NOT_RECOGNISED", null, { verified: false })];
   const note = c.section ? `section ${c.section} is not in the law pack; status is for the whole Act` : null;
   return [item(a.akn, a.at[idx].status, a.at[idx], {
-    verified: a.verified, source: a.source, note,
+    verified: a.at[idx].verified, source: a.source, note,
     claim: c.section ? `${c.text} s. ${c.section}` : c.text })];
 }
 

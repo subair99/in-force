@@ -594,18 +594,21 @@
     {
      "status": "NOT_YET",
      "endedOn": null,
+     "verified": false,
      "successor": null,
      "successorRef": null
     },
     {
      "status": "IN_FORCE",
      "endedOn": null,
+     "verified": false,
      "successor": null,
      "successorRef": null
     },
     {
      "status": "IN_FORCE",
      "endedOn": null,
+     "verified": false,
      "successor": null,
      "successorRef": null
     }
@@ -620,18 +623,21 @@
     {
      "status": "NOT_YET",
      "endedOn": null,
+     "verified": false,
      "successor": null,
      "successorRef": null
     },
     {
      "status": "IN_FORCE",
      "endedOn": null,
+     "verified": false,
      "successor": null,
      "successorRef": null
     },
     {
      "status": "IN_FORCE",
      "endedOn": null,
+     "verified": false,
      "successor": null,
      "successorRef": null
     }
@@ -646,18 +652,21 @@
     {
      "status": "NOT_YET",
      "endedOn": null,
+     "verified": false,
      "successor": null,
      "successorRef": null
     },
     {
      "status": "NOT_YET",
      "endedOn": null,
+     "verified": false,
      "successor": null,
      "successorRef": null
     },
     {
      "status": "IN_FORCE",
      "endedOn": null,
+     "verified": false,
      "successor": null,
      "successorRef": null
     }
@@ -672,18 +681,21 @@
     {
      "status": "IN_FORCE",
      "endedOn": null,
+     "verified": false,
      "successor": null,
      "successorRef": null
     },
     {
      "status": "IN_FORCE",
      "endedOn": null,
+     "verified": false,
      "successor": null,
      "successorRef": null
     },
     {
      "status": "REPEALED",
      "endedOn": "2026-01-01",
+     "verified": true,
      "successor": "Nigeria Tax Act, 2025",
      "successorRef": "akn/ng/act/2025/7"
     }
@@ -698,18 +710,21 @@
     {
      "status": "IN_FORCE",
      "endedOn": null,
+     "verified": false,
      "successor": null,
      "successorRef": null
     },
     {
      "status": "IN_FORCE",
      "endedOn": null,
+     "verified": false,
      "successor": null,
      "successorRef": null
     },
     {
      "status": "REPEALED",
      "endedOn": "2026-01-01",
+     "verified": true,
      "successor": "Nigeria Tax Act, 2025",
      "successorRef": "akn/ng/act/2025/7"
     }
@@ -724,18 +739,21 @@
     {
      "status": "IN_FORCE",
      "endedOn": null,
+     "verified": false,
      "successor": null,
      "successorRef": null
     },
     {
      "status": "IN_FORCE",
      "endedOn": null,
+     "verified": false,
      "successor": null,
      "successorRef": null
     },
     {
      "status": "REPEALED",
      "endedOn": "2026-01-01",
+     "verified": true,
      "successor": "Nigeria Tax Act, 2025",
      "successorRef": "akn/ng/act/2025/7"
     }
@@ -750,18 +768,21 @@
     {
      "status": "IN_FORCE",
      "endedOn": null,
+     "verified": false,
      "successor": null,
      "successorRef": null
     },
     {
      "status": "IN_FORCE",
      "endedOn": null,
+     "verified": false,
      "successor": null,
      "successorRef": null
     },
     {
      "status": "REPEALED",
      "endedOn": "2026-01-01",
+     "verified": true,
      "successor": "Nigeria Tax Act, 2025",
      "successorRef": "akn/ng/act/2025/7"
     }
@@ -776,18 +797,21 @@
     {
      "status": "IN_FORCE",
      "endedOn": null,
+     "verified": false,
      "successor": null,
      "successorRef": null
     },
     {
      "status": "IN_FORCE",
      "endedOn": null,
+     "verified": false,
      "successor": null,
      "successorRef": null
     },
     {
      "status": "REPEALED",
      "endedOn": "2026-01-01",
+     "verified": true,
      "successor": "Nigeria Tax Act, 2025",
      "successorRef": "akn/ng/act/2025/7"
     }
@@ -802,18 +826,21 @@
     {
      "status": "NOT_YET",
      "endedOn": null,
+     "verified": true,
      "successor": null,
      "successorRef": null
     },
     {
      "status": "NOT_YET",
      "endedOn": null,
+     "verified": true,
      "successor": null,
      "successorRef": null
     },
     {
      "status": "IN_FORCE",
      "endedOn": null,
+     "verified": true,
      "successor": null,
      "successorRef": null
     }

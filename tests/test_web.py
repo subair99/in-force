@@ -30,7 +30,8 @@ console.log(JSON.stringify(cases.map(([t, on]) => check(t, data, on))));
 
 
 def norm(items):
-    return [(i["line"], i["claim"], i["kind"], i["ref"], i["verdict"], i["successorRef"], i["mentions"])
+    return [(i["line"], i["claim"], i["kind"], i["ref"], i["verdict"], i["successorRef"], i["mentions"],
+             i["verified"] is True)
             for i in items]
 
 
