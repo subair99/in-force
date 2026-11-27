@@ -110,6 +110,16 @@ def load(
     footer()
 
 
+_PATH_SUFFIXES = (".md", ".txt", ".py", ".html", ".htm", ".json", ".yaml", ".yml", ".csv", ".rst")
+
+
+def _looks_like_path(target: str) -> bool:
+    """One word with a path separator or a document suffix: a mistyped file name, not text to check."""
+    if not target or any(ch.isspace() for ch in target):
+        return False
+    return "/" in target or "\\" in target or target.lower().endswith(_PATH_SUFFIXES)
+
+
 @app.command()
 def check(
     target: str = typer.Argument(..., help="A file to check, '-' for stdin, or the text itself in quotes."),
@@ -125,6 +135,9 @@ def check(
         text, label = sys.stdin.read(), "stdin"
     elif Path(target).is_file():
         text, label = Path(target).read_text(encoding="utf-8"), target
+    elif _looks_like_path(target):
+        err.print(f"[red]No such file: {target}[/red] (to check literal text, include a space)")
+        raise typer.Exit(1)
     else:
         text, label = target, "text"
     try:
