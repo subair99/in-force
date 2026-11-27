@@ -72,3 +72,10 @@ def test_fallout_accepts_the_title_it_prints(law_pack):
         res = runner.invoke(app, ["fallout", name, "--on", "2026-03-01", "--json", "--law", str(path)])
         assert res.exit_code == 0, (name, res.output)
         assert json.loads(res.stdout)["items"] == by_short["items"]
+
+
+def test_check_prints_the_source_title(law_pack):
+    path, _ = law_pack
+    res = CliRunner(env={"COLUMNS": "400"}).invoke(app, ["check", "Under PITA.", "--on", "2026-03-01",
+                                                         "--law", str(path)])
+    assert "source: Nigeria Tax Act, 2025" in res.output and "tat.gov.ng" in res.output

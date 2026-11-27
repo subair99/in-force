@@ -33,6 +33,7 @@ class Item:
     successorRef: str | None = None
     successorStatus: str | None = None
     source: str | None = None
+    sourceTitle: str | None = None   # what the source is, when its URL alone could mislead
     path: list[str] = field(default_factory=list)
     note: str | None = None
     mentions: int = 1
@@ -69,7 +70,7 @@ def _rule_item(c: Claim, r: dict[str, Any]) -> Item:
         successorScale=scale["rules"] if scale else None,
         ruleNotes=r.get("notes", []), successorNotes=succ_notes,
         related=[{"id": x["id"], "text": x["text"]} for x in r.get("related", [])],
-        source=r["source"], path=r["path"], mentions=c.mentions, note="; ".join(notes) or None,
+        source=r["source"], sourceTitle=r.get("sourceTitle"), path=r["path"], mentions=c.mentions, note="; ".join(notes) or None,
     )
 
 
@@ -106,7 +107,8 @@ def resolve(store: Store, c: Claim, on: str) -> list[Item]:
                 path.append(f"<-REPEALS {st['endedOn']}- Instrument {st['repealedByShort'] or st['repealedBy']}")
             return [Item(c.line, c.text + f" s. {c.section}", c.kind, akn, st["status"],
                          verified=st["verified"] is True, endedOn=_d(st["endedOn"]), repealedBy=st["repealedBy"],
-                         source=inst["source"] if inst else None, path=path, mentions=c.mentions,
+                         source=inst["source"] if inst else None,
+                         sourceTitle=inst["sourceTitle"] if inst else None, path=path, mentions=c.mentions,
                          note="; ".join(filter(None, [
                              None if found["current"] == c.section else
                              f"s.{c.section} is s.{found['current']} in the certified (current) text",
@@ -124,7 +126,7 @@ def resolve(store: Store, c: Claim, on: str) -> list[Item]:
                  verified=verified, endedOn=_d(inst["endedOn"]), repealedBy=inst["repealedBy"],
                  successor=inst["repealedByTitle"], successorRef=inst["repealedBy"],
                  successorStatus="IN_FORCE" if inst["repealedBy"] else None,
-                 source=inst["source"], path=inst["path"], note=note, mentions=c.mentions)]
+                 source=inst["source"], sourceTitle=inst["sourceTitle"], path=inst["path"], note=note, mentions=c.mentions)]
 
 
 def overall(items: list[Item]) -> str:

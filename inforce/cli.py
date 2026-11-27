@@ -191,7 +191,9 @@ def _print_check(result: dict, label: str) -> None:
     for n, i in enumerate(items, 1):
         if i["path"]:
             console.print(f"  {n}. {' '.join(i['path'])}")
-        extra = [x for x in (i["note"], i["source"] and f"source: {i['source']}") if x]
+        src = i["source"] and (f"source: {i['sourceTitle']} <{i['source']}>" if i.get("sourceTitle")
+                               else f"source: {i['source']}")
+        extra = [x for x in (i["note"], src) if x]
         if extra:
             console.print(f"     [dim]{' | '.join(extra)}[/dim]")
     if result["unverified"]:

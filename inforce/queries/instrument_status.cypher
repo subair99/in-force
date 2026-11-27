@@ -14,5 +14,5 @@ RETURN i.akn AS akn, i.short AS short, i.title AS title,
   END AS status,
   rep.on AS endedOn, repealer.akn AS repealedBy, repealer.short AS repealedByShort,
   repealer.title AS repealedByTitle, rep.verified AS verified, i.verified AS instrumentVerified,
-  src.url AS source
+  src.url AS source, src.title AS sourceTitle
 LIMIT 1

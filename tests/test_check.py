@@ -97,3 +97,11 @@ def test_other_act_in_the_pack_resolves_by_title(law_pack):
     path, _ = law_pack
     [item] = check_text("Under the Nigeria Tax Administration Act.", "2026-03-01", path)["items"]
     assert (item["ref"], item["verdict"]) == ("TODO/ng/act/2025/ntaa", "IN_FORCE")
+
+
+def test_source_title_explains_a_misleading_url(law_pack):
+    """The certified NTA is hosted as '...ADMINISTRATION-ACT-2025.pdf': its title must travel with the URL."""
+    path, _ = law_pack
+    [item] = check_text("Under PITA.", "2026-03-01", path)["items"]
+    assert "ADMINISTRATION" in item["source"]
+    assert item["sourceTitle"].startswith("Nigeria Tax Act, 2025")
