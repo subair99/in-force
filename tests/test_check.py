@@ -82,3 +82,18 @@ def test_amount_must_match_rule(law_pack):
 def test_no_claims(law_pack):
     path, _ = law_pack
     assert check_text("Nothing to see here.", "2026-03-01", path)["verdict"] == "NO_CLAIMS"
+
+
+def test_unknown_tax_act_is_not_recognised_not_no_claims(law_pack):
+    """README: a claim that matches no rule is "not recognised", never guessed (and never NO_CLAIMS)."""
+    path, _ = law_pack
+    env = check_text("The Stamp Duties Act requires duty on receipts.", "2026-03-01", path)
+    assert env["verdict"] == "SUSPECT"
+    [item] = env["items"]
+    assert (item["claim"], item["verdict"]) == ("Stamp Duties Act", "NOT_RECOGNISED")
+
+
+def test_other_act_in_the_pack_resolves_by_title(law_pack):
+    path, _ = law_pack
+    [item] = check_text("Under the Nigeria Tax Administration Act.", "2026-03-01", path)["items"]
+    assert (item["ref"], item["verdict"]) == ("TODO/ng/act/2025/ntaa", "IN_FORCE")

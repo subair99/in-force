@@ -18,6 +18,7 @@ TEXTS = [
     "The first NGN 800,000 at 0% and the next ₦9,000,000 at 18%; rent relief applies. The next ₦500,000 at 17%.",
     "PITA, section 33: the CRA. Companies pay capital gains tax at 10% under CGTA.",
     "Nothing here.",
+    "The Stamp Duties Act and the Nigeria Tax Administration Act; section 4 of the Petroleum Profits Tax Act.",
 ]
 RUNNER = """
 import { check } from %s;

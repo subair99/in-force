@@ -1,6 +1,6 @@
 {
  "format": 1,
- "generated": "2026-11-26",
+ "generated": "2026-11-27",
  "builtWith": "Built with Relate",
  "lawPack": {
   "file": "data/ng-tax-2026.rl",
@@ -1194,6 +1194,10 @@
   "section": {
    "source": "(?:section|sec\\.|s\\.)\\s*(?<num>\\d+[A-Za-z]?(?:\\(\\d+\\))*)",
    "flags": "iu"
+  },
+  "otherActs": {
+   "source": "\\b(?:(?!(?:The|Under|In|By|See|Per|And|Or|Of|This|That|Section|Sec)\\b)[A-Z][\\w-]*\\s+){1,5}(?:Tax|Taxes|Duties|Duty|Revenue|Levy|Levies|Excise|Customs)(?:\\s+(?:[A-Z][\\w-]*|\\([A-Z][^()\\n]{0,40}\\)))*\\s+Act\\b",
+   "flags": "u"
   },
   "concepts": [
    {

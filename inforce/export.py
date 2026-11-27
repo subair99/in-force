@@ -34,6 +34,7 @@ def js_patterns(path: Path = DEFAULT_PATTERNS) -> dict[str, Any]:
         "acts": [{"short": a["short"], "aliases": [py_to_js(r"\b(?:" + n + r")\b", "u" if n.isupper() else "iu")
                                                    for n in a["names"]]} for a in doc.get("acts", [])],
         "section": py_to_js(doc["section"], "iu"),
+        "otherActs": py_to_js(doc["other_acts"]) if doc.get("other_acts") else None,
         "concepts": [{"rule": c["rule"], **py_to_js(c["regex"])} for c in doc.get("concepts", [])],
         "figures": [{"topic": f["topic"], **py_to_js(f["regex"])} for f in doc.get("figures", [])],
     }

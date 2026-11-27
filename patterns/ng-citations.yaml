@@ -18,6 +18,13 @@ acts:
   - short: NTA
     names: ['Nigeria\s+Tax\s+Act', 'NTA']
 
+# Any other tax Act named in the text: capitalised words around Tax/Duties/Revenue/Levy/Excise/
+# Customs, ending in "Act" ("Stamp Duties Act", "Petroleum Profits Tax Act"). A match that overlaps
+# a name above is that Act. The rest are looked up by title and, if not in the law pack, reported
+# as NOT_RECOGNISED, so a known-repealed Act missing from the pack never passes as "no claims".
+# Sentence-start words (The, Under, ...) are not part of the name.
+other_acts: '\b(?:(?!(?:The|Under|In|By|See|Per|And|Or|Of|This|That|Section|Sec)\b)[A-Z][\w-]*\s+){1,5}(?:Tax|Taxes|Duties|Duty|Revenue|Levy|Levies|Excise|Customs)(?:\s+(?:[A-Z][\w-]*|\([A-Z][^()\n]{0,40}\)))*\s+Act\b'
+
 # A section number written next to an Act name, either side:
 #   "section 33 of the Personal Income Tax Act", "PITA s. 33", "Nigeria Tax Act, section 58"
 section: '(?:section|sec\.|s\.)\s*(?P<num>\d+[A-Za-z]?(?:\(\d+\))*)'

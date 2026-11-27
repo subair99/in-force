@@ -1,7 +1,8 @@
 """Deterministic claim extraction for `check` (SPEC §5). No model, no network.
 
 Three kinds of claim, all defined in patterns/ng-citations.yaml:
-- citation: an Act name, optionally with a section number next to it
+- citation: an Act name, optionally with a section number next to it (known names, then any
+  other tax Act by its shape, which the law pack resolves by title or reports as not recognised)
 - concept:  a named rule (e.g. "Consolidated Relief Allowance")
 - figure:   a percentage in a fixed phrase shape, bound to a rule topic
 Repeated mentions of the same thing are merged into one claim (first position kept).
@@ -26,7 +27,7 @@ class Claim:
     text: str                    # the matched words, as written
     line: int                    # 1-based line of the first mention
     start: int                   # char offset of the first mention
-    act: str | None = None       # citation: Instrument.short
+    act: str | None = None       # citation: Instrument.short, or the name as written (other_acts)
     section: str | None = None   # citation: section number, if given
     rule: str | None = None      # concept: rule id
     topic: str | None = None     # figure: rule topic
@@ -43,6 +44,7 @@ class Claim:
 class Patterns:
     acts: list[tuple[str, re.Pattern]] = field(default_factory=list)
     section: re.Pattern | None = None
+    other_acts: re.Pattern | None = None
     concepts: list[tuple[str, re.Pattern]] = field(default_factory=list)
     figures: list[tuple[str, re.Pattern]] = field(default_factory=list)
 
@@ -55,6 +57,8 @@ def load_patterns(path: str | Path = DEFAULT_PATTERNS) -> Patterns:
         # Long names are case-insensitive; all-caps short forms (PITA) must match case.
         alts = [n if n.isupper() else f"(?i:{n})" for n in a["names"]]
         p.acts.append((a["short"], re.compile(r"\b(?:" + "|".join(alts) + r")\b")))
+    if doc.get("other_acts"):
+        p.other_acts = re.compile(doc["other_acts"])
     if doc.get("section"):
         p.section = re.compile(doc["section"], re.IGNORECASE)
     p.concepts = [(c["rule"], re.compile(c["regex"])) for c in doc.get("concepts", [])]
@@ -88,6 +92,16 @@ def extract(text: str, patterns: Patterns | None = None) -> list[Claim]:
     for short, rx in p.acts:
         for m in rx.finditer(text):
             found.append(Claim("citation", m.group(0), _line(text, m.start()), m.start(), act=short,
+                               section=_section_near(text, m.start(), m.end(), p.section)))
+
+    # Other tax Acts: only where no known name matched (the law pack resolves them by title).
+    known = [(c.start, c.start + len(c.text)) for c in found]
+    if p.other_acts is not None:
+        for m in p.other_acts.finditer(text):
+            if any(s < m.end() and m.start() < e for s, e in known):
+                continue
+            name = " ".join(m.group(0).split())
+            found.append(Claim("citation", name, _line(text, m.start()), m.start(), act=name,
                                section=_section_near(text, m.start(), m.end(), p.section)))
 
     for rule, rx in p.concepts:

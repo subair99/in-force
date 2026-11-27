@@ -60,3 +60,24 @@ def test_percent_without_shape_is_ignored():
 def test_line_numbers():
     [c] = extract("intro\n\nunder PITA")
     assert c.line == 3
+
+
+@pytest.mark.parametrize("text,name", [
+    ("The Stamp Duties Act requires duty on receipts.", "Stamp Duties Act"),
+    ("Under the Petroleum Profits Tax Act.", "Petroleum Profits Tax Act"),
+    ("the Federal Inland Revenue Service (Establishment) Act", "Federal Inland Revenue Service (Establishment) Act"),
+    ("Personal Income Tax (Amendment) Act 2011", "Personal Income Tax (Amendment) Act"),
+])
+def test_other_tax_acts_are_citations(text, name):
+    [c] = extract(text)
+    assert (c.kind, c.act, c.text) == ("citation", name, name)
+
+
+def test_known_act_names_are_not_doubled_by_the_catch_all():
+    claims = extract("Under the Nigeria Tax Act and the Value Added Tax Act and IDITRA.")
+    assert [c.act for c in claims] == ["NTA", "VAT Act", "IDITRA"]
+
+
+@pytest.mark.parametrize("text", ["the tax act", "a Tax Act", "This Act imposes tax."])
+def test_catch_all_needs_a_named_tax_act(text):
+    assert extract(text) == []

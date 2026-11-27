@@ -34,6 +34,17 @@ export function extract(text, P) {
       }
     }
   }
+  // Other tax Acts: only where no known name matched (looked up by title, else not recognised).
+  if (P.otherActs) {
+    const known = found.map((c) => [c.start, c.start + c.text.length]);
+    for (const m of allMatches(text, P.otherActs)) {
+      const end = m.index + m[0].length;
+      if (known.some(([s, e]) => s < end && m.index < e)) continue;
+      const name = m[0].split(/\s+/).join(" ");
+      found.push({ kind: "citation", text: name, start: m.index, act: name,
+                   section: sectionNear(text, m.index, end, P.section) });
+    }
+  }
   for (const c of P.concepts) {
     for (const m of allMatches(text, c)) found.push({ kind: "concept", text: m[0], start: m.index, rule: c.rule });
   }
@@ -93,7 +104,8 @@ export function resolve(c, data, idx) {
     const p = data.provisions[`${c.act}|${c.section}`];
     if (p) return [item(p.akn, p.at[idx].status, p.at[idx], { verified: p.verified, claim: `${c.text} s. ${c.section}` })];
   }
-  const a = data.acts[c.act];
+  const a = data.acts[c.act] ??
+    Object.values(data.acts).find((x) => x.title && x.title.toLowerCase() === c.act.toLowerCase());
   if (!a) return [item(c.act, "NOT_RECOGNISED", null, { verified: false })];
   const note = c.section ? `section ${c.section} is not in the law pack; status is for the whole Act` : null;
   return [item(a.akn, a.at[idx].status, a.at[idx], {
