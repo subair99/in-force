@@ -311,16 +311,19 @@ def test_default_display_is_certified_with_gazetted_note(law_pack):
     with open_store(path, read_only=True) as s:
         p = s.execute("MATCH (p:Provision {akn: 'akn/ng/act/2025/7/sec_182_2'}) "
                       "RETURN p.number AS n, p.numberNote AS note LIMIT 1")[0]
-        reps = s.execute("MATCH (:Instrument {short: 'NTA'})-[r:REPEALS]->() RETURN r.section AS sec, "
-                         "r.byProvision AS bp, r.source AS src, r.secondarySource AS src2 LIMIT 10")
+        reps = s.execute("MATCH (:Instrument {short: 'NTA'})-[r:REPEALS]->(t) RETURN t.akn AS t, r.section AS sec, "
+                         "r.byProvision AS bp, r.source AS src, r.secondarySource AS src2 LIMIT 20")
         vat = s.execute("MATCH (p:Provision {akn: 'akn/ng/act/2025/7/sec_155_4'}) "
                         "RETURN p.number AS n, p.numberNote AS nn, p.note AS note LIMIT 1")[0]
         toc = s.execute("MATCH (:Provision {akn: 'akn/ng/act/2025/7/sec_27_1'})-[n:NUMBERED_AS]->(:Version {version: 'gazetted'}) "
                         "RETURN n.note AS note LIMIT 1")[0]
     assert p == {"n": "182(2)", "note": "s.183(2) in the gazetted text"}
-    assert len(reps) == 5 and all((r["sec"], r["bp"], r["src"], r["src2"]) ==
-                                  ("195", "akn/ng/act/2025/7/sec_195", "nta-certified", ["nta-text", "chambers-cit-2026"])
-                                  for r in reps)
+    assert len(reps) == 12 and all((r["sec"], r["bp"]) == ("195", "akn/ng/act/2025/7/sec_195") for r in reps)
+    # listed in both editions: the certified text is the source; Taxes and Levies is only in the gazetted one
+    assert all(r["src"] == "nta-certified" and "nta-text" in r["src2"] for r in reps
+               if r["t"] != "TODO/ng/act/taxes_levies")
+    [tl] = [r for r in reps if r["t"] == "TODO/ng/act/taxes_levies"]
+    assert (tl["src"], tl["src2"]) == ("nta-text", ["nta-certified"])
     assert (vat["n"], vat["nn"]) == ("155(4)", "s.156(5) in the gazetted text")
     assert "extra subsection (4) on zero-rated suppliers" in vat["note"] and "content differs" in vat["note"]
     assert toc["note"] == "s.27(1) read on the gazetted scan, p.A414; wording matches the certified text"
@@ -343,6 +346,14 @@ def test_diff_shows_both_renumberings(law_pack):
                                    "--law", str(path)])
     cli = {(n["d1"]["number"], n["d1"]["page"], n["d2"]["number"]) for n in json.loads(res.stdout)["numbering"]}
     assert {("183(2)", "A492", "182(2)"), ("196", "A502", "195")} <= cli
+    # NTA repeal lists: Taxes and Levies is in the gazetted s.196(j) only; VAT and Venture Capital move up a letter
+    reps = {r["act"]: (r["d1"]["paragraph"], r["d2"]["listed"], r["d2"]["paragraph"]) for r in d["repeals"]}
+    assert reps == {"Taxes and Levies (Approved List for Collection) Act": ("(j)", False, None),
+                    "VAT Act": ("(k)", True, "(j)"), "Venture Capital (Incentives) Act": ("(l)", True, "(k)")}
+    res = CliRunner(env={"COLUMNS": "200"}).invoke(app, ["diff", "--known-on", "2025-12-31", "--known-on",
+                                                         "2026-01-07", "--law", str(path)])
+    assert "Repeal lists that differ between the editions" in res.output
+    assert "Taxes and Levies (Approved List for Collection) Act" in res.output and "not listed" in res.output
 
 
 @pytest.mark.parametrize("cited,note", [("182(2)", None), ("183(2)", "s.183(2) is s.182(2) in the certified")])
@@ -380,7 +391,8 @@ def test_verify_sheet_shows_both_numberings(tmp_path):
     from inforce.verify_sheet import build_sheet
     text = build_sheet(RULES)
     repeal_rows = [ln for ln in text.splitlines() if ln.startswith("- [") and "**repeal**" in ln]
-    assert len(repeal_rows) == 5 and all("under section 195 (s.196 in the gazetted text)" in r for r in repeal_rows)
+    assert len(repeal_rows) == 12 and all("under section 195 (s.196 in the gazetted text)" in r for r in repeal_rows)
+    assert any("listed at gazetted (k), certified (j)" in r for r in repeal_rows)   # VAT Act
     assert "### Section 182(2) (s.183(2) in the gazetted text)" in text
     assert "### Long title (Commencement) (s.203 in the gazetted text)" in text   # not "Section long title"
     assert "Section long title" not in text

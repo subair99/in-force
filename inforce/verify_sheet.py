@@ -109,7 +109,10 @@ def _what(kind: str, e: dict[str, Any], data: dict[str, Any]) -> str:
             sec = f" under section {number}" + (f" ({note})" if note else "")
         else:
             sec = f" under section {e['section']}" if e.get("section") else ""
-        return f"repeals {titles.get(e['target'], e['target'])} on {e.get('on')}{sec}"
+        eds = e.get("editions") or {}
+        listed = ("; listed at " + ", ".join(f"{k} {v}" for k, v in eds.items())) if eds else ""
+        note = f"; note: {e['note']}" if e.get("note") else ""
+        return f"repeals {titles.get(e['target'], e['target'])} on {e.get('on')}{sec}{listed}{note}"
     if kind == "replacement":
         return f"\"{texts.get(e['old'])}\" is replaced one-to-one by \"{texts.get(e['new'])}\""
     if kind == "succession":

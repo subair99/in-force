@@ -17,6 +17,16 @@ acts:
     names: ['Industrial\s+Development\s+\(Income\s+Tax\s+Relief\)\s+Act', 'IDITRA']
   - short: NTA
     names: ['Nigeria\s+Tax\s+Act', 'NTA']
+  # Other Acts in NTA s.195 that the other_acts shape below does not catch; the law pack has no
+  # short name for them, so the key is the title (instrument_status also matches by title).
+  - short: Casino Act
+    names: ['Casino\s+Act']
+  - short: Deep Offshore and Inland Basin Act
+    names: ['Deep\s+Offshore\s+and\s+Inland\s+Basin\s+Act']
+  - short: Taxes and Levies (Approved List for Collection) Act
+    names: ['Taxes\s+and\s+Levies\s+\(Approved\s+List\s+for\s+Collection\)\s+Act']
+  - short: Venture Capital (Incentives) Act
+    names: ['Venture\s+Capital\s+\(Incentives\)\s+Act']
 
 # Any other tax Act named in the text: capitalised words around Tax/Duties/Revenue/Levy/Excise/
 # Customs, ending in "Act" ("Stamp Duties Act", "Petroleum Profits Tax Act"). A match that overlaps

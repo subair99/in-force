@@ -82,7 +82,7 @@ export function dateIndex(dates, on) {
 
 // The status entry's notes as the page shows them (same wording as inforce/check.py).
 const withStart = (note, at, data) =>
-  at?.startUnknown ? [note, data.startUnknownNote].filter(Boolean).join("; ") : note;
+  [note, at?.startUnknown ? data.startUnknownNote : null, at?.note].filter(Boolean).join("; ") || null;
 
 const numbers = (s) => new Set((s || "").match(/\d[\d,]*/g)?.map((n) => n.replace(/,/g, "")) ?? []);
 

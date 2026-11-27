@@ -72,7 +72,7 @@ Why
   | Node | Key | | Relationship | Meaning |
   |---|---|---|---|---|
   | `Instrument` | `akn` | | `(Instrument)-[:CONTAINS]->(Provision)-[:SETS]->(Rule)` | structure |
-  | `Provision` | `akn` | | `(Instrument)-[:REPEALS {on}]->(Instrument\|Provision)` | repeal on a date |
+  | `Provision` | `akn` | | `(Instrument)-[:REPEALS {on, editions, paragraphs}]->(Instrument\|Provision)` | repeal on a date, and the paragraph listing it in each edition (listed in only one edition: status UNKNOWN, depends on the edition) |
   | `Rule` | `id` | | `(Provision)-[:SAVES {until}]->(Grant\|Provision)` | savings clause |
   | `Grant` | `id` | | `(Provision)-[:SUCCEEDED_BY]->(Provision)` | replaced as a whole (the PIT scale) |
   | `Source` | `url` | | `(Rule)-[:REPLACED_BY]->(Rule)` / `-[:RELATED]->` | one-to-one successor / related, not a successor |
@@ -117,7 +117,7 @@ Tested on Linux (Ubuntu in CI, and WSL2). The Windows commands are given but hav
 | `inforce whatif repeal AKN\|ACT [--repo DIR]` | what would fall, measured in a transaction and rolled back (counts and fingerprint before, during and after) |
 | `inforce ask "question" --on D` | hybrid rule search (citations, amounts, vectors, full-text) with status on the date |
 | `inforce fallout ACT` | grants that fell or were saved when an Act was repealed |
-| `inforce diff --known-on D1 --known-on D2` | which published edition of each Act was on record on each date, and the section numbers that differ between them |
+| `inforce diff --known-on D1 --known-on D2` | which published edition of each Act was on record on each date, the section numbers that differ between them, and the repeal-list entries that differ (e.g. the Taxes and Levies Act, in gazetted s.196(j) only) |
 | `inforce verify [--summary\|--sheet F\|--apply F]` | the human checklist for verifying entries against the Act |
 | `inforce serve` | MCP server (stdio) with `inforce_check`, `inforce_brief`, `inforce_scan` |
 | `inforce export` | `web/export.json` for the browser checker |
@@ -158,18 +158,25 @@ Inspect them yourself (read-only):
 ```bash
 make inspect
 relate --database data/ng-tax-2026.rl --read-only --mode table \
-  "MATCH (i:Instrument)-[r:REPEALS]->(old) RETURN i.short AS act, old.title AS repealed, r.on AS on ORDER BY repealed LIMIT 20"
+  "MATCH (i:Instrument)-[r:REPEALS]->(old) RETURN i.short AS act, old.title AS repealed, r.on AS on, r.editions AS editions ORDER BY repealed LIMIT 20"
 relate --database demo/naira-payroll/.inforce/project.rl --read-only --mode table \
   "MATCH (a:Artifact)-[:ENCODES]->(r:Rule) RETURN a.id AS artifact, r.text AS rule ORDER BY artifact LIMIT 20"
 ```
 
 ```
-| act   | repealed                                         | on         |
-| "NTA" | "Capital Gains Tax Act"                          | 2026-01-01 |
-| "NTA" | "Companies Income Tax Act"                       | 2026-01-01 |
-| "NTA" | "Industrial Development (Income Tax Relief) Act" | 2026-01-01 |
-| "NTA" | "Personal Income Tax Act"                        | 2026-01-01 |
-| "NTA" | "Value Added Tax Act"                            | 2026-01-01 |
+| act   | repealed                                              | on         | editions                  |
+| "NTA" | "Capital Gains Tax Act"                               | 2026-01-01 | ["gazetted", "certified"] |
+| "NTA" | "Casino Act"                                          | 2026-01-01 | ["gazetted", "certified"] |
+| "NTA" | "Companies Income Tax Act"                            | 2026-01-01 | ["gazetted", "certified"] |
+| "NTA" | "Deep Offshore and Inland Basin Act"                  | 2026-01-01 | ["gazetted", "certified"] |
+| "NTA" | "Income Tax (Authorised Communications) Act"          | 2026-01-01 | ["gazetted", "certified"] |
+| "NTA" | "Industrial Development (Income Tax Relief) Act"      | 2026-01-01 | ["gazetted", "certified"] |
+| "NTA" | "Personal Income Tax Act"                             | 2026-01-01 | ["gazetted", "certified"] |
+| "NTA" | "Petroleum Profits Tax Act"                           | 2026-01-01 | ["gazetted", "certified"] |
+| "NTA" | "Stamp Duties Act"                                    | 2026-01-01 | ["gazetted", "certified"] |
+| "NTA" | "Taxes and Levies (Approved List for Collection) Act" | 2026-01-01 | ["gazetted"]              |
+| "NTA" | "Value Added Tax Act"                                 | 2026-01-01 | ["gazetted", "certified"] |
+| "NTA" | "Venture Capital (Incentives) Act"                    | 2026-01-01 | ["gazetted", "certified"] |
 
 | artifact                           | rule                                                                     |
 | "payroll/company_tax.py::CGT_RATE" | "Company capital gains taxed at 10%"                                     |
@@ -182,7 +189,7 @@ relate --database demo/naira-payroll/.inforce/project.rl --read-only --mode tabl
 ## Data and accuracy
 
 - **What is stored:** identifiers, dates, relationships, rule values and short summaries in our own words. Nigeria Tax Act entries cite both official editions (the gazetted text and the certified copy, with page numbers); entries for the repealed Acts cite published commentary (sources in `data/rules/*.yaml`). No Act text is copied.
-- **Status:** <!-- inforce:verify-status -->Each rule links to its source; verification against the Act's text is in progress (24 of 47 law entries verified).<!-- /inforce:verify-status -->
+- **Status:** <!-- inforce:verify-status -->Each rule links to its source; verification against the Act's text is in progress (31 of 61 law entries verified).<!-- /inforce:verify-status -->
 - **Checking entries:** `make verify` lists every entry with its source and verified flag. `inforce verify --sheet` makes a checklist grouped by section of the Act, and `inforce verify --apply` records the ticks. The loader refuses unverified entries unless `--allow-unverified` is given; the demo uses that flag. Until an entry is verified, every verdict that rests on it is marked unverified.
 - **Synthetic demo:** the demo payroll repo is synthetic, with no real people, salaries or employers.
 

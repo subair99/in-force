@@ -82,7 +82,9 @@ def build_export(law_pack: str | Path) -> dict[str, Any]:
                 i = law.instrument_status(store, row["akn"], d)
                 at.append({"status": i["status"], "endedOn": _d(i["endedOn"]), "verified": i["statusVerified"] is True,
                            "startUnknown": start_unknown(i["status"], i["commencesOn"]),
-                           "successor": i["repealedByTitle"], "successorRef": i["repealedBy"]})
+                           "note": i["repealNote"] if i["status"] == "UNKNOWN" else None,
+                           "successor": i["repealedByTitle"] if i["status"] == "REPEALED" else None,
+                           "successorRef": i["repealedBy"] if i["status"] == "REPEALED" else None})
             i0 = law.instrument_status(store, row["akn"], dates[-1])
             acts[row["short"] or row["akn"]] = {"akn": row["akn"], "title": row["title"], "source": i0["source"],
                                                 "verified": i0["instrumentVerified"] is True, "at": at}

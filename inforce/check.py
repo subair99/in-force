@@ -136,10 +136,14 @@ def resolve(store: Store, c: Claim, on: str) -> list[Item]:
         note = "; ".join(filter(None, [note, "repeal verified; the repealed Act's own entry (title, dates) is not"]))
     if start_unknown(inst["status"], inst["commencesOn"]):
         note = "; ".join(filter(None, [note, START_UNKNOWN]))
+    if inst["status"] == "UNKNOWN" and inst["repealNote"]:
+        note = "; ".join(filter(None, [note, inst["repealNote"]]))
     return [Item(c.line, c.text + (f" s. {c.section}" if c.section else ""), c.kind, inst["akn"], inst["status"],
                  verified=verified, endedOn=_d(inst["endedOn"]), repealedBy=inst["repealedBy"],
-                 successor=inst["repealedByTitle"], successorRef=inst["repealedBy"],
-                 successorStatus="IN_FORCE" if inst["repealedBy"] else None,
+                 # an edition-dependent repeal (UNKNOWN) names no successor: the Act may still stand
+                 successor=inst["repealedByTitle"] if inst["status"] == "REPEALED" else None,
+                 successorRef=inst["repealedBy"] if inst["status"] == "REPEALED" else None,
+                 successorStatus="IN_FORCE" if inst["repealedBy"] and inst["status"] == "REPEALED" else None,
                  source=inst["source"], sourceTitle=inst["sourceTitle"], path=inst["path"], note=note, mentions=c.mentions)]
 
 

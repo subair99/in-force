@@ -4,7 +4,7 @@
  "builtWith": "Built with Relate",
  "lawPack": {
   "file": "data/ng-tax-2026.rl",
-  "buildHash": "3604b1a0a33aac8015f60518d85da5274e015d806cc17297e005252f99857e54"
+  "buildHash": "58204060e9c26cf3b92c5064344d5f76eb71b286d544518e5cd3ad3262157079"
  },
  "dates": [
   "0001-01-01",
@@ -647,6 +647,7 @@
      "endedOn": null,
      "verified": false,
      "startUnknown": false,
+     "note": null,
      "successor": null,
      "successorRef": null
     },
@@ -655,6 +656,7 @@
      "endedOn": null,
      "verified": false,
      "startUnknown": false,
+     "note": null,
      "successor": null,
      "successorRef": null
     },
@@ -663,6 +665,7 @@
      "endedOn": null,
      "verified": false,
      "startUnknown": false,
+     "note": null,
      "successor": null,
      "successorRef": null
     }
@@ -679,6 +682,7 @@
      "endedOn": null,
      "verified": false,
      "startUnknown": false,
+     "note": null,
      "successor": null,
      "successorRef": null
     },
@@ -687,6 +691,7 @@
      "endedOn": null,
      "verified": false,
      "startUnknown": false,
+     "note": null,
      "successor": null,
      "successorRef": null
     },
@@ -695,6 +700,7 @@
      "endedOn": null,
      "verified": false,
      "startUnknown": false,
+     "note": null,
      "successor": null,
      "successorRef": null
     }
@@ -711,6 +717,7 @@
      "endedOn": null,
      "verified": false,
      "startUnknown": false,
+     "note": null,
      "successor": null,
      "successorRef": null
     },
@@ -719,6 +726,7 @@
      "endedOn": null,
      "verified": false,
      "startUnknown": false,
+     "note": null,
      "successor": null,
      "successorRef": null
     },
@@ -727,8 +735,44 @@
      "endedOn": null,
      "verified": false,
      "startUnknown": false,
+     "note": null,
      "successor": null,
      "successorRef": null
+    }
+   ]
+  },
+  "TODO/ng/act/casino": {
+   "akn": "TODO/ng/act/casino",
+   "title": "Casino Act",
+   "source": "https://tat.gov.ng/NIGERIA-TAX-ADMINISTRATION-ACT-2025.pdf",
+   "verified": false,
+   "at": [
+    {
+     "status": "IN_FORCE",
+     "endedOn": null,
+     "verified": false,
+     "startUnknown": true,
+     "note": null,
+     "successor": null,
+     "successorRef": null
+    },
+    {
+     "status": "IN_FORCE",
+     "endedOn": null,
+     "verified": false,
+     "startUnknown": true,
+     "note": null,
+     "successor": null,
+     "successorRef": null
+    },
+    {
+     "status": "REPEALED",
+     "endedOn": "2026-01-01",
+     "verified": true,
+     "startUnknown": false,
+     "note": null,
+     "successor": "Nigeria Tax Act, 2025",
+     "successorRef": "akn/ng/act/2025/7"
     }
    ]
   },
@@ -743,6 +787,7 @@
      "endedOn": null,
      "verified": false,
      "startUnknown": true,
+     "note": null,
      "successor": null,
      "successorRef": null
     },
@@ -751,6 +796,7 @@
      "endedOn": null,
      "verified": false,
      "startUnknown": true,
+     "note": null,
      "successor": null,
      "successorRef": null
     },
@@ -759,6 +805,7 @@
      "endedOn": "2026-01-01",
      "verified": true,
      "startUnknown": false,
+     "note": null,
      "successor": "Nigeria Tax Act, 2025",
      "successorRef": "akn/ng/act/2025/7"
     }
@@ -775,6 +822,7 @@
      "endedOn": null,
      "verified": false,
      "startUnknown": true,
+     "note": null,
      "successor": null,
      "successorRef": null
     },
@@ -783,6 +831,7 @@
      "endedOn": null,
      "verified": false,
      "startUnknown": true,
+     "note": null,
      "successor": null,
      "successorRef": null
     },
@@ -791,6 +840,42 @@
      "endedOn": "2026-01-01",
      "verified": true,
      "startUnknown": false,
+     "note": null,
+     "successor": "Nigeria Tax Act, 2025",
+     "successorRef": "akn/ng/act/2025/7"
+    }
+   ]
+  },
+  "TODO/ng/act/deep_offshore": {
+   "akn": "TODO/ng/act/deep_offshore",
+   "title": "Deep Offshore and Inland Basin Act",
+   "source": "https://tat.gov.ng/NIGERIA-TAX-ADMINISTRATION-ACT-2025.pdf",
+   "verified": false,
+   "at": [
+    {
+     "status": "IN_FORCE",
+     "endedOn": null,
+     "verified": false,
+     "startUnknown": true,
+     "note": null,
+     "successor": null,
+     "successorRef": null
+    },
+    {
+     "status": "IN_FORCE",
+     "endedOn": null,
+     "verified": false,
+     "startUnknown": true,
+     "note": null,
+     "successor": null,
+     "successorRef": null
+    },
+    {
+     "status": "REPEALED",
+     "endedOn": "2026-01-01",
+     "verified": true,
+     "startUnknown": false,
+     "note": null,
      "successor": "Nigeria Tax Act, 2025",
      "successorRef": "akn/ng/act/2025/7"
     }
@@ -807,6 +892,7 @@
      "endedOn": null,
      "verified": false,
      "startUnknown": true,
+     "note": null,
      "successor": null,
      "successorRef": null
     },
@@ -815,6 +901,7 @@
      "endedOn": null,
      "verified": false,
      "startUnknown": true,
+     "note": null,
      "successor": null,
      "successorRef": null
     },
@@ -823,6 +910,42 @@
      "endedOn": "2026-01-01",
      "verified": true,
      "startUnknown": false,
+     "note": null,
+     "successor": "Nigeria Tax Act, 2025",
+     "successorRef": "akn/ng/act/2025/7"
+    }
+   ]
+  },
+  "TODO/ng/act/itac": {
+   "akn": "TODO/ng/act/itac",
+   "title": "Income Tax (Authorised Communications) Act",
+   "source": "https://tat.gov.ng/NIGERIA-TAX-ADMINISTRATION-ACT-2025.pdf",
+   "verified": false,
+   "at": [
+    {
+     "status": "IN_FORCE",
+     "endedOn": null,
+     "verified": false,
+     "startUnknown": true,
+     "note": null,
+     "successor": null,
+     "successorRef": null
+    },
+    {
+     "status": "IN_FORCE",
+     "endedOn": null,
+     "verified": false,
+     "startUnknown": true,
+     "note": null,
+     "successor": null,
+     "successorRef": null
+    },
+    {
+     "status": "REPEALED",
+     "endedOn": "2026-01-01",
+     "verified": true,
+     "startUnknown": false,
+     "note": null,
      "successor": "Nigeria Tax Act, 2025",
      "successorRef": "akn/ng/act/2025/7"
     }
@@ -839,6 +962,7 @@
      "endedOn": null,
      "verified": false,
      "startUnknown": true,
+     "note": null,
      "successor": null,
      "successorRef": null
     },
@@ -847,6 +971,7 @@
      "endedOn": null,
      "verified": false,
      "startUnknown": true,
+     "note": null,
      "successor": null,
      "successorRef": null
     },
@@ -855,8 +980,114 @@
      "endedOn": "2026-01-01",
      "verified": true,
      "startUnknown": false,
+     "note": null,
      "successor": "Nigeria Tax Act, 2025",
      "successorRef": "akn/ng/act/2025/7"
+    }
+   ]
+  },
+  "TODO/ng/act/ppta": {
+   "akn": "TODO/ng/act/ppta",
+   "title": "Petroleum Profits Tax Act",
+   "source": "https://tat.gov.ng/NIGERIA-TAX-ADMINISTRATION-ACT-2025.pdf",
+   "verified": false,
+   "at": [
+    {
+     "status": "IN_FORCE",
+     "endedOn": null,
+     "verified": false,
+     "startUnknown": true,
+     "note": null,
+     "successor": null,
+     "successorRef": null
+    },
+    {
+     "status": "IN_FORCE",
+     "endedOn": null,
+     "verified": false,
+     "startUnknown": true,
+     "note": null,
+     "successor": null,
+     "successorRef": null
+    },
+    {
+     "status": "REPEALED",
+     "endedOn": "2026-01-01",
+     "verified": true,
+     "startUnknown": false,
+     "note": null,
+     "successor": "Nigeria Tax Act, 2025",
+     "successorRef": "akn/ng/act/2025/7"
+    }
+   ]
+  },
+  "TODO/ng/act/stamp_duties": {
+   "akn": "TODO/ng/act/stamp_duties",
+   "title": "Stamp Duties Act",
+   "source": "https://tat.gov.ng/NIGERIA-TAX-ADMINISTRATION-ACT-2025.pdf",
+   "verified": false,
+   "at": [
+    {
+     "status": "IN_FORCE",
+     "endedOn": null,
+     "verified": false,
+     "startUnknown": true,
+     "note": null,
+     "successor": null,
+     "successorRef": null
+    },
+    {
+     "status": "IN_FORCE",
+     "endedOn": null,
+     "verified": false,
+     "startUnknown": true,
+     "note": null,
+     "successor": null,
+     "successorRef": null
+    },
+    {
+     "status": "REPEALED",
+     "endedOn": "2026-01-01",
+     "verified": true,
+     "startUnknown": false,
+     "note": null,
+     "successor": "Nigeria Tax Act, 2025",
+     "successorRef": "akn/ng/act/2025/7"
+    }
+   ]
+  },
+  "TODO/ng/act/taxes_levies": {
+   "akn": "TODO/ng/act/taxes_levies",
+   "title": "Taxes and Levies (Approved List for Collection) Act",
+   "source": "https://www.nrs.gov.ng/uploads/NIGERIA_TAX_ACT_2025_ef6bb812a5.pdf",
+   "verified": false,
+   "at": [
+    {
+     "status": "IN_FORCE",
+     "endedOn": null,
+     "verified": false,
+     "startUnknown": true,
+     "note": null,
+     "successor": null,
+     "successorRef": null
+    },
+    {
+     "status": "IN_FORCE",
+     "endedOn": null,
+     "verified": false,
+     "startUnknown": true,
+     "note": null,
+     "successor": null,
+     "successorRef": null
+    },
+    {
+     "status": "UNKNOWN",
+     "endedOn": "2026-01-01",
+     "verified": true,
+     "startUnknown": false,
+     "note": "listed in gazetted s.196(j), absent from certified s.195; status depends on edition",
+     "successor": null,
+     "successorRef": null
     }
    ]
   },
@@ -871,6 +1102,7 @@
      "endedOn": null,
      "verified": false,
      "startUnknown": true,
+     "note": null,
      "successor": null,
      "successorRef": null
     },
@@ -879,6 +1111,7 @@
      "endedOn": null,
      "verified": false,
      "startUnknown": true,
+     "note": null,
      "successor": null,
      "successorRef": null
     },
@@ -887,6 +1120,42 @@
      "endedOn": "2026-01-01",
      "verified": true,
      "startUnknown": false,
+     "note": null,
+     "successor": "Nigeria Tax Act, 2025",
+     "successorRef": "akn/ng/act/2025/7"
+    }
+   ]
+  },
+  "TODO/ng/act/venture_capital": {
+   "akn": "TODO/ng/act/venture_capital",
+   "title": "Venture Capital (Incentives) Act",
+   "source": "https://tat.gov.ng/NIGERIA-TAX-ADMINISTRATION-ACT-2025.pdf",
+   "verified": false,
+   "at": [
+    {
+     "status": "IN_FORCE",
+     "endedOn": null,
+     "verified": false,
+     "startUnknown": true,
+     "note": null,
+     "successor": null,
+     "successorRef": null
+    },
+    {
+     "status": "IN_FORCE",
+     "endedOn": null,
+     "verified": false,
+     "startUnknown": true,
+     "note": null,
+     "successor": null,
+     "successorRef": null
+    },
+    {
+     "status": "REPEALED",
+     "endedOn": "2026-01-01",
+     "verified": true,
+     "startUnknown": false,
+     "note": null,
      "successor": "Nigeria Tax Act, 2025",
      "successorRef": "akn/ng/act/2025/7"
     }
@@ -903,6 +1172,7 @@
      "endedOn": null,
      "verified": true,
      "startUnknown": false,
+     "note": null,
      "successor": null,
      "successorRef": null
     },
@@ -911,6 +1181,7 @@
      "endedOn": null,
      "verified": true,
      "startUnknown": false,
+     "note": null,
      "successor": null,
      "successorRef": null
     },
@@ -919,6 +1190,7 @@
      "endedOn": null,
      "verified": true,
      "startUnknown": false,
+     "note": null,
      "successor": null,
      "successorRef": null
     }
@@ -1330,6 +1602,42 @@
       "flags": "u"
      }
     ]
+   },
+   {
+    "short": "Casino Act",
+    "aliases": [
+     {
+      "source": "\\b(?:Casino\\s+Act)\\b",
+      "flags": "iu"
+     }
+    ]
+   },
+   {
+    "short": "Deep Offshore and Inland Basin Act",
+    "aliases": [
+     {
+      "source": "\\b(?:Deep\\s+Offshore\\s+and\\s+Inland\\s+Basin\\s+Act)\\b",
+      "flags": "iu"
+     }
+    ]
+   },
+   {
+    "short": "Taxes and Levies (Approved List for Collection) Act",
+    "aliases": [
+     {
+      "source": "\\b(?:Taxes\\s+and\\s+Levies\\s+\\(Approved\\s+List\\s+for\\s+Collection\\)\\s+Act)\\b",
+      "flags": "iu"
+     }
+    ]
+   },
+   {
+    "short": "Venture Capital (Incentives) Act",
+    "aliases": [
+     {
+      "source": "\\b(?:Venture\\s+Capital\\s+\\(Incentives\\)\\s+Act)\\b",
+      "flags": "iu"
+     }
+    ]
    }
   ],
   "section": {
@@ -1367,9 +1675,9 @@
  },
  "unverified": 8,
  "verification": {
-  "verified": 24,
-  "total": 47,
-  "summary": "Each rule links to its source; verification against the Act's text is in progress (24 of 47 law entries verified)."
+  "verified": 31,
+  "total": 61,
+  "summary": "Each rule links to its source; verification against the Act's text is in progress (31 of 61 law entries verified)."
  },
  "startUnknownNote": "start date not in the law pack, so counted as in force on any earlier date",
  "disclaimer": "InForce checks whether a provision is in force. It is not legal or tax advice."

@@ -19,6 +19,8 @@ TEXTS = [
     "PITA, section 33: the CRA. Companies pay capital gains tax at 10% under CGTA.",
     "Nothing here.",
     "The Stamp Duties Act and the Nigeria Tax Administration Act; section 4 of the Petroleum Profits Tax Act.",
+    "The Casino Act; the Taxes and Levies (Approved List for Collection) Act; the Federal Inland Revenue Service "
+    "(Establishment) Act.",
 ]
 RUNNER = """
 import { check } from %s;

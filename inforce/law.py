@@ -140,9 +140,10 @@ def _rule_path(rule: dict[str, Any], st: dict[str, Any] | None) -> list[str]:
 
 
 def _instrument_path(row: dict[str, Any]) -> list[str]:
-    path = [f"Instrument {row.get('short') or row['akn']}"]
+    path = [f"Instrument {row.get('short') or row.get('title') or row['akn']}"]
     if row.get("repealedBy"):
-        path.append(f"<-REPEALS {row['endedOn']}- Instrument {row.get('repealedByShort') or row['repealedBy']}")
+        only = f" ({', '.join(row['repealEditions'])} only)" if row.get("status") == "UNKNOWN" and row.get("repealEditions") else ""
+        path.append(f"<-REPEALS {row['endedOn']}{only}- Instrument {row.get('repealedByShort') or row['repealedBy']}")
     return path
 
 
@@ -182,6 +183,17 @@ def diff_known_on(store: Store, d1: str | dt.date, d2: str | dt.date) -> dict[st
     p2 = {r["akn"]: r for r in store.run("known_provisions", d=d2)}
     provisions = [{"akn": k, "summary": p1[k]["summary"], "d1": p1[k]["known"], "d2": p2[k]["known"]}
                   for k in sorted(p1) if p1[k]["known"] != p2[k]["known"]]
+    # Repeal lists that differ between the editions on record: an Act listed in only one, or at a
+    # different paragraph (e.g. VAT Act: gazetted s.196(k), certified s.195(j)).
+    def listing(r: dict[str, Any]) -> dict[str, Any]:
+        return {"version": r["version"], "listed": r["listed"] is True, "section": r["section"],
+                "paragraph": r["paragraph"], "page": r["page"]}
+    r1 = {r["akn"]: r for r in store.run("known_repeals", d=d1)}
+    r2 = {r["akn"]: r for r in store.run("known_repeals", d=d2)}
+    repeals = [{"akn": k, "act": r1[k]["act"], "by": r1[k]["by"], "note": r1[k]["note"],
+                "d1": listing(r1[k]), "d2": listing(r2[k])}
+               for k in sorted(set(r1) & set(r2))
+               if (r1[k]["listed"], r1[k]["paragraph"]) != (r2[k]["listed"], r2[k]["paragraph"])]
     return {"d1": d1, "d2": d2, "acts": sorted(acts.values(), key=lambda a: a["akn"]),
-            "numbering": numbering, "numberingUnchecked": unchecked,
+            "numbering": numbering, "numberingUnchecked": unchecked, "repeals": repeals,
             "provisions": provisions, "provisionsWithRecordDates": len(p1)}

@@ -87,10 +87,11 @@ def test_no_claims(law_pack):
 def test_unknown_tax_act_is_not_recognised_not_no_claims(law_pack):
     """README: a claim that matches no rule is "not recognised", never guessed (and never NO_CLAIMS)."""
     path, _ = law_pack
-    env = check_text("The Stamp Duties Act requires duty on receipts.", "2026-03-01", path)
+    text = "The Federal Inland Revenue Service (Establishment) Act sets up the service."   # not in the pack
+    env = check_text(text, "2026-03-01", path)
     assert env["verdict"] == "SUSPECT"
     [item] = env["items"]
-    assert (item["claim"], item["verdict"]) == ("Stamp Duties Act", "NOT_RECOGNISED")
+    assert (item["claim"], item["verdict"]) == ("Federal Inland Revenue Service (Establishment) Act", "NOT_RECOGNISED")
 
 
 def test_other_act_in_the_pack_resolves_by_title(law_pack):
@@ -139,3 +140,22 @@ def test_in_force_with_no_start_date_says_so(law_pack):
     # a known start date gives no such note (NTA commences 1 Jan 2026)
     [nta] = check_text("Under the Nigeria Tax Act.", "2026-03-01", path)["items"]
     assert START_UNKNOWN not in (nta["note"] or "")
+
+
+def test_full_nta_repeal_list(law_pack):
+    """Every Act in NTA s.195 (gazetted s.196) is recognised and repealed from 1 Jan 2026, with a verified repeal."""
+    path, _ = law_pack
+    acts = ["Casino Act", "Deep Offshore and Inland Basin Act", "Income Tax (Authorised Communications) Act",
+            "Petroleum Profits Tax Act", "Stamp Duties Act", "Venture Capital (Incentives) Act"]
+    items = check_text(". ".join(f"Under the {a}" for a in acts) + ".", "2026-03-01", path)["items"]
+    assert [(i["claim"], i["verdict"], i["verified"]) for i in items] == [(a, "REPEALED", True) for a in acts]
+
+
+def test_taxes_and_levies_act_depends_on_the_edition(law_pack):
+    path, _ = law_pack
+    text = "Under the Taxes and Levies (Approved List for Collection) Act."
+    env = check_text(text, "2026-03-01", path)
+    [item] = env["items"]
+    assert (env["verdict"], item["verdict"], item["successorRef"]) == ("SUSPECT", "UNKNOWN", None)
+    assert "listed in gazetted s.196(j), absent from certified s.195; status depends on edition" in item["note"]
+    assert "(gazetted only)" in " ".join(item["path"])

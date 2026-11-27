@@ -76,22 +76,56 @@ instruments:
     short: PITA
     title: Personal Income Tax Act
     kind: act
+    citation: "Cap. P8, LFN 2004"
   - akn: TODO/ng/act/cita
     short: CITA
     title: Companies Income Tax Act
     kind: act
+    citation: "Cap. C21, LFN 2004"
   - akn: TODO/ng/act/cgta
     short: CGTA
     title: Capital Gains Tax Act
     kind: act
+    citation: "Cap. C1, LFN 2004"
   - akn: TODO/ng/act/vata
     short: VAT Act
     title: Value Added Tax Act
     kind: act
+    citation: "Cap. V1, LFN 2004"
   - akn: TODO/ng/act/iditra
     short: IDITRA
     title: Industrial Development (Income Tax Relief) Act
     kind: act
+    citation: "Cap. I17, LFN 2004"
+  # The other Acts listed in NTA s.195 (gazetted s.196), as read on both scans.
+  - akn: TODO/ng/act/casino
+    title: Casino Act
+    kind: act
+    citation: "Cap. C3, LFN 2004"
+  - akn: TODO/ng/act/deep_offshore
+    title: Deep Offshore and Inland Basin Act
+    kind: act
+    citation: "Cap. D3, LFN 2004"
+  - akn: TODO/ng/act/itac
+    title: Income Tax (Authorised Communications) Act
+    kind: act
+    citation: "Cap. I4, LFN 2004"
+  - akn: TODO/ng/act/ppta
+    title: Petroleum Profits Tax Act
+    kind: act
+    citation: "Cap. P13, LFN 2004"
+  - akn: TODO/ng/act/stamp_duties
+    title: Stamp Duties Act
+    kind: act
+    citation: "Cap. S8, LFN 2004"
+  - akn: TODO/ng/act/taxes_levies
+    title: Taxes and Levies (Approved List for Collection) Act
+    kind: act
+    citation: "Cap. T2, LFN 2004"
+  - akn: TODO/ng/act/venture_capital
+    title: Venture Capital (Incentives) Act
+    kind: act
+    citation: "Cap. V2, LFN 2004"
   # The other three reform Acts, enacted with the NTA on 26 June 2025 (commencement dates only).
   - akn: TODO/ng/act/2025/ntaa
     short: NTAA
@@ -125,13 +159,21 @@ instruments:
     secondarySource: [thecable-gazettes, kpmg-gaps-2026]
     verified: false
 
-repeals:   # repealed in full from 1 Jan 2026 by NTA s.195 (s.196, p. A502 in the gazetted text); Chambers as secondary
-  - {by: akn/ng/act/2025/7, target: TODO/ng/act/pita,   on: 2026-01-01, byProvision: akn/ng/act/2025/7/sec_195, source: nta-certified, secondarySource: [nta-text, chambers-cit-2026], verified: true}
-  - {by: akn/ng/act/2025/7, target: TODO/ng/act/cita,   on: 2026-01-01, byProvision: akn/ng/act/2025/7/sec_195, source: nta-certified, secondarySource: [nta-text, chambers-cit-2026], verified: true}
-  - {by: akn/ng/act/2025/7, target: TODO/ng/act/cgta,   on: 2026-01-01, byProvision: akn/ng/act/2025/7/sec_195, source: nta-certified, secondarySource: [nta-text, chambers-cit-2026], verified: true}
-  - {by: akn/ng/act/2025/7, target: TODO/ng/act/vata,   on: 2026-01-01, byProvision: akn/ng/act/2025/7/sec_195, source: nta-certified, secondarySource: [nta-text, chambers-cit-2026], verified: true}
-  - {by: akn/ng/act/2025/7, target: TODO/ng/act/iditra, on: 2026-01-01, byProvision: akn/ng/act/2025/7/sec_195, source: nta-certified, secondarySource: [nta-text, chambers-cit-2026], verified: true}
-  # TODO: Petroleum Profits Tax Act, Stamp Duties Act, FIRS Establishment Act (by NRS Act), others listed in the NTA
+repeals:   # NTA s.195 (certified, tat.gov.ng pp. A501–502) = s.196 (gazetted, nrs.gov.ng p. A502), read on both scans.
+  # editions: the paragraph listing the Act in each edition of the NTA. An Act listed in only one
+  # edition is repealed in that edition only: its status depends on the edition (see note).
+  - {by: akn/ng/act/2025/7, target: TODO/ng/act/cgta, on: 2026-01-01, byProvision: akn/ng/act/2025/7/sec_195, editions: {gazetted: "(a)", certified: "(a)"}, source: nta-certified, secondarySource: [nta-text, chambers-cit-2026], verified: true}
+  - {by: akn/ng/act/2025/7, target: TODO/ng/act/casino, on: 2026-01-01, byProvision: akn/ng/act/2025/7/sec_195, editions: {gazetted: "(b)", certified: "(b)"}, source: nta-certified, secondarySource: nta-text, verified: true}
+  - {by: akn/ng/act/2025/7, target: TODO/ng/act/cita, on: 2026-01-01, byProvision: akn/ng/act/2025/7/sec_195, editions: {gazetted: "(c)", certified: "(c)"}, source: nta-certified, secondarySource: [nta-text, chambers-cit-2026], verified: true}
+  - {by: akn/ng/act/2025/7, target: TODO/ng/act/deep_offshore, on: 2026-01-01, byProvision: akn/ng/act/2025/7/sec_195, editions: {gazetted: "(d)", certified: "(d)"}, source: nta-certified, secondarySource: nta-text, verified: true}
+  - {by: akn/ng/act/2025/7, target: TODO/ng/act/iditra, on: 2026-01-01, byProvision: akn/ng/act/2025/7/sec_195, editions: {gazetted: "(e)", certified: "(e)"}, source: nta-certified, secondarySource: [nta-text, chambers-cit-2026], verified: true}
+  - {by: akn/ng/act/2025/7, target: TODO/ng/act/itac, on: 2026-01-01, byProvision: akn/ng/act/2025/7/sec_195, editions: {gazetted: "(f)", certified: "(f)"}, source: nta-certified, secondarySource: nta-text, verified: true}
+  - {by: akn/ng/act/2025/7, target: TODO/ng/act/pita, on: 2026-01-01, byProvision: akn/ng/act/2025/7/sec_195, editions: {gazetted: "(g)", certified: "(g)"}, source: nta-certified, secondarySource: [nta-text, chambers-cit-2026], verified: true}
+  - {by: akn/ng/act/2025/7, target: TODO/ng/act/ppta, on: 2026-01-01, byProvision: akn/ng/act/2025/7/sec_195, editions: {gazetted: "(h)", certified: "(h)"}, source: nta-certified, secondarySource: nta-text, verified: true}
+  - {by: akn/ng/act/2025/7, target: TODO/ng/act/stamp_duties, on: 2026-01-01, byProvision: akn/ng/act/2025/7/sec_195, editions: {gazetted: "(i)", certified: "(i)"}, source: nta-certified, secondarySource: nta-text, verified: true}
+  - {by: akn/ng/act/2025/7, target: TODO/ng/act/vata, on: 2026-01-01, byProvision: akn/ng/act/2025/7/sec_195, editions: {gazetted: "(k)", certified: "(j)"}, source: nta-certified, secondarySource: [nta-text, chambers-cit-2026], verified: true}
+  - {by: akn/ng/act/2025/7, target: TODO/ng/act/venture_capital, on: 2026-01-01, byProvision: akn/ng/act/2025/7/sec_195, editions: {gazetted: "(l)", certified: "(k)"}, source: nta-certified, secondarySource: nta-text, verified: true}
+  - {by: akn/ng/act/2025/7, target: TODO/ng/act/taxes_levies, on: 2026-01-01, byProvision: akn/ng/act/2025/7/sec_195, editions: {gazetted: "(j)"}, note: "listed in gazetted s.196(j), absent from certified s.195; status depends on edition", source: nta-text, secondarySource: nta-certified, verified: true}
 
 provisions:
   - {akn: akn/ng/act/2025/7/sec_58, instrument: akn/ng/act/2025/7, numbers: {gazetted: {number: "58 + Fourth Schedule", page: A542}, certified: {number: "58 + Fourth Schedule", page: "A540"}}, summary: "Sets personal income tax rates by income band.", validFrom: 2026-01-01, source: nta-text, secondarySource: mondaq-nta-analysis, verified: true}

@@ -39,3 +39,17 @@ def test_cli_safe_mode_accepts_read_queries(name, law_pack):
         args += ["--param", f"{k}={json.dumps(special.get(name, {}).get(k, PARAMS.get(k, 'x')))}"]
     cp = subprocess.run(args + [(QUERY_DIR / name).read_text()], capture_output=True, text=True)
     assert cp.returncode == 0, cp.stdout[:400]
+
+
+@pytest.mark.skipif(RELATE is None, reason="relate CLI not installed")
+def test_readme_repeal_listing_matches_the_committed_pack():
+    """README's 'Inspect them yourself' repeal table is real output of its query on data/ng-tax-2026.rl."""
+    from inforce.paths import LAW_PACK, ROOT
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    query = re.search(r'"(MATCH \(i:Instrument\)-\[r:REPEALS\]->\(old\)[^"]*)"', readme).group(1)
+    out = subprocess.run([RELATE, "--database", str(LAW_PACK), "--read-only", "--safe", "--mode", "table", query],
+                         capture_output=True, text=True, check=True, encoding="utf-8").stdout
+    ran = [ln for ln in out.splitlines() if ln.startswith("| ")]
+    start = readme.index(ran[0])
+    pasted = readme[start:].splitlines()[:len(ran) + 1]
+    assert pasted[:len(ran)] == ran and not pasted[len(ran)].startswith("| ")

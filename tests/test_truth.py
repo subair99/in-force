@@ -187,3 +187,63 @@ def test_nta_versions_have_known_record_dates(law_pack):
     assert "Gazette No. 117" in notes["gazetted"] and "KPMG" in notes["certified"]
     res = CliRunner().invoke(app, ["diff", "--known-on", "2025-12-31", "--known-on", "2026-01-07", "--law", str(path)])
     assert res.exit_code == 0 and "date unknown" not in res.output
+
+
+EDITIONS_LAW = """
+sources:
+  - {id: s, url: https://example.org/law, kind: act}
+instruments:
+  - {akn: akn/test/act/new, short: NEW, title: New Act, kind: act, commencesOn: 2026-01-01, source: s, verified: true,
+      versions: [{version: gazetted, recordedAt: 2025-06-01, closedAt: 2026-01-06, source: s},
+                {version: certified, recordedAt: 2026-01-06, source: s}]}
+  - {akn: akn/test/act/both, title: Listed In Both Act, kind: act}
+  - {akn: akn/test/act/one, title: Listed In One Act, kind: act}
+provisions:
+  - {akn: akn/test/act/new/sec_9, instrument: akn/test/act/new, numbers: {gazetted: {number: "10"}, certified: {number: "9"}},
+     validFrom: 2026-01-01, source: s, verified: true}
+repeals:
+  - {by: akn/test/act/new, target: akn/test/act/both, on: 2026-01-01, byProvision: akn/test/act/new/sec_9,
+     editions: {gazetted: "(a)", certified: "(a)"}, source: s, verified: true}
+  - {by: akn/test/act/new, target: akn/test/act/one, on: 2026-01-01, byProvision: akn/test/act/new/sec_9,
+     editions: {gazetted: "(b)"}, note: "gazetted edition only", source: s, verified: true}
+"""
+
+
+@pytest.fixture(scope="module")
+def editions_pack(tmp_path_factory):
+    d = tmp_path_factory.mktemp("editions")
+    (d / "law.yaml").write_text(EDITIONS_LAW)
+    out = d / "law.rl"
+    loader.load(d, out, allow_unverified=True)
+    return out
+
+
+@pytest.mark.parametrize("ref,on,expected", [
+    ("Listed In Both Act", "2025-12-31", "IN_FORCE"),
+    ("Listed In Both Act", "2026-01-01", "REPEALED"),
+    # listed in one edition only: the status depends on the edition, so it is not decided
+    ("Listed In One Act", "2025-12-31", "IN_FORCE"),
+    ("Listed In One Act", "2026-01-01", "UNKNOWN"),
+])
+def test_edition_dependent_repeal(editions_pack, ref, on, expected):
+    with open_store(editions_pack, read_only=True) as s:
+        st = law.instrument_status(s, ref, on)
+    assert st["status"] == expected
+    if expected == "UNKNOWN" and ref == "Listed In One Act":
+        assert st["repealNote"] == "gazetted edition only" and st["repealEditions"] == ["gazetted"]
+        assert st["statusVerified"] is True   # what each edition says was checked
+
+
+def test_diff_lists_repeals_that_differ_between_editions(editions_pack):
+    with open_store(editions_pack, read_only=True) as s:
+        d = law.diff_known_on(s, "2025-12-01", "2026-03-01")
+    [one] = [r for r in d["repeals"] if r["act"] == "Listed In One Act"]
+    assert (one["d1"]["listed"], one["d1"]["section"], one["d1"]["paragraph"]) == (True, "10", "(b)")
+    assert (one["d2"]["listed"], one["d2"]["section"], one["d2"]["paragraph"]) == (False, "9", None)
+    assert "Listed In Both Act" not in {r["act"] for r in d["repeals"]}   # same paragraph in both
+
+
+def test_repeal_edition_must_be_a_version_of_the_repealing_act(tmp_path):
+    (tmp_path / "law.yaml").write_text(EDITIONS_LAW.replace('editions: {gazetted: "(b)"}', 'editions: {third: "(b)"}'))
+    with pytest.raises(loader.BadReference, match="editions.third names no version"):
+        loader.load(tmp_path, tmp_path / "law.rl", allow_unverified=True)

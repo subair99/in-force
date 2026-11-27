@@ -563,6 +563,20 @@ def _print_diff(r: dict) -> None:
                 label += f"\n[yellow]{n['note']}[/yellow]"
             t.add_row(label, num(n["d1"]), num(n["d2"]))
         console.print(t)
+    if r.get("repeals"):
+        t = Table(title="Repeal lists that differ between the editions", title_justify="left")
+        for col in ("repealed Act", f"on {d1}", f"on {d2}"):
+            t.add_column(col)
+
+        def listed(x: dict) -> str:
+            if not x["listed"]:
+                return f"[bold]not listed[/bold] ({x['version']} {_sec(x['section'])})" if x["section"] \
+                    else f"[bold]not listed[/bold] ({x['version']})"
+            return f"{_sec(x['section'])}{x['paragraph']} ({x['version']}" + (f", p. {x['page']}" if x.get("page") else "") + ")"
+        for x in r["repeals"]:
+            label = x["act"] + (f"\n[yellow]{x['note']}[/yellow]" if x.get("note") else "")
+            t.add_row(label, listed(x["d1"]), listed(x["d2"]))
+        console.print(t)
     if r.get("numberingUnchecked"):
         console.print(f"[dim]{len(r['numberingUnchecked'])} provision(s) are numbered in only one of these editions "
                       "(not yet checked in the other): " + ", ".join(r["numberingUnchecked"]) + "[/dim]")

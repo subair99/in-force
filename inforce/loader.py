@@ -170,7 +170,7 @@ def build_rows(data: dict[str, list[dict[str, Any]]], report: LoadReport) -> dic
             "commencesOn": _date(e.get("commencesOn"), f"{where}.commencesOn", w),
             "verified": v(e), "stub": False, "source": src(e, where), "secondarySource": src2(e, where),
             "page": _str(e.get("page")), "note": e.get("note"),
-            "commencementSection": _str(e.get("commencementSection")),
+            "commencementSection": _str(e.get("commencementSection")), "citation": e.get("citation"),
         })
     inst_akns = {i["akn"] for i in instruments}
 
@@ -247,7 +247,16 @@ def build_rows(data: dict[str, list[dict[str, Any]]], report: LoadReport) -> dic
         if bp is not None and bp not in prov_akns:
             raise BadReference(f"{where}: byProvision {bp!r} is not defined")
         bp_row = next((p for p in provisions if p["akn"] == bp), None)
+        # editions: {version: paragraph} of the repealing Act that list this repeal. Listed in only
+        # some of its versions, the repeal is edition-dependent: its status depends on the edition.
+        eds = e.get("editions") or {}
+        by_versions = {v_["version"] for v_ in versions if v_["instrument"] == e["by"]}
+        for ed in eds:
+            if ed not in by_versions:
+                raise BadReference(f"{where}: editions.{ed} names no version of {e['by']}")
         repeals.append({"by": e["by"], "target": e["target"], "on": _date(e.get("on"), f"{where}.on", w),
+                        "editions": list(eds) or None, "paragraphs": [_str(x) for x in eds.values()] or None,
+                        "editionDependent": bool(eds) and set(eds) != by_versions, "note": e.get("note"),
                         "byProvision": bp,
                         "section": bp_row["number"] if bp_row else _str(e.get("section")),
                         "page": _str(e.get("page")),
@@ -458,6 +467,10 @@ def verify_list(rules_dir: str | Path) -> list[dict[str, Any]]:
             what = e.get("text") or e.get("summary") or e.get("title") or e.get("note") or ""
             if sec == "repeals":
                 what = f"repealed on {e.get('on')}" + (f" under section {e['section']}" if e.get("section") else "")
+                if e.get("editions"):
+                    what += "; listed at " + ", ".join(f"{k} {v_}" for k, v_ in e["editions"].items())
+                if e.get("note"):
+                    what += f" ({e['note']})"
             if e.get("value") is not None:
                 what += f" (value {e['value']} {e.get('unit') or ''})".rstrip()
             out.append({"kind": sec[:-1] if sec != "related" else "related", "entry": label.split(" ", 1)[1],

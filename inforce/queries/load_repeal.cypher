@@ -1,8 +1,10 @@
-// Law pack loader: repeals. Params: $rows [{by, target, on, verified, source}].
-// The target may be a whole instrument or one provision.
+// Law pack loader: repeals. Params: $rows [{by, target, on, verified, source, editions, paragraphs, ...}].
+// The target may be a whole instrument or one provision. editions[i] lists it at paragraphs[i];
+// editionDependent: listed in only some editions of the repealing Act.
 UNWIND $rows AS r
 MATCH (by:Instrument {akn: r.by})
 MATCH (t:Instrument|Provision {akn: r.target})
 MERGE (by)-[x:REPEALS]->(t)
 SET x.on = date(r.on), x.verified = r.verified, x.source = r.source,
-    x.section = r.section, x.page = r.page, x.secondarySource = r.secondarySource, x.byProvision = r.byProvision
+    x.section = r.section, x.page = r.page, x.secondarySource = r.secondarySource, x.byProvision = r.byProvision,
+    x.editions = r.editions, x.paragraphs = r.paragraphs, x.editionDependent = r.editionDependent, x.note = r.note
