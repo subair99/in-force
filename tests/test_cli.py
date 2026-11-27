@@ -61,3 +61,14 @@ def test_fallout_iditra(law_pack):
     assert env["status"] == "REPEALED"
     [row] = env["items"]
     assert row["verdict"] == "SAVED" and row["savedBy"] == "akn/ng/act/2025/7/sec_182_2"
+
+
+def test_fallout_accepts_the_title_it_prints(law_pack):
+    """`fallout` prints the Act's title; the same title (any case) must work as the argument."""
+    path, _ = law_pack
+    by_short = json.loads(runner.invoke(app, ["fallout", "IDITRA", "--on", "2026-03-01", "--json",
+                                              "--law", str(path)]).stdout)
+    for name in ["Industrial Development (Income Tax Relief) Act", "industrial development (income tax relief) act"]:
+        res = runner.invoke(app, ["fallout", name, "--on", "2026-03-01", "--json", "--law", str(path)])
+        assert res.exit_code == 0, (name, res.output)
+        assert json.loads(res.stdout)["items"] == by_short["items"]

@@ -24,7 +24,7 @@ def provision_status(store: Store, akn: str, on: str | dt.date) -> dict[str, Any
 
 
 def instrument_status(store: Store, ref: str, on: str | dt.date) -> dict[str, Any] | None:
-    """Status of a whole Act, by akn or short name (e.g. 'PITA')."""
+    """Status of a whole Act, by akn, short name (e.g. 'PITA') or title (any case)."""
     rows = store.run("instrument_status", ref=ref, on=_iso(on))
     if not rows:
         return None

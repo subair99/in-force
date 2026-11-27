@@ -366,7 +366,7 @@ def serve(
 
 @app.command()
 def fallout(
-    instrument: str = typer.Argument(..., help="Repealed Act: akn or short name (e.g. IDITRA)."),
+    instrument: str = typer.Argument(..., help="Repealed Act: akn, short name (e.g. IDITRA) or full title."),
     on: str = typer.Option(None, "--on", help=ON_HELP),
     as_json: bool = typer.Option(False, "--json", help="Print JSON."),
     law_pack: Path = typer.Option(LAW_PACK, "--law", help=LAW_HELP),
@@ -376,7 +376,7 @@ def fallout(
     try:
         with open_store(law_pack, read_only=True, log=_log) as store:
             inst = law.instrument_status(store, instrument, on)
-            rows = law.fallout(store, instrument, on) if inst else []
+            rows = law.fallout(store, inst["akn"], on) if inst else []
     except StoreLocked as exc:
         raise _locked(exc) from None
     if inst is None:

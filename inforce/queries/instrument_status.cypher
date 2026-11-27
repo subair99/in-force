@@ -1,6 +1,6 @@
-// Status of a whole Act on a date. Params: $ref (akn or short name), $on.
+// Status of a whole Act on a date. Params: $ref (akn, short name or title, any case), $on.
 MATCH (i:Instrument)
-WHERE i.akn = $ref OR i.short = $ref
+WHERE i.akn = $ref OR i.short = $ref OR toLower(i.title) = toLower($ref)
 OPTIONAL MATCH (by:Instrument)-[x:REPEALS]->(i)
   WHERE x.on <= date($on)
 WITH i, by, x ORDER BY x.on
